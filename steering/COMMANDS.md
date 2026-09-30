@@ -109,4 +109,39 @@ Take the frame with the arm **raised over the middle of the workspace**, not at 
 the first 30 actions are a generic lift, and no instruction changes the pan direction (RUNLOG,
 frame diagnostic). Use `--seeds 128` and read the `movers` block, not just the mean-based ratios.
 Repeat with the colours swapped (layout B). The hardware pilot only makes sense if the moving
-seeds head towards the named pen in both layouts.
+seeds head towards the named pen in both layouts: in `mover_direction`, the `blue_vs_red`
+`mover_pan_diff_ci95` excludes 0 in both layouts, with opposite signs.
+
+### Choosing the camera pose (Appendix G, with the README guard rails)
+
+For each rig configuration (3–4 cam0 poses, cam1 wrist vs second third-person view, two framing
+scales, and Ai2's table-height + overhead pair), with the arm raised in the same pose and the same
+pens:
+
+```bash
+uv run python steering/frame_diagnostic.py --tag pose_<config>_A --seeds 128 \
+  --cam0 cam0.png --cam1 cam1.png --state state.json \
+  --condition blue="pick up the blue pen" --condition red="pick up the red pen" --condition null=""
+# then swap the pens (layout B) and repeat with --tag pose_<config>_B
+```
+
+Keep the configuration whose blue-vs-red pan difference is largest while passing in both layouts.
+Confirm it on a fresh layout before building the rig around it. Keep every losing configuration's
+JSON in `results/`.
+
+### Recording demonstrations
+
+Randomise which pen the operator picks, for example with a coin flip or a printed random sequence,
+and write the choice per episode. `lerobot-record` takes one task string per session
+(`--dataset.single_task`), but `--resume=true` appends to the same dataset and each episode keeps
+the task it was recorded with. So record short sessions in the randomised order, one target colour
+each, all into one dataset:
+
+```bash
+# first session creates the dataset; later ones add --resume=true (same repo id, no stamp)
+uv run lerobot-record <robot/teleop/camera flags as in step 4> \
+  --dataset.repo_id=local/pens_demos --dataset.no_stamp=true --dataset.push_to_hub=false \
+  --dataset.single_task="pick up the blue pen" --dataset.num_episodes=5 [--resume=true]
+```
+
+`--dataset.num_episodes` counts the episodes to add in that session, not the dataset total.

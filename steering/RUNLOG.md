@@ -89,10 +89,13 @@ Reading:
 - **The prediction is bimodal per seed.** The arm either holds still or starts a lift/reach. The
   instruction changes *how likely it is to start* in the first second: trained object > any named
   object > no instruction. So the model is not ignoring language.
-- **There is no evidence of target-directed motion within one chunk.** The seeds that move all do
-  the same lift. Mean shoulder_pan change is at most 1.5°, with no consistent sign, even though the
-  objects sit at clearly different bearings. From a rest pose, the first 30 actions (1 s) come
-  before the arm commits to a side.
+- **Target direction is at most weak within one chunk.** The moving seeds all do broadly the same
+  lift (shoulder_lift +16° to +27°). Mean shoulder_pan change is at most 1.5° from the start pose.
+  Between instructions, the pan of the moving seeds differs by at most about 2°: apple vs the other
+  objects is +2.0° (bootstrap 95% CI 1.3 to 2.7°). But strawberry, on the same side of the table as
+  apple, shows no difference from lemon (-0.1°, CI -0.3 to 0.2°). So a small signal is resolvable, but
+  it does not follow the objects' bearings. From a rest pose, the first 30 actions (1 s) come before
+  the arm commits to a side.
 - Mean-based statistics (whole-chunk RMS, the separation ratio, Cohen's d) mostly measure how often
   the arm starts. They are misleading here: ratios < 1 and permutation p < 0.05 at the same time.
   Use the moving fraction and the direction of the moving seeds.
@@ -101,6 +104,40 @@ Reading:
   take the frame with the arm already raised over the middle of the workspace, so the first chunk
   has to choose a side. Or take several frames partway through a reach. Also report the moving
   fraction per condition.
+
+**Checked against Appendix E.** E proposes this filter: "if the two colour conditions produce chunks
+that are closer to each other than either is to the null, language is doing nothing." This frame
+shows that pattern (named objects close to each other, all far from the null), and yet language
+clearly does something: it raises the start probability from 7% to about 30%. The pattern means
+language *gates motion* but does not *select the target*, which is a Level-1 failure, not "no
+effect". The filter for the pen frame should therefore be directional: among moving seeds, the pan
+difference between "blue" and "red" must exclude 0 and flip sign when the pens swap sides
+(`frame_diagnostic.py` → `mover_direction`). With no instruction, MolmoAct2 mostly holds still on this
+frame (7% of seeds move). E reports that π0.5 still reaches for the training-task object without
+language. The numbers are not comparable (one frame and 1 s here, whole LIBERO episodes there), but
+they point to a different profile. It is worth repeating on the pen frame.
+
+E's CAG quantity (conditioned minus unconditioned) mostly carries the decision to move on this frame,
+not a side. Guidance would amplify that, so it is not obvious CAG helps this checkpoint on a Goal-type
+task. That is testable offline once the pen frames exist.
+
+## Model input format (Appendix G check)
+
+Measured from the preprocessed batch, not assumed (`results/model_input_view.png`):
+
+- Each camera frame is **squashed to 378×378**: `crop_mode="resize"`, bilinear, `antialias=False`.
+  There is no crop and no letterbox, so nothing at the edges is lost. A 640×480 frame is scaled by
+  0.59 horizontally and 0.79 vertically, so objects look 26% narrower relative to their height than
+  in the camera image. A 16:9 source would be distorted differently from the 4:3 training rigs, so
+  keep 640×480.
+- 27×27 patches of 14 px, pooled 2×2 → **196 visual tokens per camera**, 392 for two cameras,
+  against 97 text, state and special tokens (489 total).
+- One visual token covers **47×36 px** of the 640×480 frame, and one 14-px patch covers 24×18 px. An
+  attribute needs to span at least a patch to be represented reliably. Colour on a pen body likely
+  survives, while a cap or a clip only a few pixels wide probably does not, and `antialias=False`
+  makes thin details alias rather than blur. This is G's framing-scale concern, in numbers.
+- The `224×224` shape in the checkpoint config is nominal: nothing in the LeRobot pipeline resizes
+  to it.
 
 ## Pilot table (step 5)
 
@@ -147,3 +184,10 @@ _pending (arm steps)_
    this card. Ai2's "under 16 GB" figure is for their own loader, not LeRobot's. Workaround: stream
    the weights (`molmo_common`), and for `lerobot-rollout` use the bf16 re-save from
    `make_local_checkpoint.py`. Worth reporting upstream together with deviation 1.
+9. **Camera controls cannot be set "in the OpenCV camera config"** (Appendix G). LeRobot's
+   `OpenCVCameraConfig` has no exposure, white-balance, gain or focus fields. They are locked out of
+   band with `v4l2-ctl` (`lock_camera.sh`) and must be re-checked after the first lerobot command
+   opens the camera.
+10. **Appendix E's single-frame filter misreads the bimodal case.** See the frame-diagnostic
+    section: "colours close to each other, far from null" means language gates motion without
+    selecting a target. The pass condition is directional (the pan difference among moving seeds).

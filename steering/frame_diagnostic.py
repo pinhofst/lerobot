@@ -74,6 +74,7 @@ def main() -> None:
     parser.add_argument("--seeds", type=int, default=16)
     parser.add_argument("--n-perm", type=int, default=2000)
     parser.add_argument("--tag", default="sample")
+    parser.add_argument("--n-boot", type=int, default=2000, help="bootstrap resamples for mover direction")
     parser.add_argument(
         "--move-threshold", type=float, default=5.0, help="deg, max |joint change| over the chunk"
     )
@@ -154,10 +155,41 @@ def main() -> None:
             else None,
         }
 
+    # Directional separation between two instructions, among seeds that move: the distance between
+    # their mean displacement vectors (arm joints only) and the shoulder_pan difference, each with a
+    # bootstrap 95% CI. This is the pose-selection criterion (Appendix G), because "moves more often"
+    # is not "moves towards the named object". The distance is descriptive only: a norm of noisy means
+    # is biased upwards and its CI never reaches 0. The pass condition for the pen frame is the pan CI
+    # excluding 0 in both counterbalanced layouts, with the sign flipping when the pens swap sides.
+    direction = {}
+    for a, b in itertools.combinations(chunks, 2):
+        da = (chunks[a][:, -1] - chunks[a][:, 0])[:, :5]
+        db = (chunks[b][:, -1] - chunks[b][:, 0])[:, :5]
+        ma = np.abs(da).max(1) > args.move_threshold
+        mb = np.abs(db).max(1) > args.move_threshold
+        if ma.sum() < 5 or mb.sum() < 5:
+            direction[f"{a}_vs_{b}"] = None
+            continue
+        da, db = da[ma], db[mb]
+        boot_dist, boot_pan = [], []
+        for _ in range(args.n_boot):
+            sa = da[rng.integers(len(da), size=len(da))].mean(0)
+            sb = db[rng.integers(len(db), size=len(db))].mean(0)
+            boot_dist.append(np.linalg.norm(sa - sb))
+            boot_pan.append(sa[0] - sb[0])
+        direction[f"{a}_vs_{b}"] = {
+            "n_moving": [int(len(da)), int(len(db))],
+            "mover_vector_distance_deg": round(float(np.linalg.norm(da.mean(0) - db.mean(0))), 2),
+            "mover_vector_distance_ci95": [round(float(x), 2) for x in np.percentile(boot_dist, [2.5, 97.5])],
+            "mover_pan_diff_deg": round(float(da[:, 0].mean() - db[:, 0].mean()), 2),
+            "mover_pan_diff_ci95": [round(float(x), 2) for x in np.percentile(boot_pan, [2.5, 97.5])],
+        }
+
     result = {
         "frame": args.tag,
         "move_threshold_deg": args.move_threshold,
         "movers": movers,
+        "mover_direction": direction,
         "conditions": conditions,
         "seeds": args.seeds,
         "same_seed_deterministic": deterministic,

@@ -59,6 +59,51 @@ Newest first. "Plan" is the plan artifact the three of us work from.
 | 29 Sep | Go ahead on a 16.3 GB laptop GPU despite the plan's "< 16 GB → stop" gate | Ai2 report bf16 under 16 GB; measured peak is 12.2 GiB allocated |
 | 29 Sep | Uninstall the PyPI `lerobot` from the conda base env | It shadowed the fork's CLI entry points |
 
+## Protocol (plan Appendices E and G)
+
+Adopted as written:
+- **Grounding is scored separately from task success.** Grounding has three outcomes at the first
+  sustained gripper contact: *compliant* (the object satisfies the constraint), *violating* (an
+  excluded object), and *null* (no sustained contact). Task is success or failure. Report grounding
+  compliance = compliant / (compliant + violating), null rate = null / N, and task success = success / N.
+- **Log the end-effector position at first contact**, not just the category. That lets the
+  instruction conditions be plotted as spatial distributions.
+- **Demonstrations randomise which pen the operator picks**, and the choice is recorded per episode
+  (a colour or position habit would otherwise be learned and inherited by the experiment).
+- **Camera controls locked, daylight excluded, a fixed marker in frame**, checked at the start of
+  every session.
+- **Camera pose chosen by measurement**: several rig configurations × the same scene × the three
+  instructions on recorded frames, keeping the configuration with the most language-driven
+  separation. Losing configurations are recorded too.
+- CAG (counterfactual action guidance) goes into related work as the closest inference-time competitor.
+
+Proposed changes (need your OK):
+1. **Make the pass condition directional.** Appendix E reads "colours close to each other, far from
+   null" as "language does nothing". On Ai2's frame that is exactly the pattern, yet language
+   triples the chance of moving. It gates motion without choosing a target. Pass condition instead:
+   among moving seeds, the blue-vs-red shoulder_pan difference has a 95% CI excluding 0, and its sign
+   flips when the pens swap sides (`frame_diagnostic.py`, `mover_direction`).
+2. **Pose-selection guard rails.**
+   - Keep the arm pose (raised, see Decisions) and the scene identical across camera configurations.
+   - Use two counterbalanced pen layouts.
+   - Include Ai2's table-height + overhead pair as one of the configurations.
+   - Confirm the winner on a fresh layout. Taking the best of several noisy measurements otherwise
+     rewards luck.
+3. **Keep capture at 640×480.** The model squashes every frame to 378×378 (RUNLOG, model input
+   format), so a 16:9 camera would be distorted differently from the 4:3 training rigs.
+
+Still to decide, before the first pilot rollout:
+- [ ] **What counts as "sustained contact"**, fixed in advance. Proposal: the gripper is commanded
+  closed, and its measured position stays at least N units above its empty-closed value for ≥ 10
+  frames (0.33 s at 30 fps). Contacts without a grasp are labelled from the overhead video, by a
+  rule written down beforehand.
+- [ ] **How to get the end-effector position.** Proposal: record joint states (already in every
+  dataset) and compute forward kinematics offline (SO-101 URDF, LeRobot's `kinematics` extra), so
+  nothing is added to the control loop.
+- [ ] **Whether CAG becomes a baseline, not only related work.** It needs two forward passes
+  mixed at every flow step inside the action expert: about 2× model time (≈ 630 ms per chunk here)
+  and a change to the sampling loop.
+
 ## Status
 
 | Step | State | Where |
@@ -74,7 +119,5 @@ Newest first. "Plan" is the plan artifact the three of us work from.
 
 ## Open items
 
-- [ ] Appendices E and G of the plan are not reflected here yet. The diagnostic was built from the
-  main text only.
 - [ ] Decide the camera pose once the rig is up (compare both poses on the frame diagnostic).
 - [ ] If `lerobot-find-port` misbehaves: `sudo apt remove brltty`.
