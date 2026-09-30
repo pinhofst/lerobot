@@ -1,0 +1,64 @@
+{
+  "setting": {
+    "dtype": "bfloat16",
+    "cuda_graph": "off",
+    "iters": 30
+  },
+  "machine": {
+    "gpu": "NVIDIA GeForce RTX 5080 Laptop GPU",
+    "torch": "2.11.0+cu128",
+    "cuda": "12.8",
+    "python": "3.13.9"
+  },
+  "load_s": 106.4,
+  "vram_after_load": {
+    "allocated_gib": 11.28,
+    "reserved_gib": 11.529
+  },
+  "vram_peak_during_inference": {
+    "max_allocated_gib": 12.075,
+    "max_reserved_gib": 13.244,
+    "nvidia_smi_used_mib": 14127,
+    "nvidia_smi_used_before_load_mib": 321
+  },
+  "warmup_ms": [
+    991.1,
+    456.4,
+    445.9,
+    438.3,
+    378.7
+  ],
+  "e2e_ms": {
+    "median": 444.9,
+    "p90": 453.8,
+    "min": 375.9,
+    "max": 464.2
+  },
+  "model_only_ms_median": 349.9,
+  "chunk_actions": 30,
+  "amortised_control_hz": 67.4,
+  "state_arm_frame": [
+    -0.53,
+    -99.14,
+    91.41,
+    60.64,
+    -3.6,
+    1.1
+  ],
+  "first_action": [
+    -1.77,
+    -96.11,
+    83.61,
+    60.42,
+    -5.57,
+    -0.02
+  ],
+  "last_action": [
+    -1.74,
+    -64.42,
+    49.54,
+    73.0,
+    -9.37,
+    0.08
+  ]
+}
