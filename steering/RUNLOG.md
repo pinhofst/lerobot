@@ -136,7 +136,8 @@ _pending (arm steps)_
    is an overhead view looking down at the table, with the gripper entering from the top edge.
    The model card says camera order does not matter. So the one published pose is a low
    horizontal view plus an overhead view. Neither matches the plan's cam0 at 20–30° elevation.
-   `bench_latency.py` / `frame_diagnostic.py` feed the file named "top" as cam0.
+   `bench_latency.py` / `frame_diagnostic.py` feed the file named "top" as cam0. Both views side by side:
+   `results/ai2_sample_views.png`.
 6. A PyPI `lerobot 0.6.1` in anaconda base shadowed the fork's CLI entry points. It has been uninstalled.
 7. `torchcodec` is installed but fails to load (`libavutil.so.60` missing, no system FFmpeg),
    so video decoding falls back to PyAV. Fix: `sudo apt install ffmpeg`.

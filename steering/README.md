@@ -41,7 +41,7 @@ uv run python steering/bench_latency.py --cuda-graph on
 - Run everything through `uv run`. A separately `pip install`-ed `lerobot` shadows the fork's
   commands without any warning.
 - `uv sync` removes extras you leave out, so always pass all four.
-- No Hugging Face account is needed. Recording commands keep datasets local (`COMMANDS.md`).
+- No Hugging Face account is needed: the models are public, and every recording command in `COMMANDS.md` keeps datasets on disk.
 - Loading needs about 24 GB of free host RAM.
 
 ## Decisions
@@ -51,7 +51,7 @@ Newest first. "Plan" is the plan artifact the three of us work from.
 | Date | Decision | Why |
 |---|---|---|
 | 30 Sep | Pen-pilot frames start with the arm **raised over the middle of the workspace**, not at rest | From rest, the first 30 actions are a generic lift under every instruction, so a rest-pose frame cannot show which pen the model targets (RUNLOG, frame diagnostic) |
-| 30 Sep | No Hugging Face account for now; datasets stay local (`push_to_hub=false`) | Models are public and cached. Revisit if we train on a rented GPU (plan 1b-C), or copy datasets with `rsync` instead |
+| 30 Sep | No Hugging Face account; datasets stay local (`--dataset.push_to_hub=false`, repo id `local/<name>`, stored under `~/.cache/huggingface/lerobot/local/`) | Both checkpoints are public and download without an account. An account only helps to move a dataset to a rented GPU through the Hub (plan 1b-C), and `rsync` does that too |
 | 30 Sep | Upstream bugs (config load, 16 GB OOM) are **not** reported for now; keep the workaround in `steering/` | Keeps `src/` identical to upstream |
 | 30 Sep | Camera pose stays open until the rig is built | The one published pose (low horizontal + overhead) differs from the plan's front camera at 20–30° (RUNLOG deviation 5) |
 | 29 Sep | Run inference in bf16 with CUDA graphs on | 361 ms vs 445 ms per chunk for the same memory; fp32 would not fit |
