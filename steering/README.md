@@ -4,6 +4,8 @@ Status on 30 Sep 2026: the software side of steps 0–3 is done and measured. St
 waiting on the arm. The checkpoint fits a 16 GB laptop GPU, at 361 ms per 30-action chunk, but only
 with the workarounds below.
 
+Shareable summary for colleagues: https://claude.ai/artifact/En5od24WhQKE6LD37nTahs (private until shared from its Share menu; generated from this file and RUNLOG, republished when they change).
+
 This folder holds all experiment code. `src/` is unchanged, so rebasing on upstream stays cheap.
 
 | File | What it is |
