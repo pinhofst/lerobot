@@ -3,18 +3,18 @@
     uv run python steering/verify_local_checkpoint.py
 
 Uses the same calls as `lerobot-rollout` (PreTrainedConfig.from_pretrained, policy_class.from_pretrained,
-make_pre_post_processors) and compares seed-0 actions on Ai2's sample frame with bench_latency.py's output.
+make_pre_post_processors) and compares the full REFERENCE_SEED (29) chunk on Ai2's sample frame with
+the one bench_latency.py --cuda-graph on saves (results/latency_bfloat16_graph-on_seed29.npy).
 """
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 import numpy as np
 import torch
 from make_local_checkpoint import OUT
-from molmo_common import SAMPLE_TASK, load_sample_observation, preprocess
+from molmo_common import REFERENCE_SEED, SAMPLE_TASK, load_sample_observation, preprocess
 
 from lerobot.configs.policies import PreTrainedConfig
 from lerobot.policies import make_pre_post_processors
@@ -42,17 +42,24 @@ def main() -> None:
                 preprocess(preprocessor, observation, SAMPLE_TASK, "cuda"),
                 generator=torch.Generator("cuda").manual_seed(1000 + s),
             )
-        chunk = postprocessor(
-            policy.predict_action_chunk(
-                preprocess(preprocessor, observation, SAMPLE_TASK, "cuda"),
-                generator=torch.Generator("cuda").manual_seed(29),
-            )
+        raw = policy.predict_action_chunk(
+            preprocess(preprocessor, observation, SAMPLE_TASK, "cuda"),
+            generator=torch.Generator("cuda").manual_seed(REFERENCE_SEED),
         )
+        chunk = postprocessor(raw.clone())
     chunk = torch.as_tensor(chunk).squeeze(0).float().cpu().numpy()
-    ref = json.loads((RESULTS / "latency_bfloat16_graph-on.json").read_text())
-    for name, row in (("first_action", chunk[0]), ("last_action", chunk[-1])):
-        diff = np.abs(np.round(row, 2) - np.asarray(ref[name])).max()
-        print(f"{name}: local={np.round(row, 2).tolist()} bench={ref[name]} max|diff|={diff:.2f}")
+    raw = raw.squeeze(0).float().cpu().numpy()
+    np.save(RESULTS / f"verify_local_checkpoint_seed{REFERENCE_SEED}.npy", chunk)
+    ref = np.load(RESULTS / f"latency_bfloat16_graph-on_seed{REFERENCE_SEED}.npy")
+    diff = np.abs(chunk - ref)
+    # The postprocessor clamps normalised actions to [-1, 1]; clamped entries match trivially.
+    pinned = np.abs(raw[:, : chunk.shape[1]]) >= 1.0
+    print(f"chunk {chunk.shape}: max|diff|={diff.max():.6f} mean|diff|={diff.mean():.6f}")
+    print(f"max|diff| over entries not at the clamp: {diff[~pinned].max() if (~pinned).any() else None}")
+    print(
+        f"entries at the clamp bounds: {int(pinned.sum())}/{pinned.size}, per joint {pinned.sum(0).tolist()}"
+    )
+    print(f"first row at the clamp: {int(pinned[0].sum())}/{pinned.shape[1]}")
 
 
 if __name__ == "__main__":

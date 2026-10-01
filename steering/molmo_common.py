@@ -30,6 +30,8 @@ LEGACY_KEYS = ("enable_lora_vlm", "enable_lora_action_expert", "train_action_exp
 
 # Ai2's model-card sample: Beegbrain/pick_lemon_and_drop_in_bowl, episode 0, frame 0.
 SAMPLE_TASK = "Move the arm towards the lemon, grasp it, lift it up, and drop it into the red bowl."
+# Noise seed of the full reference chunk bench_latency.py saves and verify_local_checkpoint.py compares.
+REFERENCE_SEED = 29
 # The model card gives the state in the *model* (pre-v0.5 calibration) frame.
 SAMPLE_STATE_MODEL_FRAME = np.array(
     [-0.52734375, 189.140625, 181.40625, 60.64453125, -3.603515625, 1.0971786975860596], dtype=np.float32
@@ -82,6 +84,11 @@ def _stream_weights(policy: torch.nn.Module, weights_file: str) -> None:
         missing = sorted(k for k in set(targets) - keys if targets[k].data_ptr() not in saved_ptrs)
         if unexpected or missing:
             raise RuntimeError(f"weights mismatch: missing={missing[:8]} unexpected={unexpected[:8]}")
+        # copy_ broadcasts, so a wrong-shaped tensor could load silently.
+        shapes = {k: (tuple(f.get_slice(k).get_shape()), tuple(targets[k].shape)) for k in keys}
+        bad = sorted(k for k, (saved, target) in shapes.items() if saved != target)
+        if bad:
+            raise RuntimeError(f"shape mismatch (file, model): {[(k, *shapes[k]) for k in bad[:8]]}")
         with torch.no_grad():
             for key in keys:
                 targets[key].copy_(f.get_tensor(key))

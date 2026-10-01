@@ -17,10 +17,11 @@ This folder holds all experiment code. `src/` is unchanged, so rebasing on upstr
 | `bench_latency.py` | Step 3: latency and VRAM per chunk, no robot. |
 | `frame_diagnostic.py` | Step 5 precursor: do predictions separate by instruction on a fixed frame? |
 | `servo_check.py` | Step 2: dead or jittery joints from a short teleop recording. |
+| `check_state_range.py` | Is the arm's state inside the checkpoint's trained range? Outside it the model sees a clipped state and the first action jumps. Reads the robot without changing torque. |
 | `lock_camera.sh` | Step 2b: lock exposure, white balance, gain and focus with `v4l2-ctl`. |
 | `make_local_checkpoint.py` | Builds the bf16 checkpoint that `lerobot-rollout` can load on 16 GB. |
 | `verify_local_checkpoint.py` | Checks that checkpoint against the streamed load (identical actions). |
-| `results/` | Raw JSON behind every number in `RUNLOG.md`. |
+| `results/` | Raw data behind the RUNLOG tables. A few one-off checks (the OOM test, the mask comparison, host RAM) are recorded only in RUNLOG. |
 
 ## Setup
 
@@ -50,6 +51,12 @@ Newest first. "Plan" is the plan artifact the three of us work from.
 
 | Date | Decision | Why |
 |---|---|---|
+| 30 Sep | Lighting: lock cameras per session (`lock_camera.sh`, 10 ms exposure for 50 Hz mains), a quick look for banding, no flicker tooling | The policy is probably fairly robust to lighting; the risk is to our small blue-vs-red and activation differences. If lighting looks suspicious, test offline with synthetic brightness and white-balance shifts on a fixed frame |
+| 30 Sep | CAG as a complementary offline test, final-action variant only (`frame_diagnostic.py --cag-weights`); mixing inside the flow sampler rejected | Cheap and needs no change to `src/`. The core of the project is steering, not CAG. First result: CAG amplifies reach, not target choice (RUNLOG) |
+| 30 Sep | End-effector position by forward kinematics from joint states, live or offline (both cheap); one quick table-mark check that it is not badly wrong | Only needs to say which pen was contacted |
+| 30 Sep | Contact and target labelled by a person from video only; fixed episode length 20 s, so a null outcome is well defined | Gripper current and position gaps are unreliable for thin pens. Write the labelling rule down before the first rollout, and label without knowing the instruction |
+| 30 Sep | Frame tests inform the arm pilot, they do not gate it; directional readout (`mover_direction`) adopted | Arm time is available anyway. "Moves more often" is not "moves to the named pen" |
+| 30 Sep | Camera-pose selection keeps few configurations | GPU time is cheap here; rebuilding the rig is the expensive part |
 | 30 Sep | Pen-pilot frames start with the arm **raised over the middle of the workspace**, not at rest | From rest, the first 30 actions are a generic lift under every instruction, so a rest-pose frame cannot show which pen the model targets (RUNLOG, frame diagnostic) |
 | 30 Sep | No Hugging Face account; datasets stay local (`--dataset.push_to_hub=false`, repo id `local/<name>`, stored under `~/.cache/huggingface/lerobot/local/`) | Both checkpoints are public and download without an account. An account only helps to move a dataset to a rented GPU through the Hub (plan 1b-C), and `rsync` does that too |
 | 30 Sep | Upstream bugs (config load, 16 GB OOM) are **not** reported for now; keep the workaround in `steering/` | Keeps `src/` identical to upstream |
@@ -77,32 +84,24 @@ Adopted as written:
   separation. Losing configurations are recorded too.
 - CAG (counterfactual action guidance) goes into related work as the closest inference-time competitor.
 
-Proposed changes (need your OK):
-1. **Make the pass condition directional.** Appendix E reads "colours close to each other, far from
-   null" as "language does nothing". On Ai2's frame that is exactly the pattern, yet language
-   triples the chance of moving. It gates motion without choosing a target. Pass condition instead:
-   among moving seeds, the blue-vs-red shoulder_pan difference has a 95% CI excluding 0, and its sign
-   flips when the pens swap sides (`frame_diagnostic.py`, `mover_direction`).
-2. **Pose-selection guard rails.**
-   - Keep the arm pose (raised, see Decisions) and the scene identical across camera configurations.
-   - Use two counterbalanced pen layouts.
-   - Include Ai2's table-height + overhead pair as one of the configurations.
-   - Confirm the winner on a fresh layout. Taking the best of several noisy measurements otherwise
-     rewards luck.
-3. **Keep capture at 640×480.** The model squashes every frame to 378×378 (RUNLOG, model input
-   format), so a 16:9 camera would be distorted differently from the 4:3 training rigs.
+Amendments agreed on 30 Sep (see Decisions):
+1. **Directional readout.** Among moving seeds, compare where blue and red go (`mover_direction`
+   in `frame_diagnostic.py`). Appendix E's "colours close to each other, far from null" test misreads
+   the bimodal case. The frame test informs the pilot and does not gate it.
+2. **Pose selection, kept small.** Same raised arm pose and scene for each configuration, the pens
+   swapped for a second layout, Ai2's pose as one candidate. Few configurations, because rebuilding
+   the rig is what costs time.
+3. **Capture at 640×480**, because the model squashes every frame to 378×378.
+4. **Contact is labelled by a person from video**, with a rule written before the first rollout,
+   ideally without knowing which instruction was given. Episodes last 20 s. No contact within
+   20 s is null.
+5. **End-effector position by forward kinematics** from the joint states, with a quick check against
+   a few table marks to catch a badly wrong calibration.
+6. **CAG as a complementary offline test** (final-action variant, `--cag-weights`).
 
-Still to decide, before the first pilot rollout:
-- [ ] **What counts as "sustained contact"**, fixed in advance. Proposal: the gripper is commanded
-  closed, and its measured position stays at least N units above its empty-closed value for ≥ 10
-  frames (0.33 s at 30 fps). Contacts without a grasp are labelled from the overhead video, by a
-  rule written down beforehand.
-- [ ] **How to get the end-effector position.** Proposal: record joint states (already in every
-  dataset) and compute forward kinematics offline (SO-101 URDF, LeRobot's `kinematics` extra), so
-  nothing is added to the control loop.
-- [ ] **Whether CAG becomes a baseline, not only related work.** It needs two forward passes
-  mixed at every flow step inside the action expert: about 2× model time (≈ 630 ms per chunk here)
-  and a change to the sampling loop.
+Still open:
+- [ ] The written video-labelling rule for "first sustained contact" (what counts, which frame).
+- [ ] The raised start pose, picked on arm day with teleop.
 
 ## Status
 

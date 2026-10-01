@@ -42,9 +42,13 @@ raw data: `results/latency_bfloat16_graph-*.json`.
 | Amortised control rate, 30 / latency | 83 Hz | 67 Hz |
 | VRAM after load (allocated) | 11.28 GiB | 11.28 GiB |
 | VRAM peak (allocated / reserved) | 12.15 / 13.37 GiB | 12.08 / 13.24 GiB |
-| nvidia-smi used at peak (incl. context and display) | 14.4 GB of 16.3 | 14.1 GB |
+| nvidia-smi used at peak (incl. context and display) | 14,419 of 16,303 MiB | 14,127 MiB |
 | Host RAM peak (load) | 23.9 GB of 30 | 24.5 GB |
 | Load time (cache warm) | 107 s | 106 s |
+
+A rerun on 30 Sep (graph on) gave a median of **321 ms** (p90 360 ms), model only 278 ms, and the same
+peak memory (`results/latency_bfloat16_graph-on_rerun-2026-09-30.json`). Treat per-chunk latency as
+about 320–360 ms on this machine.
 
 Reading:
 - It fits, with about 1.5–2 GB of VRAM to spare. CUDA graphs save about 80 ms and cost almost no memory at bf16.
@@ -59,11 +63,15 @@ Reading:
 - **The stock loader runs out of memory on this GPU** (tested: fails at 14.65 GiB allocated). See deviation 8.
   The numbers above use `molmo_common.load_policy`, which streams the weights in one tensor at a time.
   `steering/checkpoints/MolmoAct2-SO100_101-LeRobot` (bf16 re-save, 12.0 GB) loads through the
-  stock path with an 11.3 GiB peak and gives identical actions (`verify_local_checkpoint.py`,
-  max |diff| 0.00°).
-- Sanity: the arm-frame state is [-0.5, -99.1, 91.4, 60.6, -3.6, 1.1] and the first predicted action is
-  [-1.8, -96.1, 83.6, 60.4, -5.6, 0.0]. That is close to the current pose, as expected, so the
-  calibration inversion is consistent.
+  stock path with an 11.3 GiB peak and gives identical actions (`verify_local_checkpoint.py`: the full
+  30×6 seed-29 chunk matches the streamed load exactly, max |diff| 0.000000, including the 159 of 180
+  entries not at the clamp bounds; `results/verify_local_checkpoint_seed29.npy`).
+- Not a calibration check (corrected after review): the first predicted action,
+  [-1.8, -96.1, 83.6, 60.4, -5.6, 0.0], has shoulder_lift and elbow_flex pinned at the
+  postprocessor's clamp bounds. Ai2's rest-pose state (model frame 189.1 / 181.4) lies above the
+  checkpoint's q99 for both joints, so the output is clamped. It says nothing about the arm-frame
+  inversion. That inversion is verified by code review instead: it is the exact inverse of
+  `MolmoAct2StateFrameTransformStep`.
 
 ## Camera mapping
 
@@ -71,55 +79,94 @@ _pending (arm steps)_
 
 ## Frame diagnostic on Ai2's sample frame (step 5 precursor, stand-in for the pen frame)
 
-This is **not** the pen test. It is the same method run on the only frame available today
+This is **not** the pen test. It is the same method run on the only frame available so far
 (Ai2's sample: apple, lemon, strawberry, peach and a red bowl; the arm at rest; the lemon is the
 trained target). Instructions use Ai2's training template with only the noun changed ("Move the arm
-towards the X, grasp it, lift it up, and drop it into the red bowl."), plus an empty instruction.
-Every condition uses the same seeds. Script: `frame_diagnostic.py`, raw data: `results/frame_diagnostic_ai2_sample*.json`.
+towards the X, grasp it, lift it up, and drop it into the red bowl."). The null condition is an
+empty task, which the processor turns into "The task is to . The setup is …", itself out of
+distribution. Every condition uses the same 128 noise seeds.
 
-| Instruction | Seeds that start moving (> 5° in 30 steps) | Mean movement of those seeds, pan / lift / elbow (°) |
+Script: `frame_diagnostic.py`. Raw data: `results/frame_diagnostic_ai2_sample_cag.json` and
+`_chunks.npz`, which hold the raw, clamped and unclamped chunks. Revised on 30 Sep after an
+independent code review; see the corrections at the end of this section.
+
+A seed counts as moving when shoulder_pan, shoulder_lift, elbow_flex or wrist_flex changes by more
+than 5° between the first and last action of the chunk (29 steps, about 1 s). Wrist_roll is
+excluded, because roll twitches alone were being counted as reaches.
+
+| Instruction | Seeds moving | Mean movement of those seeds, pan / lift / elbow (°) |
 |---|---|---|
-| lemon (trained) | **77 / 128 (60%)** | -0.5 / +26.6 / -28.2 |
-| apple | 38 / 128 (30%) | +1.5 / +20.5 / -18.3 |
-| strawberry | 40 / 128 (31%) | -0.4 / +21.8 / -19.6 |
-| peach | 35 / 128 (27%) | -0.7 / +15.8 / -12.4 |
-| empty | 9 / 128 (7%) | -3.5 / +3.8 / -2.0 |
+| lemon (trained) | **77 / 128 (60%)** | −0.5 / +26.6 / −28.2 |
+| apple | 36 / 128 (28%) | +1.7 / +21.5 / −19.3 |
+| strawberry | 40 / 128 (31%) | −0.4 / +21.8 / −19.6 |
+| peach | 26 / 128 (20%) | 0.0 / +20.2 / −16.5 |
+| empty | 2 / 128 (2%) | too few to average |
+
+Pan difference among moving seeds (bootstrap 95% CI): lemon − apple −2.2° (−2.9 to −1.5), apple −
+strawberry +2.2° (1.5 to 2.9), apple − peach +1.7° (0.9 to 2.6), lemon − strawberry −0.1° (−0.3 to
+0.2). The empty condition has too few movers for any comparison.
+
+**The start pose sits outside the trained range, and the model never sees it.** Ai2's rest pose
+has shoulder_lift and elbow_flex beyond the checkpoint's 99th percentile (arm frame: lift 3.9° and
+elbow 8.3° outside; `check_state_range.py`). The preprocessor clips the normalised *state* to the
+trained range (`molmoact2_clamp_normalized`) before the model sees it. So the model believes the
+elbow is at the edge of the range, 7.8° from where it really is, and plans from there. The first
+action therefore jumps about 8° (elbow 91.4° → 83.6°). "Holding still" means staying at that edge.
+The postprocessor's clamp on the *actions*, which also clips to the trained range, barely matters.
+Raw outputs go at most 1.7% past the bound, and clamping changes actions by at most 1.2°. Clamped
+and unclamped readouts give the same moving counts (except peach, 26 vs 27) and the same pan
+differences. The tables report the clamped values, which are what the robot would receive.
 
 Reading:
-- **The prediction is bimodal per seed.** The arm either holds still or starts a lift/reach. The
-  instruction changes *how likely it is to start* in the first second: trained object > any named
-  object > no instruction. So the model is not ignoring language.
-- **Target direction is at most weak within one chunk.** The moving seeds all do broadly the same
-  lift (shoulder_lift +16° to +27°). Mean shoulder_pan change is at most 1.5° from the start pose.
-  Between instructions, the pan of the moving seeds differs by at most about 2°: apple vs the other
-  objects is +2.0° (bootstrap 95% CI 1.3 to 2.7°). But strawberry, on the same side of the table as
-  apple, shows no difference from lemon (-0.1°, CI -0.3 to 0.2°). So a small signal is resolvable, but
-  it does not follow the objects' bearings. From a rest pose, the first 30 actions (1 s) come before
-  the arm commits to a side.
-- Mean-based statistics (whole-chunk RMS, the separation ratio, Cohen's d) mostly measure how often
-  the arm starts. They are misleading here: ratios < 1 and permutation p < 0.05 at the same time.
-  Use the moving fraction and the direction of the moving seeds.
-- **Consequence for the plan's precursor (Appendix E).** A single frame taken with the arm at rest
-  cannot tell "follows the colour" apart from "reaches the same way regardless". For the pen frame,
-  take the frame with the arm already raised over the middle of the workspace, so the first chunk
-  has to choose a side. Or take several frames partway through a reach. Also report the moving
-  fraction per condition.
+- **The instruction mainly gates whether the arm moves.** 60% of seeds move for the trained object,
+  20–31% for the other named objects, 2% for the empty instruction. So the model is not ignoring
+  language, and without it the arm mostly stays put. E reports that π0.5 reaches for the
+  training-task object even without language. The numbers are not comparable (one frame and 1 s
+  here, whole LIBERO episodes there), but they point to a different profile. Repeat on the pen frame.
+- **Target direction is at most weak within one chunk.** Moving seeds do broadly the same lift
+  (+20° to +27° on shoulder_lift). Apple differs from the rest by about 2° of pan, and the CI excludes 0.
+  But strawberry, on the same side of the table as apple, does not differ from lemon. So the small
+  signal that exists does not follow the objects' bearings.
+- Mean-based statistics (whole-chunk RMS, separation ratio, Cohen's d, still in the JSON) mostly
+  measure how often the arm starts, so they mislead here. Use `movers` and `mover_direction`.
+- **Consequence for the plan's precursor (Appendix E).** A frame with the arm at rest cannot tell
+  "follows the named object" apart from "reaches the same way regardless". Also, starting outside
+  the trained range makes the first action a correction back into range. Take the pen frame with
+  the arm raised over the middle of the workspace, inside the trained range.
 
-**Checked against Appendix E.** E proposes this filter: "if the two colour conditions produce chunks
-that are closer to each other than either is to the null, language is doing nothing." This frame
-shows that pattern (named objects close to each other, all far from the null), and yet language
-clearly does something: it raises the start probability from 7% to about 30%. The pattern means
-language *gates motion* but does not *select the target*, which is a Level-1 failure, not "no
-effect". The filter for the pen frame should therefore be directional: among moving seeds, the pan
-difference between "blue" and "red" must exclude 0 and flip sign when the pens swap sides
-(`frame_diagnostic.py` → `mover_direction`). With no instruction, MolmoAct2 mostly holds still on this
-frame (7% of seeds move). E reports that π0.5 still reaches for the training-task object without
-language. The numbers are not comparable (one frame and 1 s here, whole LIBERO episodes there), but
-they point to a different profile. It is worth repeating on the pen frame.
+**Checked against Appendix E.** E's filter is: "if the two colour conditions produce chunks that are
+closer to each other than either is to the null, language is doing nothing". This frame shows that
+pattern, yet language clearly matters (2% → 20–60% moving). The pattern means language *gates
+motion* but does not *select the target*, which is a Level-1 failure, not "no effect". The readout
+adopted instead is directional (`mover_direction`).
 
-E's CAG quantity (conditioned minus unconditioned) mostly carries the decision to move on this frame,
-not a side. Guidance would amplify that, so it is not obvious CAG helps this checkpoint on a Goal-type
-task. That is testable offline once the pen frames exist.
+**CAG, final-action variant, on the same frame** (`--cag-weights 1 1.5 2 3`, same 128 seeds;
+a = a_null + w·(a_instr − a_null), mixed on the raw normalised output before the postprocessor).
+At w = 1 the guided chunks equal the plain ones exactly.
+
+| w | Seeds moving: lemon / apple / strawberry / peach | Lift of lemon movers | Pan diff apple − strawberry (95% CI) | Pan diff lemon − strawberry (95% CI) | Largest step within chunk | Jump from state to first action |
+|---|---|---|---|---|---|---|
+| 1 | 77 / 36 / 40 / 26 | +27° | +2.2° (1.5 to 2.9) | −0.1° (−0.3 to 0.2) | 3.5° | 7.9° |
+| 1.5 | 79 / 39 / 42 / 31 | +39° | +2.9° (1.9 to 4.0) | −0.2° (−0.6 to 0.1) | 5.1° | 8.0° |
+| 2 | 81 / 41 / 43 / 36 | +50° | +3.7° (2.3 to 5.1) | −0.4° (−0.9 to 0.0) | 6.7° | 8.2° |
+| 3 | 89 / 48 / 47 / 42 | +69° | +4.7° (2.8 to 6.7) | −0.6° (−1.4 to 0.1) | 10.0° | 8.7° |
+
+Reading: CAG amplifies what the instruction already changes, which on this frame is mainly *whether
+and how far* the arm moves. Lift scales roughly with w. The one clear pan difference (apple −
+strawberry) grows more slowly, about 2× at w = 3, and the near-zero one drifts from −0.1° to −0.6°
+with its CI still touching 0. It does not create target selection. The steps grow with w. On this
+frame the first action is already about 8° from the state, because of the out-of-range start. Any
+arm test of CAG therefore keeps `--robot.max_relative_target` on.
+
+**Corrections made on 30 Sep after review:**
+- Wrist_roll was dropped from the moving test. The empty condition went from 9 to 2 movers, and
+  peach from 35 to 26.
+- The pan CIs quoted earlier came from an older run and have been replaced.
+- "Pan grows in proportion to w" was wrong: it grows more slowly.
+- An intermediate reading that "holding still is mostly the clamp" was wrong. The clamp changes
+  actions by at most 1.2°.
+- The earlier latency sanity check ("first action close to the current pose") was reading the edge
+  of the trained range, not validating the calibration inversion.
 
 ## Model input format (Appendix G check)
 
@@ -127,7 +174,7 @@ Measured from the preprocessed batch, not assumed (`results/model_input_view.png
 
 - Each camera frame is **squashed to 378×378**: `crop_mode="resize"`, bilinear, `antialias=False`.
   There is no crop and no letterbox, so nothing at the edges is lost. A 640×480 frame is scaled by
-  0.59 horizontally and 0.79 vertically, so objects look 26% narrower relative to their height than
+  0.59 horizontally and 0.79 vertically, so objects look 25% narrower relative to their height than
   in the camera image. A 16:9 source would be distorted differently from the 4:3 training rigs, so
   keep 640×480.
 - 27×27 patches of 14 px, pooled 2×2 → **196 visual tokens per camera**, 392 for two cameras,

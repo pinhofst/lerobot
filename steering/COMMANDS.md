@@ -84,6 +84,15 @@ uv run lerobot-rollout \
   --task="pick up the red cube" --duration=30
 ```
 
+Before the first rollout, and for the raised start pose used for pen frames, check that the arm
+starts inside the range the checkpoint was trained on. Outside it, the first action is a jump back
+into range, about 8° on the elbow for Ai2's rest pose.
+
+```bash
+uv run python steering/check_state_range.py --robot-port /dev/ttyACM0 --robot-id follower
+# or offline: --state 'pan,lift,elbow,wrist_flex,wrist_roll,gripper' (degrees, arm frame)
+```
+
 `max_relative_target=5` caps each step at 5° per joint. The policy runs at 30 Hz, so that is
 still up to 150°/s. Start at 2–3 if you want the first run slower. The joint-frame correction
 is already inside the checkpoint's pre/post-processors, so do not add it again. If the arm moves
@@ -105,7 +114,8 @@ uv run python steering/frame_diagnostic.py --tag pens_layoutA \
   --condition blue="pick up the blue pen" --condition red="pick up the red pen" --condition null=""
 ```
 
-Take the frame with the arm **raised over the middle of the workspace**, not at rest. From rest,
+Take the frame with the arm **raised over the middle of the workspace**, not at rest, and inside
+the trained range (`check_state_range.py`). From rest,
 the first 30 actions are a generic lift, and no instruction changes the pan direction (RUNLOG,
 frame diagnostic). Use `--seeds 128` and read the `movers` block, not just the mean-based ratios.
 Repeat with the colours swapped (layout B). The hardware pilot only makes sense if the moving
@@ -139,7 +149,7 @@ each, all into one dataset:
 
 ```bash
 # first session creates the dataset; later ones add --resume=true (same repo id, no stamp)
-uv run lerobot-record <robot/teleop/camera flags as in step 4> \
+uv run lerobot-record <robot and teleop flags as in §2, camera flags as in §4> \
   --dataset.repo_id=local/pens_demos --dataset.no_stamp=true --dataset.push_to_hub=false \
   --dataset.single_task="pick up the blue pen" --dataset.num_episodes=5 [--resume=true]
 ```

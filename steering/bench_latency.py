@@ -16,8 +16,16 @@ import subprocess
 import time
 from pathlib import Path
 
+import numpy as np
 import torch
-from molmo_common import SAMPLE_TASK, load_config, load_policy, load_sample_observation, preprocess
+from molmo_common import (
+    REFERENCE_SEED,
+    SAMPLE_TASK,
+    load_config,
+    load_policy,
+    load_sample_observation,
+    preprocess,
+)
 
 RESULTS = Path(__file__).parent / "results"
 
@@ -88,6 +96,8 @@ def main() -> None:
         e2e_ms.append(ms)
         model_ms.append(timed(lambda i=i: run(i, model_only_batch=fixed_batch))[1])
     smi_peak = nvidia_smi_used_mib()
+    # Full chunk at a fixed seed, independent of --iters, for verify_local_checkpoint.py.
+    reference = torch.as_tensor(run(REFERENCE_SEED)).squeeze(0).float().cpu().numpy()
 
     chunk = torch.as_tensor(chunk).squeeze(0).float().cpu()
     n_actions = int(chunk.shape[0])
@@ -125,6 +135,7 @@ def main() -> None:
     RESULTS.mkdir(exist_ok=True)
     out = RESULTS / f"latency_{args.dtype}_graph-{args.cuda_graph}.json"
     out.write_text(json.dumps(result, indent=2))
+    np.save(RESULTS / f"latency_{args.dtype}_graph-{args.cuda_graph}_seed{REFERENCE_SEED}.npy", reference)
     print(json.dumps(result, indent=2))
     print(f"wrote {out}")
 

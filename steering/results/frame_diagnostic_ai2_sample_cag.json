@@ -1,0 +1,3716 @@
+{
+  "frame": "ai2_sample_cag",
+  "conditions": {
+    "lemon": "Move the arm towards the lemon, grasp it, lift it up, and drop it into the red bowl.",
+    "apple": "Move the arm towards the apple, grasp it, lift it up, and drop it into the red bowl.",
+    "strawberry": "Move the arm towards the strawberry, grasp it, lift it up, and drop it into the red bowl.",
+    "peach": "Move the arm towards the peach, grasp it, lift it up, and drop it into the red bowl.",
+    "null": ""
+  },
+  "seeds": 128,
+  "move_threshold_deg": 5.0,
+  "state_arm_frame": [
+    -0.53,
+    -99.14,
+    91.41,
+    60.64,
+    -3.6,
+    1.1
+  ],
+  "same_seed_deterministic": true,
+  "clamp": {
+    "plain": {
+      "lemon": {
+        "steps_pinned_fraction": 0.673,
+        "first_action_pinned_fraction": 1.0,
+        "per_joint_steps_pinned_fraction": {
+          "shoulder_pan": 0.0,
+          "shoulder_lift": 0.554,
+          "elbow_flex": 0.672,
+          "wrist_flex": 0.0,
+          "wrist_roll": 0.0
+        }
+      },
+      "apple": {
+        "steps_pinned_fraction": 0.892,
+        "first_action_pinned_fraction": 1.0,
+        "per_joint_steps_pinned_fraction": {
+          "shoulder_pan": 0.0,
+          "shoulder_lift": 0.791,
+          "elbow_flex": 0.889,
+          "wrist_flex": 0.0,
+          "wrist_roll": 0.0
+        }
+      },
+      "strawberry": {
+        "steps_pinned_fraction": 0.881,
+        "first_action_pinned_fraction": 1.0,
+        "per_joint_steps_pinned_fraction": {
+          "shoulder_pan": 0.0,
+          "shoulder_lift": 0.8,
+          "elbow_flex": 0.879,
+          "wrist_flex": 0.0,
+          "wrist_roll": 0.0
+        }
+      },
+      "peach": {
+        "steps_pinned_fraction": 0.928,
+        "first_action_pinned_fraction": 1.0,
+        "per_joint_steps_pinned_fraction": {
+          "shoulder_pan": 0.0,
+          "shoulder_lift": 0.799,
+          "elbow_flex": 0.927,
+          "wrist_flex": 0.0,
+          "wrist_roll": 0.0
+        }
+      },
+      "null": {
+        "steps_pinned_fraction": 0.991,
+        "first_action_pinned_fraction": 1.0,
+        "per_joint_steps_pinned_fraction": {
+          "shoulder_pan": 0.0,
+          "shoulder_lift": 0.852,
+          "elbow_flex": 0.988,
+          "wrist_flex": 0.0,
+          "wrist_roll": 0.0
+        }
+      }
+    },
+    "cag": {
+      "1.0": {
+        "lemon": {
+          "steps_pinned_fraction": 0.673,
+          "first_action_pinned_fraction": 1.0,
+          "per_joint_steps_pinned_fraction": {
+            "shoulder_pan": 0.0,
+            "shoulder_lift": 0.554,
+            "elbow_flex": 0.672,
+            "wrist_flex": 0.0,
+            "wrist_roll": 0.0
+          }
+        },
+        "apple": {
+          "steps_pinned_fraction": 0.892,
+          "first_action_pinned_fraction": 1.0,
+          "per_joint_steps_pinned_fraction": {
+            "shoulder_pan": 0.0,
+            "shoulder_lift": 0.791,
+            "elbow_flex": 0.889,
+            "wrist_flex": 0.0,
+            "wrist_roll": 0.0
+          }
+        },
+        "strawberry": {
+          "steps_pinned_fraction": 0.881,
+          "first_action_pinned_fraction": 1.0,
+          "per_joint_steps_pinned_fraction": {
+            "shoulder_pan": 0.0,
+            "shoulder_lift": 0.8,
+            "elbow_flex": 0.879,
+            "wrist_flex": 0.0,
+            "wrist_roll": 0.0
+          }
+        },
+        "peach": {
+          "steps_pinned_fraction": 0.928,
+          "first_action_pinned_fraction": 1.0,
+          "per_joint_steps_pinned_fraction": {
+            "shoulder_pan": 0.0,
+            "shoulder_lift": 0.799,
+            "elbow_flex": 0.927,
+            "wrist_flex": 0.0,
+            "wrist_roll": 0.0
+          }
+        }
+      },
+      "1.5": {
+        "lemon": {
+          "steps_pinned_fraction": 0.659,
+          "first_action_pinned_fraction": 0.992,
+          "per_joint_steps_pinned_fraction": {
+            "shoulder_pan": 0.0,
+            "shoulder_lift": 0.521,
+            "elbow_flex": 0.649,
+            "wrist_flex": 0.001,
+            "wrist_roll": 0.0
+          }
+        },
+        "apple": {
+          "steps_pinned_fraction": 0.887,
+          "first_action_pinned_fraction": 1.0,
+          "per_joint_steps_pinned_fraction": {
+            "shoulder_pan": 0.0,
+            "shoulder_lift": 0.773,
+            "elbow_flex": 0.866,
+            "wrist_flex": 0.001,
+            "wrist_roll": 0.0
+          }
+        },
+        "strawberry": {
+          "steps_pinned_fraction": 0.875,
+          "first_action_pinned_fraction": 1.0,
+          "per_joint_steps_pinned_fraction": {
+            "shoulder_pan": 0.0,
+            "shoulder_lift": 0.788,
+            "elbow_flex": 0.86,
+            "wrist_flex": 0.001,
+            "wrist_roll": 0.0
+          }
+        },
+        "peach": {
+          "steps_pinned_fraction": 0.92,
+          "first_action_pinned_fraction": 1.0,
+          "per_joint_steps_pinned_fraction": {
+            "shoulder_pan": 0.0,
+            "shoulder_lift": 0.773,
+            "elbow_flex": 0.911,
+            "wrist_flex": 0.0,
+            "wrist_roll": 0.0
+          }
+        }
+      },
+      "2.0": {
+        "lemon": {
+          "steps_pinned_fraction": 0.657,
+          "first_action_pinned_fraction": 0.977,
+          "per_joint_steps_pinned_fraction": {
+            "shoulder_pan": 0.0,
+            "shoulder_lift": 0.489,
+            "elbow_flex": 0.621,
+            "wrist_flex": 0.016,
+            "wrist_roll": 0.0
+          }
+        },
+        "apple": {
+          "steps_pinned_fraction": 0.884,
+          "first_action_pinned_fraction": 0.992,
+          "per_joint_steps_pinned_fraction": {
+            "shoulder_pan": 0.0,
+            "shoulder_lift": 0.756,
+            "elbow_flex": 0.838,
+            "wrist_flex": 0.005,
+            "wrist_roll": 0.0
+          }
+        },
+        "strawberry": {
+          "steps_pinned_fraction": 0.869,
+          "first_action_pinned_fraction": 1.0,
+          "per_joint_steps_pinned_fraction": {
+            "shoulder_pan": 0.0,
+            "shoulder_lift": 0.775,
+            "elbow_flex": 0.835,
+            "wrist_flex": 0.003,
+            "wrist_roll": 0.0
+          }
+        },
+        "peach": {
+          "steps_pinned_fraction": 0.915,
+          "first_action_pinned_fraction": 1.0,
+          "per_joint_steps_pinned_fraction": {
+            "shoulder_pan": 0.0,
+            "shoulder_lift": 0.752,
+            "elbow_flex": 0.892,
+            "wrist_flex": 0.002,
+            "wrist_roll": 0.0
+          }
+        }
+      },
+      "3.0": {
+        "lemon": {
+          "steps_pinned_fraction": 0.669,
+          "first_action_pinned_fraction": 0.953,
+          "per_joint_steps_pinned_fraction": {
+            "shoulder_pan": 0.0,
+            "shoulder_lift": 0.444,
+            "elbow_flex": 0.57,
+            "wrist_flex": 0.054,
+            "wrist_roll": 0.0
+          }
+        },
+        "apple": {
+          "steps_pinned_fraction": 0.868,
+          "first_action_pinned_fraction": 0.977,
+          "per_joint_steps_pinned_fraction": {
+            "shoulder_pan": 0.0,
+            "shoulder_lift": 0.72,
+            "elbow_flex": 0.767,
+            "wrist_flex": 0.011,
+            "wrist_roll": 0.0
+          }
+        },
+        "strawberry": {
+          "steps_pinned_fraction": 0.86,
+          "first_action_pinned_fraction": 1.0,
+          "per_joint_steps_pinned_fraction": {
+            "shoulder_pan": 0.0,
+            "shoulder_lift": 0.756,
+            "elbow_flex": 0.785,
+            "wrist_flex": 0.009,
+            "wrist_roll": 0.0
+          }
+        },
+        "peach": {
+          "steps_pinned_fraction": 0.9,
+          "first_action_pinned_fraction": 1.0,
+          "per_joint_steps_pinned_fraction": {
+            "shoulder_pan": 0.0,
+            "shoulder_lift": 0.714,
+            "elbow_flex": 0.846,
+            "wrist_flex": 0.006,
+            "wrist_roll": 0.0
+          }
+        }
+      }
+    }
+  },
+  "clamped": {
+    "movers": {
+      "lemon": {
+        "fraction_moving": 0.602,
+        "n_moving": 77,
+        "trigger_joint_counts": {
+          "shoulder_pan": 0,
+          "shoulder_lift": 25,
+          "elbow_flex": 52,
+          "wrist_flex": 0
+        },
+        "mover_mean_delta_deg": [
+          -0.51,
+          26.59,
+          -28.19,
+          10.75,
+          -3.62
+        ],
+        "mover_std_delta_deg": [
+          0.44,
+          11.81,
+          14.45,
+          5.97,
+          0.68
+        ]
+      },
+      "apple": {
+        "fraction_moving": 0.281,
+        "n_moving": 36,
+        "trigger_joint_counts": {
+          "shoulder_pan": 0,
+          "shoulder_lift": 28,
+          "elbow_flex": 8,
+          "wrist_flex": 0
+        },
+        "mover_mean_delta_deg": [
+          1.71,
+          21.49,
+          -19.3,
+          5.65,
+          -5.46
+        ],
+        "mover_std_delta_deg": [
+          2.1,
+          12.24,
+          15.83,
+          7.39,
+          1.12
+        ]
+      },
+      "strawberry": {
+        "fraction_moving": 0.312,
+        "n_moving": 40,
+        "trigger_joint_counts": {
+          "shoulder_pan": 0,
+          "shoulder_lift": 33,
+          "elbow_flex": 7,
+          "wrist_flex": 0
+        },
+        "mover_mean_delta_deg": [
+          -0.44,
+          21.79,
+          -19.62,
+          4.58,
+          -4.18
+        ],
+        "mover_std_delta_deg": [
+          0.69,
+          14.0,
+          16.42,
+          6.47,
+          0.8
+        ]
+      },
+      "peach": {
+        "fraction_moving": 0.203,
+        "n_moving": 26,
+        "trigger_joint_counts": {
+          "shoulder_pan": 0,
+          "shoulder_lift": 21,
+          "elbow_flex": 5,
+          "wrist_flex": 0
+        },
+        "mover_mean_delta_deg": [
+          -0.01,
+          20.21,
+          -16.54,
+          3.33,
+          -6.8
+        ],
+        "mover_std_delta_deg": [
+          1.42,
+          14.26,
+          17.27,
+          7.47,
+          1.77
+        ]
+      },
+      "null": {
+        "fraction_moving": 0.016,
+        "n_moving": 2,
+        "trigger_joint_counts": {
+          "shoulder_pan": 0,
+          "shoulder_lift": 2,
+          "elbow_flex": 0,
+          "wrist_flex": 0
+        },
+        "mover_mean_delta_deg": [
+          -2.34,
+          11.65,
+          -8.07,
+          3.3,
+          -6.03
+        ],
+        "mover_std_delta_deg": [
+          0.05,
+          6.46,
+          6.83,
+          1.93,
+          0.33
+        ]
+      }
+    },
+    "mover_direction": {
+      "lemon_vs_apple": {
+        "n_moving": [
+          77,
+          36
+        ],
+        "mover_vector_distance_deg": 11.81,
+        "mover_vector_distance_ci95": [
+          4.88,
+          19.19
+        ],
+        "mover_pan_diff_deg": -2.22,
+        "mover_pan_diff_ci95": [
+          -2.91,
+          -1.54
+        ]
+      },
+      "lemon_vs_strawberry": {
+        "n_moving": [
+          77,
+          40
+        ],
+        "mover_vector_distance_deg": 11.61,
+        "mover_vector_distance_ci95": [
+          4.49,
+          19.65
+        ],
+        "mover_pan_diff_deg": -0.07,
+        "mover_pan_diff_ci95": [
+          -0.3,
+          0.17
+        ]
+      },
+      "lemon_vs_peach": {
+        "n_moving": [
+          77,
+          26
+        ],
+        "mover_vector_distance_deg": 15.55,
+        "mover_vector_distance_ci95": [
+          7.02,
+          24.51
+        ],
+        "mover_pan_diff_deg": -0.5,
+        "mover_pan_diff_ci95": [
+          -1.04,
+          0.05
+        ]
+      },
+      "lemon_vs_null": null,
+      "apple_vs_strawberry": {
+        "n_moving": [
+          36,
+          40
+        ],
+        "mover_vector_distance_deg": 2.76,
+        "mover_vector_distance_ci95": [
+          2.52,
+          11.38
+        ],
+        "mover_pan_diff_deg": 2.16,
+        "mover_pan_diff_ci95": [
+          1.46,
+          2.86
+        ]
+      },
+      "apple_vs_peach": {
+        "n_moving": [
+          36,
+          26
+        ],
+        "mover_vector_distance_deg": 4.41,
+        "mover_vector_distance_ci95": [
+          2.28,
+          14.85
+        ],
+        "mover_pan_diff_deg": 1.72,
+        "mover_pan_diff_ci95": [
+          0.87,
+          2.62
+        ]
+      },
+      "apple_vs_null": null,
+      "strawberry_vs_peach": {
+        "n_moving": [
+          40,
+          26
+        ],
+        "mover_vector_distance_deg": 4.54,
+        "mover_vector_distance_ci95": [
+          2.61,
+          15.47
+        ],
+        "mover_pan_diff_deg": -0.43,
+        "mover_pan_diff_ci95": [
+          -1.02,
+          0.16
+        ]
+      },
+      "strawberry_vs_null": null,
+      "peach_vs_null": null
+    },
+    "steps": {
+      "lemon": {
+        "max_in_chunk_step_deg": 2.82,
+        "max_state_to_first_jump_deg": 7.8
+      },
+      "apple": {
+        "max_in_chunk_step_deg": 3.22,
+        "max_state_to_first_jump_deg": 7.86
+      },
+      "strawberry": {
+        "max_in_chunk_step_deg": 3.53,
+        "max_state_to_first_jump_deg": 7.8
+      },
+      "peach": {
+        "max_in_chunk_step_deg": 3.29,
+        "max_state_to_first_jump_deg": 7.8
+      },
+      "null": {
+        "max_in_chunk_step_deg": 2.91,
+        "max_state_to_first_jump_deg": 7.88
+      },
+      "_all": {
+        "max_in_chunk_step_deg": 3.53,
+        "max_state_to_first_jump_deg": 7.86
+      }
+    },
+    "within_condition_spread_deg": {
+      "lemon": 5.741,
+      "apple": 2.817,
+      "strawberry": 2.808,
+      "peach": 2.216,
+      "null": 0.793
+    },
+    "pairs": {
+      "lemon_vs_apple": {
+        "paired_rms_deg": 3.354,
+        "within_seed_spread_deg": 4.279,
+        "separation_ratio": 0.78,
+        "permutation_p": 0.005,
+        "per_timestep_rms_deg": [
+          0.25,
+          0.3,
+          0.37,
+          0.47,
+          0.58,
+          0.73,
+          0.9,
+          1.09,
+          1.31,
+          1.52,
+          1.77,
+          2.03,
+          2.32,
+          2.63,
+          2.95,
+          3.32,
+          3.72,
+          4.14,
+          4.58,
+          5.03,
+          5.49,
+          5.97,
+          6.44,
+          6.94,
+          7.42,
+          7.9,
+          8.39,
+          8.88,
+          9.33,
+          9.78
+        ],
+        "final_step_effect_size": [
+          -0.8,
+          0.73,
+          -0.77,
+          0.84,
+          -0.05,
+          1.23
+        ],
+        "final_action_mean_diff_deg": [
+          -0.87,
+          9.94,
+          -11.6,
+          5.03,
+          -0.1,
+          0.1
+        ]
+      },
+      "lemon_vs_strawberry": {
+        "paired_rms_deg": 3.305,
+        "within_seed_spread_deg": 4.274,
+        "separation_ratio": 0.77,
+        "permutation_p": 0.005,
+        "per_timestep_rms_deg": [
+          0.27,
+          0.32,
+          0.39,
+          0.49,
+          0.6,
+          0.75,
+          0.92,
+          1.11,
+          1.33,
+          1.56,
+          1.8,
+          2.07,
+          2.35,
+          2.67,
+          2.99,
+          3.38,
+          3.79,
+          4.23,
+          4.68,
+          5.13,
+          5.6,
+          6.08,
+          6.53,
+          7.01,
+          7.45,
+          7.89,
+          8.35,
+          8.78,
+          9.2,
+          9.61
+        ],
+        "final_step_effect_size": [
+          -0.67,
+          0.66,
+          -0.7,
+          0.86,
+          -0.78,
+          1.1
+        ],
+        "final_action_mean_diff_deg": [
+          -0.31,
+          9.31,
+          -10.89,
+          4.96,
+          -1.15,
+          0.08
+        ]
+      },
+      "lemon_vs_peach": {
+        "paired_rms_deg": 3.88,
+        "within_seed_spread_deg": 3.978,
+        "separation_ratio": 0.98,
+        "permutation_p": 0.005,
+        "per_timestep_rms_deg": [
+          0.22,
+          0.28,
+          0.37,
+          0.48,
+          0.62,
+          0.8,
+          0.99,
+          1.21,
+          1.46,
+          1.71,
+          1.98,
+          2.27,
+          2.59,
+          2.93,
+          3.29,
+          3.7,
+          4.14,
+          4.62,
+          5.12,
+          5.64,
+          6.18,
+          6.75,
+          7.32,
+          7.93,
+          8.54,
+          9.14,
+          9.77,
+          10.38,
+          10.97,
+          11.53
+        ],
+        "final_step_effect_size": [
+          0.52,
+          0.89,
+          -0.95,
+          1.13,
+          0.22,
+          0.92
+        ],
+        "final_action_mean_diff_deg": [
+          0.37,
+          11.68,
+          -13.64,
+          6.32,
+          0.45,
+          0.07
+        ]
+      },
+      "lemon_vs_null": {
+        "paired_rms_deg": 4.649,
+        "within_seed_spread_deg": 3.267,
+        "separation_ratio": 1.42,
+        "permutation_p": 0.005,
+        "per_timestep_rms_deg": [
+          0.28,
+          0.33,
+          0.41,
+          0.52,
+          0.66,
+          0.85,
+          1.07,
+          1.33,
+          1.62,
+          1.93,
+          2.28,
+          2.64,
+          3.04,
+          3.47,
+          3.92,
+          4.43,
+          4.96,
+          5.53,
+          6.11,
+          6.72,
+          7.36,
+          8.03,
+          8.71,
+          9.43,
+          10.14,
+          10.88,
+          11.63,
+          12.42,
+          13.18,
+          13.93
+        ],
+        "final_step_effect_size": [
+          1.59,
+          1.45,
+          -1.35,
+          1.28,
+          -0.69,
+          0.62
+        ],
+        "final_action_mean_diff_deg": [
+          1.36,
+          16.01,
+          -16.93,
+          6.38,
+          -1.07,
+          0.06
+        ]
+      },
+      "apple_vs_strawberry": {
+        "paired_rms_deg": 0.552,
+        "within_seed_spread_deg": 2.812,
+        "separation_ratio": 0.2,
+        "permutation_p": 0.6418,
+        "per_timestep_rms_deg": [
+          0.16,
+          0.19,
+          0.21,
+          0.22,
+          0.24,
+          0.25,
+          0.26,
+          0.27,
+          0.28,
+          0.3,
+          0.32,
+          0.34,
+          0.37,
+          0.4,
+          0.44,
+          0.49,
+          0.55,
+          0.62,
+          0.7,
+          0.8,
+          0.91,
+          1.02,
+          1.15,
+          1.3,
+          1.43,
+          1.57,
+          1.72,
+          1.87,
+          2.03,
+          2.2
+        ],
+        "final_step_effect_size": [
+          0.51,
+          -0.05,
+          0.06,
+          -0.02,
+          -0.54,
+          -0.18
+        ],
+        "final_action_mean_diff_deg": [
+          0.56,
+          -0.63,
+          0.71,
+          -0.07,
+          -1.05,
+          -0.01
+        ]
+      },
+      "apple_vs_peach": {
+        "paired_rms_deg": 0.904,
+        "within_seed_spread_deg": 2.517,
+        "separation_ratio": 0.36,
+        "permutation_p": 0.1045,
+        "per_timestep_rms_deg": [
+          0.27,
+          0.29,
+          0.31,
+          0.33,
+          0.35,
+          0.39,
+          0.43,
+          0.47,
+          0.51,
+          0.55,
+          0.6,
+          0.66,
+          0.72,
+          0.79,
+          0.88,
+          0.96,
+          1.07,
+          1.19,
+          1.33,
+          1.47,
+          1.64,
+          1.82,
+          2.02,
+          2.23,
+          2.46,
+          2.71,
+          2.97,
+          3.23,
+          3.5,
+          3.75
+        ],
+        "final_step_effect_size": [
+          1.0,
+          0.16,
+          -0.18,
+          0.31,
+          0.23,
+          -0.42
+        ],
+        "final_action_mean_diff_deg": [
+          1.24,
+          1.74,
+          -2.04,
+          1.29,
+          0.55,
+          -0.03
+        ]
+      },
+      "apple_vs_null": {
+        "paired_rms_deg": 1.803,
+        "within_seed_spread_deg": 1.805,
+        "separation_ratio": 1.0,
+        "permutation_p": 0.005,
+        "per_timestep_rms_deg": [
+          0.35,
+          0.39,
+          0.43,
+          0.48,
+          0.53,
+          0.6,
+          0.67,
+          0.76,
+          0.86,
+          1.0,
+          1.14,
+          1.32,
+          1.52,
+          1.75,
+          1.99,
+          2.25,
+          2.54,
+          2.84,
+          3.15,
+          3.46,
+          3.79,
+          4.15,
+          4.52,
+          4.91,
+          5.32,
+          5.74,
+          6.17,
+          6.63,
+          7.09,
+          7.56
+        ],
+        "final_step_effect_size": [
+          1.68,
+          0.74,
+          -0.62,
+          0.4,
+          -0.49,
+          -0.46
+        ],
+        "final_action_mean_diff_deg": [
+          2.22,
+          6.07,
+          -5.33,
+          1.35,
+          -0.97,
+          -0.04
+        ]
+      },
+      "strawberry_vs_peach": {
+        "paired_rms_deg": 1.051,
+        "within_seed_spread_deg": 2.512,
+        "separation_ratio": 0.42,
+        "permutation_p": 0.0398,
+        "per_timestep_rms_deg": [
+          0.33,
+          0.35,
+          0.38,
+          0.4,
+          0.43,
+          0.46,
+          0.5,
+          0.54,
+          0.57,
+          0.62,
+          0.66,
+          0.7,
+          0.76,
+          0.8,
+          0.88,
+          0.94,
+          1.03,
+          1.13,
+          1.26,
+          1.39,
+          1.55,
+          1.71,
+          1.9,
+          2.11,
+          2.36,
+          2.63,
+          2.9,
+          3.2,
+          3.51,
+          3.81
+        ],
+        "final_step_effect_size": [
+          0.91,
+          0.21,
+          -0.24,
+          0.35,
+          0.72,
+          -0.24
+        ],
+        "final_action_mean_diff_deg": [
+          0.68,
+          2.37,
+          -2.75,
+          1.36,
+          1.6,
+          -0.01
+        ]
+      },
+      "strawberry_vs_null": {
+        "paired_rms_deg": 1.9,
+        "within_seed_spread_deg": 1.8,
+        "separation_ratio": 1.06,
+        "permutation_p": 0.005,
+        "per_timestep_rms_deg": [
+          0.34,
+          0.37,
+          0.4,
+          0.44,
+          0.48,
+          0.54,
+          0.61,
+          0.71,
+          0.82,
+          0.96,
+          1.11,
+          1.29,
+          1.51,
+          1.73,
+          1.99,
+          2.26,
+          2.55,
+          2.85,
+          3.17,
+          3.5,
+          3.85,
+          4.23,
+          4.63,
+          5.06,
+          5.51,
+          5.99,
+          6.47,
+          7.01,
+          7.55,
+          8.11
+        ],
+        "final_step_effect_size": [
+          1.9,
+          0.74,
+          -0.66,
+          0.48,
+          0.05,
+          -0.33
+        ],
+        "final_action_mean_diff_deg": [
+          1.66,
+          6.7,
+          -6.04,
+          1.42,
+          0.08,
+          -0.03
+        ]
+      },
+      "peach_vs_null": {
+        "paired_rms_deg": 1.194,
+        "within_seed_spread_deg": 1.505,
+        "separation_ratio": 0.79,
+        "permutation_p": 0.005,
+        "per_timestep_rms_deg": [
+          0.24,
+          0.28,
+          0.33,
+          0.38,
+          0.44,
+          0.51,
+          0.57,
+          0.65,
+          0.74,
+          0.84,
+          0.96,
+          1.1,
+          1.25,
+          1.43,
+          1.63,
+          1.84,
+          2.08,
+          2.33,
+          2.58,
+          2.85,
+          3.13,
+          3.41,
+          3.71,
+          4.02,
+          4.34,
+          4.68,
+          5.01,
+          5.38,
+          5.72,
+          6.08
+        ],
+        "final_step_effect_size": [
+          0.95,
+          0.59,
+          -0.45,
+          0.02,
+          -0.67,
+          -0.15
+        ],
+        "final_action_mean_diff_deg": [
+          0.98,
+          4.33,
+          -3.29,
+          0.06,
+          -1.52,
+          -0.01
+        ]
+      }
+    },
+    "mean_final_action_deg": {
+      "lemon": [
+        -2.3,
+        -79.63,
+        66.53,
+        66.71,
+        -7.95,
+        0.03
+      ],
+      "apple": [
+        -1.43,
+        -89.57,
+        78.13,
+        61.68,
+        -7.85,
+        -0.07
+      ],
+      "strawberry": [
+        -1.99,
+        -88.94,
+        77.41,
+        61.75,
+        -6.81,
+        -0.06
+      ],
+      "peach": [
+        -2.67,
+        -91.31,
+        80.17,
+        60.39,
+        -8.4,
+        -0.04
+      ],
+      "null": [
+        -3.65,
+        -95.64,
+        83.45,
+        60.33,
+        -6.88,
+        -0.03
+      ]
+    },
+    "cag": {
+      "1.0": {
+        "movers": {
+          "lemon": {
+            "fraction_moving": 0.602,
+            "n_moving": 77,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 25,
+              "elbow_flex": 52,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              -0.51,
+              26.59,
+              -28.19,
+              10.75,
+              -3.62
+            ],
+            "mover_std_delta_deg": [
+              0.44,
+              11.81,
+              14.45,
+              5.97,
+              0.68
+            ]
+          },
+          "apple": {
+            "fraction_moving": 0.281,
+            "n_moving": 36,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 28,
+              "elbow_flex": 8,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              1.71,
+              21.49,
+              -19.3,
+              5.65,
+              -5.46
+            ],
+            "mover_std_delta_deg": [
+              2.1,
+              12.24,
+              15.83,
+              7.39,
+              1.12
+            ]
+          },
+          "strawberry": {
+            "fraction_moving": 0.312,
+            "n_moving": 40,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 33,
+              "elbow_flex": 7,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              -0.44,
+              21.79,
+              -19.62,
+              4.58,
+              -4.18
+            ],
+            "mover_std_delta_deg": [
+              0.69,
+              14.0,
+              16.42,
+              6.47,
+              0.8
+            ]
+          },
+          "peach": {
+            "fraction_moving": 0.203,
+            "n_moving": 26,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 21,
+              "elbow_flex": 5,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              -0.01,
+              20.21,
+              -16.54,
+              3.33,
+              -6.8
+            ],
+            "mover_std_delta_deg": [
+              1.42,
+              14.26,
+              17.27,
+              7.47,
+              1.77
+            ]
+          }
+        },
+        "mover_direction": {
+          "lemon_vs_apple": {
+            "n_moving": [
+              77,
+              36
+            ],
+            "mover_vector_distance_deg": 11.81,
+            "mover_vector_distance_ci95": [
+              4.88,
+              19.19
+            ],
+            "mover_pan_diff_deg": -2.22,
+            "mover_pan_diff_ci95": [
+              -2.91,
+              -1.54
+            ]
+          },
+          "lemon_vs_strawberry": {
+            "n_moving": [
+              77,
+              40
+            ],
+            "mover_vector_distance_deg": 11.61,
+            "mover_vector_distance_ci95": [
+              4.49,
+              19.65
+            ],
+            "mover_pan_diff_deg": -0.07,
+            "mover_pan_diff_ci95": [
+              -0.3,
+              0.17
+            ]
+          },
+          "lemon_vs_peach": {
+            "n_moving": [
+              77,
+              26
+            ],
+            "mover_vector_distance_deg": 15.55,
+            "mover_vector_distance_ci95": [
+              7.02,
+              24.51
+            ],
+            "mover_pan_diff_deg": -0.5,
+            "mover_pan_diff_ci95": [
+              -1.04,
+              0.05
+            ]
+          },
+          "apple_vs_strawberry": {
+            "n_moving": [
+              36,
+              40
+            ],
+            "mover_vector_distance_deg": 2.76,
+            "mover_vector_distance_ci95": [
+              2.52,
+              11.38
+            ],
+            "mover_pan_diff_deg": 2.16,
+            "mover_pan_diff_ci95": [
+              1.46,
+              2.86
+            ]
+          },
+          "apple_vs_peach": {
+            "n_moving": [
+              36,
+              26
+            ],
+            "mover_vector_distance_deg": 4.41,
+            "mover_vector_distance_ci95": [
+              2.28,
+              14.85
+            ],
+            "mover_pan_diff_deg": 1.72,
+            "mover_pan_diff_ci95": [
+              0.87,
+              2.62
+            ]
+          },
+          "strawberry_vs_peach": {
+            "n_moving": [
+              40,
+              26
+            ],
+            "mover_vector_distance_deg": 4.54,
+            "mover_vector_distance_ci95": [
+              2.61,
+              15.47
+            ],
+            "mover_pan_diff_deg": -0.43,
+            "mover_pan_diff_ci95": [
+              -1.02,
+              0.16
+            ]
+          }
+        },
+        "steps": {
+          "lemon": {
+            "max_in_chunk_step_deg": 2.82,
+            "max_state_to_first_jump_deg": 7.8
+          },
+          "apple": {
+            "max_in_chunk_step_deg": 3.22,
+            "max_state_to_first_jump_deg": 7.86
+          },
+          "strawberry": {
+            "max_in_chunk_step_deg": 3.53,
+            "max_state_to_first_jump_deg": 7.8
+          },
+          "peach": {
+            "max_in_chunk_step_deg": 3.29,
+            "max_state_to_first_jump_deg": 7.8
+          },
+          "_all": {
+            "max_in_chunk_step_deg": 3.53,
+            "max_state_to_first_jump_deg": 7.86
+          }
+        }
+      },
+      "1.5": {
+        "movers": {
+          "lemon": {
+            "fraction_moving": 0.617,
+            "n_moving": 79,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 26,
+              "elbow_flex": 53,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              0.04,
+              38.69,
+              -41.3,
+              15.68,
+              -4.38
+            ],
+            "mover_std_delta_deg": [
+              0.64,
+              17.95,
+              21.98,
+              8.94,
+              1.11
+            ]
+          },
+          "apple": {
+            "fraction_moving": 0.305,
+            "n_moving": 39,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 31,
+              "elbow_flex": 8,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              3.19,
+              29.59,
+              -26.71,
+              7.51,
+              -6.75
+            ],
+            "mover_std_delta_deg": [
+              3.14,
+              18.34,
+              23.36,
+              10.25,
+              1.41
+            ]
+          },
+          "strawberry": {
+            "fraction_moving": 0.328,
+            "n_moving": 42,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 35,
+              "elbow_flex": 7,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              0.28,
+              30.84,
+              -28.01,
+              6.38,
+              -4.86
+            ],
+            "mover_std_delta_deg": [
+              0.97,
+              20.53,
+              24.12,
+              9.07,
+              1.34
+            ]
+          },
+          "peach": {
+            "fraction_moving": 0.242,
+            "n_moving": 31,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 26,
+              "elbow_flex": 5,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              0.74,
+              25.68,
+              -20.87,
+              3.96,
+              -8.21
+            ],
+            "mover_std_delta_deg": [
+              2.04,
+              20.58,
+              24.41,
+              10.12,
+              2.24
+            ]
+          }
+        },
+        "mover_direction": {
+          "lemon_vs_apple": {
+            "n_moving": [
+              79,
+              39
+            ],
+            "mover_vector_distance_deg": 19.44,
+            "mover_vector_distance_ci95": [
+              8.8,
+              30.78
+            ],
+            "mover_pan_diff_deg": -3.15,
+            "mover_pan_diff_ci95": [
+              -4.18,
+              -2.21
+            ]
+          },
+          "lemon_vs_strawberry": {
+            "n_moving": [
+              79,
+              42
+            ],
+            "mover_vector_distance_deg": 18.03,
+            "mover_vector_distance_ci95": [
+              7.36,
+              29.02
+            ],
+            "mover_pan_diff_deg": -0.24,
+            "mover_pan_diff_ci95": [
+              -0.57,
+              0.08
+            ]
+          },
+          "lemon_vs_peach": {
+            "n_moving": [
+              79,
+              31
+            ],
+            "mover_vector_distance_deg": 27.18,
+            "mover_vector_distance_ci95": [
+              14.22,
+              39.69
+            ],
+            "mover_pan_diff_deg": -0.7,
+            "mover_pan_diff_ci95": [
+              -1.4,
+              0.03
+            ]
+          },
+          "apple_vs_strawberry": {
+            "n_moving": [
+              39,
+              42
+            ],
+            "mover_vector_distance_deg": 4.07,
+            "mover_vector_distance_ci95": [
+              3.61,
+              16.25
+            ],
+            "mover_pan_diff_deg": 2.91,
+            "mover_pan_diff_ci95": [
+              1.92,
+              3.95
+            ]
+          },
+          "apple_vs_peach": {
+            "n_moving": [
+              39,
+              31
+            ],
+            "mover_vector_distance_deg": 8.37,
+            "mover_vector_distance_ci95": [
+              2.75,
+              24.13
+            ],
+            "mover_pan_diff_deg": 2.45,
+            "mover_pan_diff_ci95": [
+              1.25,
+              3.7
+            ]
+          },
+          "strawberry_vs_peach": {
+            "n_moving": [
+              42,
+              31
+            ],
+            "mover_vector_distance_deg": 9.73,
+            "mover_vector_distance_ci95": [
+              3.67,
+              24.25
+            ],
+            "mover_pan_diff_deg": -0.46,
+            "mover_pan_diff_ci95": [
+              -1.28,
+              0.29
+            ]
+          }
+        },
+        "steps": {
+          "lemon": {
+            "max_in_chunk_step_deg": 4.15,
+            "max_state_to_first_jump_deg": 8.01
+          },
+          "apple": {
+            "max_in_chunk_step_deg": 4.88,
+            "max_state_to_first_jump_deg": 7.94
+          },
+          "strawberry": {
+            "max_in_chunk_step_deg": 5.1,
+            "max_state_to_first_jump_deg": 7.8
+          },
+          "peach": {
+            "max_in_chunk_step_deg": 4.98,
+            "max_state_to_first_jump_deg": 7.81
+          },
+          "_all": {
+            "max_in_chunk_step_deg": 5.1,
+            "max_state_to_first_jump_deg": 8.01
+          }
+        }
+      },
+      "2.0": {
+        "movers": {
+          "lemon": {
+            "fraction_moving": 0.633,
+            "n_moving": 81,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 28,
+              "elbow_flex": 53,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              0.59,
+              50.25,
+              -53.78,
+              19.32,
+              -5.12
+            ],
+            "mover_std_delta_deg": [
+              1.02,
+              24.47,
+              29.88,
+              10.35,
+              1.84
+            ]
+          },
+          "apple": {
+            "fraction_moving": 0.32,
+            "n_moving": 41,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 33,
+              "elbow_flex": 8,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              4.65,
+              37.41,
+              -33.84,
+              8.65,
+              -7.94
+            ],
+            "mover_std_delta_deg": [
+              4.18,
+              24.56,
+              30.92,
+              11.57,
+              2.07
+            ]
+          },
+          "strawberry": {
+            "fraction_moving": 0.336,
+            "n_moving": 43,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 36,
+              "elbow_flex": 7,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              1.0,
+              39.9,
+              -36.43,
+              7.79,
+              -5.6
+            ],
+            "mover_std_delta_deg": [
+              1.37,
+              27.16,
+              31.85,
+              10.53,
+              2.05
+            ]
+          },
+          "peach": {
+            "fraction_moving": 0.281,
+            "n_moving": 36,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 31,
+              "elbow_flex": 5,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              1.31,
+              29.85,
+              -23.99,
+              3.83,
+              -9.46
+            ],
+            "mover_std_delta_deg": [
+              2.66,
+              26.73,
+              31.14,
+              11.62,
+              2.83
+            ]
+          }
+        },
+        "mover_direction": {
+          "lemon_vs_apple": {
+            "n_moving": [
+              81,
+              41
+            ],
+            "mover_vector_distance_deg": 26.47,
+            "mover_vector_distance_ci95": [
+              11.91,
+              41.26
+            ],
+            "mover_pan_diff_deg": -4.07,
+            "mover_pan_diff_ci95": [
+              -5.44,
+              -2.81
+            ]
+          },
+          "lemon_vs_strawberry": {
+            "n_moving": [
+              81,
+              43
+            ],
+            "mover_vector_distance_deg": 23.27,
+            "mover_vector_distance_ci95": [
+              10.06,
+              38.36
+            ],
+            "mover_pan_diff_deg": -0.41,
+            "mover_pan_diff_ci95": [
+              -0.86,
+              0.04
+            ]
+          },
+          "lemon_vs_peach": {
+            "n_moving": [
+              81,
+              36
+            ],
+            "mover_vector_distance_deg": 39.53,
+            "mover_vector_distance_ci95": [
+              23.75,
+              54.71
+            ],
+            "mover_pan_diff_deg": -0.72,
+            "mover_pan_diff_ci95": [
+              -1.64,
+              0.17
+            ]
+          },
+          "apple_vs_strawberry": {
+            "n_moving": [
+              41,
+              43
+            ],
+            "mover_vector_distance_deg": 5.7,
+            "mover_vector_distance_ci95": [
+              4.57,
+              23.13
+            ],
+            "mover_pan_diff_deg": 3.65,
+            "mover_pan_diff_ci95": [
+              2.3,
+              5.08
+            ]
+          },
+          "apple_vs_peach": {
+            "n_moving": [
+              41,
+              36
+            ],
+            "mover_vector_distance_deg": 13.81,
+            "mover_vector_distance_ci95": [
+              3.48,
+              33.44
+            ],
+            "mover_pan_diff_deg": 3.35,
+            "mover_pan_diff_ci95": [
+              1.83,
+              4.94
+            ]
+          },
+          "strawberry_vs_peach": {
+            "n_moving": [
+              43,
+              36
+            ],
+            "mover_vector_distance_deg": 16.92,
+            "mover_vector_distance_ci95": [
+              4.65,
+              35.42
+            ],
+            "mover_pan_diff_deg": -0.31,
+            "mover_pan_diff_ci95": [
+              -1.28,
+              0.62
+            ]
+          }
+        },
+        "steps": {
+          "lemon": {
+            "max_in_chunk_step_deg": 5.52,
+            "max_state_to_first_jump_deg": 8.24
+          },
+          "apple": {
+            "max_in_chunk_step_deg": 6.53,
+            "max_state_to_first_jump_deg": 8.1
+          },
+          "strawberry": {
+            "max_in_chunk_step_deg": 6.68,
+            "max_state_to_first_jump_deg": 7.99
+          },
+          "peach": {
+            "max_in_chunk_step_deg": 6.67,
+            "max_state_to_first_jump_deg": 7.9
+          },
+          "_all": {
+            "max_in_chunk_step_deg": 6.68,
+            "max_state_to_first_jump_deg": 8.24
+          }
+        }
+      },
+      "3.0": {
+        "movers": {
+          "lemon": {
+            "fraction_moving": 0.695,
+            "n_moving": 89,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 36,
+              "elbow_flex": 53,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              1.61,
+              68.68,
+              -71.62,
+              22.38,
+              -6.29
+            ],
+            "mover_std_delta_deg": [
+              1.86,
+              39.57,
+              44.61,
+              12.36,
+              3.52
+            ]
+          },
+          "apple": {
+            "fraction_moving": 0.375,
+            "n_moving": 48,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 40,
+              "elbow_flex": 8,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              6.92,
+              48.34,
+              -42.24,
+              8.98,
+              -10.06
+            ],
+            "mover_std_delta_deg": [
+              6.29,
+              37.8,
+              43.24,
+              12.92,
+              3.5
+            ]
+          },
+          "strawberry": {
+            "fraction_moving": 0.367,
+            "n_moving": 47,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 42,
+              "elbow_flex": 5,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              2.23,
+              54.08,
+              -47.98,
+              9.05,
+              -6.88
+            ],
+            "mover_std_delta_deg": [
+              2.33,
+              39.68,
+              42.62,
+              11.74,
+              3.6
+            ]
+          },
+          "peach": {
+            "fraction_moving": 0.328,
+            "n_moving": 42,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 37,
+              "elbow_flex": 5,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              2.38,
+              38.64,
+              -30.02,
+              3.16,
+              -12.03
+            ],
+            "mover_std_delta_deg": [
+              4.01,
+              38.76,
+              42.42,
+              12.54,
+              4.14
+            ]
+          }
+        },
+        "mover_direction": {
+          "lemon_vs_apple": {
+            "n_moving": [
+              89,
+              48
+            ],
+            "mover_vector_distance_deg": 38.71,
+            "mover_vector_distance_ci95": [
+              19.28,
+              57.95
+            ],
+            "mover_pan_diff_deg": -5.31,
+            "mover_pan_diff_ci95": [
+              -7.21,
+              -3.6
+            ]
+          },
+          "lemon_vs_strawberry": {
+            "n_moving": [
+              89,
+              47
+            ],
+            "mover_vector_distance_deg": 30.82,
+            "mover_vector_distance_ci95": [
+              12.24,
+              51.15
+            ],
+            "mover_pan_diff_deg": -0.62,
+            "mover_pan_diff_ci95": [
+              -1.42,
+              0.13
+            ]
+          },
+          "lemon_vs_peach": {
+            "n_moving": [
+              89,
+              42
+            ],
+            "mover_vector_distance_deg": 55.09,
+            "mover_vector_distance_ci95": [
+              35.11,
+              74.44
+            ],
+            "mover_pan_diff_deg": -0.77,
+            "mover_pan_diff_ci95": [
+              -2.02,
+              0.43
+            ]
+          },
+          "apple_vs_strawberry": {
+            "n_moving": [
+              48,
+              47
+            ],
+            "mover_vector_distance_deg": 9.91,
+            "mover_vector_distance_ci95": [
+              5.97,
+              33.15
+            ],
+            "mover_pan_diff_deg": 4.69,
+            "mover_pan_diff_ci95": [
+              2.82,
+              6.67
+            ]
+          },
+          "apple_vs_peach": {
+            "n_moving": [
+              48,
+              42
+            ],
+            "mover_vector_distance_deg": 17.37,
+            "mover_vector_distance_ci95": [
+              4.84,
+              41.47
+            ],
+            "mover_pan_diff_deg": 4.54,
+            "mover_pan_diff_ci95": [
+              2.33,
+              6.77
+            ]
+          },
+          "strawberry_vs_peach": {
+            "n_moving": [
+              47,
+              42
+            ],
+            "mover_vector_distance_deg": 24.94,
+            "mover_vector_distance_ci95": [
+              6.74,
+              48.85
+            ],
+            "mover_pan_diff_deg": -0.15,
+            "mover_pan_diff_ci95": [
+              -1.53,
+              1.23
+            ]
+          }
+        },
+        "steps": {
+          "lemon": {
+            "max_in_chunk_step_deg": 8.29,
+            "max_state_to_first_jump_deg": 8.7
+          },
+          "apple": {
+            "max_in_chunk_step_deg": 9.84,
+            "max_state_to_first_jump_deg": 8.59
+          },
+          "strawberry": {
+            "max_in_chunk_step_deg": 9.91,
+            "max_state_to_first_jump_deg": 8.37
+          },
+          "peach": {
+            "max_in_chunk_step_deg": 10.04,
+            "max_state_to_first_jump_deg": 8.22
+          },
+          "_all": {
+            "max_in_chunk_step_deg": 10.04,
+            "max_state_to_first_jump_deg": 8.7
+          }
+        }
+      }
+    }
+  },
+  "unclamped": {
+    "movers": {
+      "lemon": {
+        "fraction_moving": 0.602,
+        "n_moving": 77,
+        "trigger_joint_counts": {
+          "shoulder_pan": 0,
+          "shoulder_lift": 25,
+          "elbow_flex": 52,
+          "wrist_flex": 0
+        },
+        "mover_mean_delta_deg": [
+          -0.51,
+          26.92,
+          -28.59,
+          10.75,
+          -3.62
+        ],
+        "mover_std_delta_deg": [
+          0.44,
+          11.72,
+          14.43,
+          5.97,
+          0.68
+        ]
+      },
+      "apple": {
+        "fraction_moving": 0.281,
+        "n_moving": 36,
+        "trigger_joint_counts": {
+          "shoulder_pan": 0,
+          "shoulder_lift": 28,
+          "elbow_flex": 8,
+          "wrist_flex": 0
+        },
+        "mover_mean_delta_deg": [
+          1.71,
+          21.84,
+          -19.76,
+          5.65,
+          -5.46
+        ],
+        "mover_std_delta_deg": [
+          2.1,
+          12.17,
+          15.93,
+          7.39,
+          1.12
+        ]
+      },
+      "strawberry": {
+        "fraction_moving": 0.312,
+        "n_moving": 40,
+        "trigger_joint_counts": {
+          "shoulder_pan": 0,
+          "shoulder_lift": 33,
+          "elbow_flex": 7,
+          "wrist_flex": 0
+        },
+        "mover_mean_delta_deg": [
+          -0.44,
+          22.22,
+          -20.17,
+          4.58,
+          -4.18
+        ],
+        "mover_std_delta_deg": [
+          0.69,
+          13.94,
+          16.48,
+          6.47,
+          0.8
+        ]
+      },
+      "peach": {
+        "fraction_moving": 0.211,
+        "n_moving": 27,
+        "trigger_joint_counts": {
+          "shoulder_pan": 0,
+          "shoulder_lift": 22,
+          "elbow_flex": 5,
+          "wrist_flex": 0
+        },
+        "mover_mean_delta_deg": [
+          -0.07,
+          20.07,
+          -16.44,
+          3.2,
+          -6.74
+        ],
+        "mover_std_delta_deg": [
+          1.43,
+          14.22,
+          17.25,
+          7.36,
+          1.76
+        ]
+      },
+      "null": {
+        "fraction_moving": 0.016,
+        "n_moving": 2,
+        "trigger_joint_counts": {
+          "shoulder_pan": 0,
+          "shoulder_lift": 2,
+          "elbow_flex": 0,
+          "wrist_flex": 0
+        },
+        "mover_mean_delta_deg": [
+          -2.34,
+          12.06,
+          -8.53,
+          3.3,
+          -6.03
+        ],
+        "mover_std_delta_deg": [
+          0.05,
+          6.49,
+          6.84,
+          1.93,
+          0.33
+        ]
+      }
+    },
+    "mover_direction": {
+      "lemon_vs_apple": {
+        "n_moving": [
+          77,
+          36
+        ],
+        "mover_vector_distance_deg": 11.76,
+        "mover_vector_distance_ci95": [
+          4.86,
+          19.16
+        ],
+        "mover_pan_diff_deg": -2.22,
+        "mover_pan_diff_ci95": [
+          -2.91,
+          -1.54
+        ]
+      },
+      "lemon_vs_strawberry": {
+        "n_moving": [
+          77,
+          40
+        ],
+        "mover_vector_distance_deg": 11.47,
+        "mover_vector_distance_ci95": [
+          4.42,
+          19.48
+        ],
+        "mover_pan_diff_deg": -0.07,
+        "mover_pan_diff_ci95": [
+          -0.3,
+          0.17
+        ]
+      },
+      "lemon_vs_peach": {
+        "n_moving": [
+          77,
+          27
+        ],
+        "mover_vector_distance_deg": 16.17,
+        "mover_vector_distance_ci95": [
+          7.31,
+          25.42
+        ],
+        "mover_pan_diff_deg": -0.44,
+        "mover_pan_diff_ci95": [
+          -1.02,
+          0.12
+        ]
+      },
+      "lemon_vs_null": null,
+      "apple_vs_strawberry": {
+        "n_moving": [
+          36,
+          40
+        ],
+        "mover_vector_distance_deg": 2.78,
+        "mover_vector_distance_ci95": [
+          2.54,
+          11.47
+        ],
+        "mover_pan_diff_deg": 2.16,
+        "mover_pan_diff_ci95": [
+          1.46,
+          2.86
+        ]
+      },
+      "apple_vs_peach": {
+        "n_moving": [
+          36,
+          27
+        ],
+        "mover_vector_distance_deg": 4.99,
+        "mover_vector_distance_ci95": [
+          2.21,
+          15.74
+        ],
+        "mover_pan_diff_deg": 1.78,
+        "mover_pan_diff_ci95": [
+          0.89,
+          2.69
+        ]
+      },
+      "apple_vs_null": null,
+      "strawberry_vs_peach": {
+        "n_moving": [
+          40,
+          27
+        ],
+        "mover_vector_distance_deg": 5.21,
+        "mover_vector_distance_ci95": [
+          2.6,
+          15.58
+        ],
+        "mover_pan_diff_deg": -0.38,
+        "mover_pan_diff_ci95": [
+          -0.97,
+          0.19
+        ]
+      },
+      "strawberry_vs_null": null,
+      "peach_vs_null": null
+    },
+    "steps": {
+      "lemon": {
+        "max_in_chunk_step_deg": 2.82,
+        "max_state_to_first_jump_deg": 7.79
+      },
+      "apple": {
+        "max_in_chunk_step_deg": 3.22,
+        "max_state_to_first_jump_deg": 7.86
+      },
+      "strawberry": {
+        "max_in_chunk_step_deg": 3.53,
+        "max_state_to_first_jump_deg": 7.68
+      },
+      "peach": {
+        "max_in_chunk_step_deg": 3.29,
+        "max_state_to_first_jump_deg": 7.71
+      },
+      "null": {
+        "max_in_chunk_step_deg": 2.91,
+        "max_state_to_first_jump_deg": 7.88
+      },
+      "_all": {
+        "max_in_chunk_step_deg": 3.53,
+        "max_state_to_first_jump_deg": 7.86
+      }
+    },
+    "within_condition_spread_deg": {
+      "lemon": 5.791,
+      "apple": 2.859,
+      "strawberry": 2.856,
+      "peach": 2.247,
+      "null": 0.809
+    },
+    "pairs": {
+      "lemon_vs_apple": {
+        "paired_rms_deg": 3.396,
+        "within_seed_spread_deg": 4.325,
+        "separation_ratio": 0.79,
+        "permutation_p": 0.005,
+        "per_timestep_rms_deg": [
+          0.27,
+          0.32,
+          0.4,
+          0.5,
+          0.61,
+          0.77,
+          0.93,
+          1.13,
+          1.34,
+          1.56,
+          1.82,
+          2.08,
+          2.37,
+          2.69,
+          3.02,
+          3.39,
+          3.79,
+          4.22,
+          4.66,
+          5.1,
+          5.57,
+          6.04,
+          6.51,
+          7.0,
+          7.47,
+          7.95,
+          8.45,
+          8.92,
+          9.37,
+          9.82
+        ],
+        "final_step_effect_size": [
+          -0.8,
+          0.73,
+          -0.77,
+          0.84,
+          -0.05,
+          1.23
+        ],
+        "final_action_mean_diff_deg": [
+          -0.87,
+          9.97,
+          -11.77,
+          5.03,
+          -0.1,
+          0.1
+        ]
+      },
+      "lemon_vs_strawberry": {
+        "paired_rms_deg": 3.344,
+        "within_seed_spread_deg": 4.324,
+        "separation_ratio": 0.77,
+        "permutation_p": 0.005,
+        "per_timestep_rms_deg": [
+          0.29,
+          0.35,
+          0.43,
+          0.52,
+          0.63,
+          0.79,
+          0.96,
+          1.16,
+          1.38,
+          1.6,
+          1.86,
+          2.12,
+          2.41,
+          2.74,
+          3.07,
+          3.46,
+          3.88,
+          4.32,
+          4.76,
+          5.21,
+          5.67,
+          6.14,
+          6.59,
+          7.06,
+          7.5,
+          7.94,
+          8.39,
+          8.82,
+          9.23,
+          9.63
+        ],
+        "final_step_effect_size": [
+          -0.67,
+          0.66,
+          -0.71,
+          0.86,
+          -0.78,
+          1.1
+        ],
+        "final_action_mean_diff_deg": [
+          -0.31,
+          9.34,
+          -11.0,
+          4.96,
+          -1.15,
+          0.08
+        ]
+      },
+      "lemon_vs_peach": {
+        "paired_rms_deg": 3.928,
+        "within_seed_spread_deg": 4.019,
+        "separation_ratio": 0.98,
+        "permutation_p": 0.005,
+        "per_timestep_rms_deg": [
+          0.25,
+          0.31,
+          0.4,
+          0.52,
+          0.65,
+          0.83,
+          1.03,
+          1.25,
+          1.49,
+          1.75,
+          2.03,
+          2.33,
+          2.64,
+          2.98,
+          3.36,
+          3.77,
+          4.23,
+          4.7,
+          5.21,
+          5.73,
+          6.27,
+          6.84,
+          7.41,
+          8.02,
+          8.61,
+          9.22,
+          9.84,
+          10.44,
+          11.01,
+          11.56
+        ],
+        "final_step_effect_size": [
+          0.52,
+          0.89,
+          -0.95,
+          1.13,
+          0.22,
+          0.92
+        ],
+        "final_action_mean_diff_deg": [
+          0.37,
+          11.7,
+          -13.81,
+          6.32,
+          0.45,
+          0.07
+        ]
+      },
+      "lemon_vs_null": {
+        "paired_rms_deg": 4.699,
+        "within_seed_spread_deg": 3.3,
+        "separation_ratio": 1.42,
+        "permutation_p": 0.005,
+        "per_timestep_rms_deg": [
+          0.3,
+          0.35,
+          0.44,
+          0.55,
+          0.69,
+          0.89,
+          1.1,
+          1.37,
+          1.66,
+          1.97,
+          2.33,
+          2.69,
+          3.08,
+          3.54,
+          3.99,
+          4.49,
+          5.03,
+          5.6,
+          6.19,
+          6.79,
+          7.44,
+          8.11,
+          8.79,
+          9.5,
+          10.22,
+          10.96,
+          11.71,
+          12.49,
+          13.24,
+          13.99
+        ],
+        "final_step_effect_size": [
+          1.59,
+          1.45,
+          -1.37,
+          1.28,
+          -0.69,
+          0.62
+        ],
+        "final_action_mean_diff_deg": [
+          1.36,
+          16.06,
+          -17.17,
+          6.38,
+          -1.07,
+          0.06
+        ]
+      },
+      "apple_vs_strawberry": {
+        "paired_rms_deg": 0.57,
+        "within_seed_spread_deg": 2.857,
+        "separation_ratio": 0.2,
+        "permutation_p": 0.6418,
+        "per_timestep_rms_deg": [
+          0.18,
+          0.21,
+          0.23,
+          0.24,
+          0.26,
+          0.27,
+          0.28,
+          0.29,
+          0.29,
+          0.31,
+          0.34,
+          0.35,
+          0.39,
+          0.41,
+          0.46,
+          0.51,
+          0.57,
+          0.64,
+          0.72,
+          0.82,
+          0.93,
+          1.03,
+          1.16,
+          1.31,
+          1.43,
+          1.58,
+          1.72,
+          1.87,
+          2.03,
+          2.2
+        ],
+        "final_step_effect_size": [
+          0.51,
+          -0.05,
+          0.06,
+          -0.02,
+          -0.54,
+          -0.18
+        ],
+        "final_action_mean_diff_deg": [
+          0.56,
+          -0.63,
+          0.77,
+          -0.07,
+          -1.05,
+          -0.01
+        ]
+      },
+      "apple_vs_peach": {
+        "paired_rms_deg": 0.918,
+        "within_seed_spread_deg": 2.553,
+        "separation_ratio": 0.36,
+        "permutation_p": 0.1045,
+        "per_timestep_rms_deg": [
+          0.29,
+          0.3,
+          0.32,
+          0.34,
+          0.37,
+          0.4,
+          0.44,
+          0.49,
+          0.52,
+          0.56,
+          0.61,
+          0.67,
+          0.73,
+          0.8,
+          0.89,
+          0.98,
+          1.09,
+          1.21,
+          1.34,
+          1.51,
+          1.67,
+          1.85,
+          2.04,
+          2.26,
+          2.48,
+          2.74,
+          3.0,
+          3.25,
+          3.51,
+          3.76
+        ],
+        "final_step_effect_size": [
+          1.0,
+          0.16,
+          -0.18,
+          0.31,
+          0.23,
+          -0.42
+        ],
+        "final_action_mean_diff_deg": [
+          1.24,
+          1.73,
+          -2.04,
+          1.29,
+          0.55,
+          -0.03
+        ]
+      },
+      "apple_vs_null": {
+        "paired_rms_deg": 1.821,
+        "within_seed_spread_deg": 1.834,
+        "separation_ratio": 0.99,
+        "permutation_p": 0.005,
+        "per_timestep_rms_deg": [
+          0.36,
+          0.4,
+          0.45,
+          0.49,
+          0.55,
+          0.61,
+          0.68,
+          0.77,
+          0.88,
+          1.01,
+          1.16,
+          1.35,
+          1.54,
+          1.78,
+          2.02,
+          2.28,
+          2.57,
+          2.86,
+          3.17,
+          3.49,
+          3.82,
+          4.19,
+          4.55,
+          4.94,
+          5.34,
+          5.77,
+          6.2,
+          6.66,
+          7.11,
+          7.58
+        ],
+        "final_step_effect_size": [
+          1.68,
+          0.75,
+          -0.62,
+          0.4,
+          -0.49,
+          -0.46
+        ],
+        "final_action_mean_diff_deg": [
+          2.22,
+          6.1,
+          -5.39,
+          1.35,
+          -0.97,
+          -0.04
+        ]
+      },
+      "strawberry_vs_peach": {
+        "paired_rms_deg": 1.063,
+        "within_seed_spread_deg": 2.551,
+        "separation_ratio": 0.42,
+        "permutation_p": 0.0398,
+        "per_timestep_rms_deg": [
+          0.34,
+          0.37,
+          0.38,
+          0.41,
+          0.44,
+          0.47,
+          0.51,
+          0.55,
+          0.58,
+          0.63,
+          0.67,
+          0.71,
+          0.77,
+          0.81,
+          0.89,
+          0.96,
+          1.05,
+          1.15,
+          1.27,
+          1.41,
+          1.56,
+          1.73,
+          1.92,
+          2.14,
+          2.38,
+          2.66,
+          2.93,
+          3.22,
+          3.52,
+          3.82
+        ],
+        "final_step_effect_size": [
+          0.91,
+          0.21,
+          -0.24,
+          0.35,
+          0.72,
+          -0.24
+        ],
+        "final_action_mean_diff_deg": [
+          0.68,
+          2.36,
+          -2.81,
+          1.36,
+          1.6,
+          -0.01
+        ]
+      },
+      "strawberry_vs_null": {
+        "paired_rms_deg": 1.922,
+        "within_seed_spread_deg": 1.833,
+        "separation_ratio": 1.05,
+        "permutation_p": 0.005,
+        "per_timestep_rms_deg": [
+          0.36,
+          0.39,
+          0.42,
+          0.45,
+          0.5,
+          0.56,
+          0.63,
+          0.73,
+          0.84,
+          0.98,
+          1.14,
+          1.32,
+          1.52,
+          1.76,
+          2.02,
+          2.29,
+          2.57,
+          2.87,
+          3.2,
+          3.53,
+          3.88,
+          4.26,
+          4.66,
+          5.09,
+          5.54,
+          6.02,
+          6.5,
+          7.04,
+          7.57,
+          8.13
+        ],
+        "final_step_effect_size": [
+          1.9,
+          0.75,
+          -0.67,
+          0.48,
+          0.05,
+          -0.33
+        ],
+        "final_action_mean_diff_deg": [
+          1.66,
+          6.73,
+          -6.16,
+          1.42,
+          0.08,
+          -0.03
+        ]
+      },
+      "peach_vs_null": {
+        "paired_rms_deg": 1.213,
+        "within_seed_spread_deg": 1.528,
+        "separation_ratio": 0.79,
+        "permutation_p": 0.005,
+        "per_timestep_rms_deg": [
+          0.26,
+          0.3,
+          0.35,
+          0.4,
+          0.45,
+          0.52,
+          0.58,
+          0.66,
+          0.75,
+          0.86,
+          0.98,
+          1.11,
+          1.26,
+          1.45,
+          1.65,
+          1.86,
+          2.1,
+          2.35,
+          2.6,
+          2.87,
+          3.15,
+          3.44,
+          3.72,
+          4.04,
+          4.35,
+          4.7,
+          5.02,
+          5.4,
+          5.73,
+          6.09
+        ],
+        "final_step_effect_size": [
+          0.95,
+          0.6,
+          -0.46,
+          0.02,
+          -0.67,
+          -0.15
+        ],
+        "final_action_mean_diff_deg": [
+          0.98,
+          4.37,
+          -3.36,
+          0.06,
+          -1.52,
+          -0.01
+        ]
+      }
+    },
+    "mean_final_action_deg": {
+      "lemon": [
+        -2.3,
+        -79.63,
+        66.6,
+        66.71,
+        -7.95,
+        0.03
+      ],
+      "apple": [
+        -1.43,
+        -89.59,
+        78.37,
+        61.68,
+        -7.85,
+        -0.07
+      ],
+      "strawberry": [
+        -1.99,
+        -88.96,
+        77.6,
+        61.75,
+        -6.81,
+        -0.06
+      ],
+      "peach": [
+        -2.67,
+        -91.32,
+        80.41,
+        60.39,
+        -8.4,
+        -0.04
+      ],
+      "null": [
+        -3.65,
+        -95.69,
+        83.76,
+        60.33,
+        -6.88,
+        -0.03
+      ]
+    },
+    "cag": {
+      "1.0": {
+        "movers": {
+          "lemon": {
+            "fraction_moving": 0.602,
+            "n_moving": 77,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 25,
+              "elbow_flex": 52,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              -0.51,
+              26.92,
+              -28.59,
+              10.75,
+              -3.62
+            ],
+            "mover_std_delta_deg": [
+              0.44,
+              11.72,
+              14.43,
+              5.97,
+              0.68
+            ]
+          },
+          "apple": {
+            "fraction_moving": 0.281,
+            "n_moving": 36,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 28,
+              "elbow_flex": 8,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              1.71,
+              21.84,
+              -19.76,
+              5.65,
+              -5.46
+            ],
+            "mover_std_delta_deg": [
+              2.1,
+              12.17,
+              15.93,
+              7.39,
+              1.12
+            ]
+          },
+          "strawberry": {
+            "fraction_moving": 0.312,
+            "n_moving": 40,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 33,
+              "elbow_flex": 7,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              -0.44,
+              22.22,
+              -20.17,
+              4.58,
+              -4.18
+            ],
+            "mover_std_delta_deg": [
+              0.69,
+              13.94,
+              16.48,
+              6.47,
+              0.8
+            ]
+          },
+          "peach": {
+            "fraction_moving": 0.211,
+            "n_moving": 27,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 22,
+              "elbow_flex": 5,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              -0.07,
+              20.07,
+              -16.44,
+              3.2,
+              -6.74
+            ],
+            "mover_std_delta_deg": [
+              1.43,
+              14.22,
+              17.25,
+              7.36,
+              1.76
+            ]
+          }
+        },
+        "mover_direction": {
+          "lemon_vs_apple": {
+            "n_moving": [
+              77,
+              36
+            ],
+            "mover_vector_distance_deg": 11.76,
+            "mover_vector_distance_ci95": [
+              4.86,
+              19.16
+            ],
+            "mover_pan_diff_deg": -2.22,
+            "mover_pan_diff_ci95": [
+              -2.91,
+              -1.54
+            ]
+          },
+          "lemon_vs_strawberry": {
+            "n_moving": [
+              77,
+              40
+            ],
+            "mover_vector_distance_deg": 11.47,
+            "mover_vector_distance_ci95": [
+              4.42,
+              19.48
+            ],
+            "mover_pan_diff_deg": -0.07,
+            "mover_pan_diff_ci95": [
+              -0.3,
+              0.17
+            ]
+          },
+          "lemon_vs_peach": {
+            "n_moving": [
+              77,
+              27
+            ],
+            "mover_vector_distance_deg": 16.17,
+            "mover_vector_distance_ci95": [
+              7.31,
+              25.42
+            ],
+            "mover_pan_diff_deg": -0.44,
+            "mover_pan_diff_ci95": [
+              -1.02,
+              0.12
+            ]
+          },
+          "apple_vs_strawberry": {
+            "n_moving": [
+              36,
+              40
+            ],
+            "mover_vector_distance_deg": 2.78,
+            "mover_vector_distance_ci95": [
+              2.54,
+              11.47
+            ],
+            "mover_pan_diff_deg": 2.16,
+            "mover_pan_diff_ci95": [
+              1.46,
+              2.86
+            ]
+          },
+          "apple_vs_peach": {
+            "n_moving": [
+              36,
+              27
+            ],
+            "mover_vector_distance_deg": 4.99,
+            "mover_vector_distance_ci95": [
+              2.21,
+              15.74
+            ],
+            "mover_pan_diff_deg": 1.78,
+            "mover_pan_diff_ci95": [
+              0.89,
+              2.69
+            ]
+          },
+          "strawberry_vs_peach": {
+            "n_moving": [
+              40,
+              27
+            ],
+            "mover_vector_distance_deg": 5.21,
+            "mover_vector_distance_ci95": [
+              2.6,
+              15.58
+            ],
+            "mover_pan_diff_deg": -0.38,
+            "mover_pan_diff_ci95": [
+              -0.97,
+              0.19
+            ]
+          }
+        },
+        "steps": {
+          "lemon": {
+            "max_in_chunk_step_deg": 2.82,
+            "max_state_to_first_jump_deg": 7.79
+          },
+          "apple": {
+            "max_in_chunk_step_deg": 3.22,
+            "max_state_to_first_jump_deg": 7.86
+          },
+          "strawberry": {
+            "max_in_chunk_step_deg": 3.53,
+            "max_state_to_first_jump_deg": 7.68
+          },
+          "peach": {
+            "max_in_chunk_step_deg": 3.29,
+            "max_state_to_first_jump_deg": 7.71
+          },
+          "_all": {
+            "max_in_chunk_step_deg": 3.53,
+            "max_state_to_first_jump_deg": 7.86
+          }
+        }
+      },
+      "1.5": {
+        "movers": {
+          "lemon": {
+            "fraction_moving": 0.625,
+            "n_moving": 80,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 27,
+              "elbow_flex": 53,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              0.03,
+              38.63,
+              -41.24,
+              15.55,
+              -4.37
+            ],
+            "mover_std_delta_deg": [
+              0.63,
+              18.13,
+              22.24,
+              9.08,
+              1.11
+            ]
+          },
+          "apple": {
+            "fraction_moving": 0.312,
+            "n_moving": 40,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 32,
+              "elbow_flex": 8,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              3.11,
+              29.36,
+              -26.54,
+              7.44,
+              -6.66
+            ],
+            "mover_std_delta_deg": [
+              3.13,
+              18.43,
+              23.57,
+              10.63,
+              1.49
+            ]
+          },
+          "strawberry": {
+            "fraction_moving": 0.328,
+            "n_moving": 42,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 35,
+              "elbow_flex": 7,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              0.28,
+              31.33,
+              -28.62,
+              6.45,
+              -4.86
+            ],
+            "mover_std_delta_deg": [
+              0.97,
+              20.48,
+              24.22,
+              9.31,
+              1.34
+            ]
+          },
+          "peach": {
+            "fraction_moving": 0.258,
+            "n_moving": 33,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 28,
+              "elbow_flex": 5,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              0.6,
+              24.86,
+              -20.13,
+              3.57,
+              -8.05
+            ],
+            "mover_std_delta_deg": [
+              2.06,
+              20.52,
+              24.26,
+              9.95,
+              2.28
+            ]
+          }
+        },
+        "mover_direction": {
+          "lemon_vs_apple": {
+            "n_moving": [
+              80,
+              40
+            ],
+            "mover_vector_distance_deg": 19.57,
+            "mover_vector_distance_ci95": [
+              8.5,
+              30.4
+            ],
+            "mover_pan_diff_deg": -3.08,
+            "mover_pan_diff_ci95": [
+              -4.11,
+              -2.17
+            ]
+          },
+          "lemon_vs_strawberry": {
+            "n_moving": [
+              80,
+              42
+            ],
+            "mover_vector_distance_deg": 17.2,
+            "mover_vector_distance_ci95": [
+              6.6,
+              28.89
+            ],
+            "mover_pan_diff_deg": -0.25,
+            "mover_pan_diff_ci95": [
+              -0.6,
+              0.08
+            ]
+          },
+          "lemon_vs_peach": {
+            "n_moving": [
+              80,
+              33
+            ],
+            "mover_vector_distance_deg": 28.15,
+            "mover_vector_distance_ci95": [
+              16.05,
+              40.06
+            ],
+            "mover_pan_diff_deg": -0.57,
+            "mover_pan_diff_ci95": [
+              -1.27,
+              0.11
+            ]
+          },
+          "apple_vs_strawberry": {
+            "n_moving": [
+              40,
+              42
+            ],
+            "mover_vector_distance_deg": 4.52,
+            "mover_vector_distance_ci95": [
+              3.68,
+              16.71
+            ],
+            "mover_pan_diff_deg": 2.83,
+            "mover_pan_diff_ci95": [
+              1.88,
+              3.82
+            ]
+          },
+          "apple_vs_peach": {
+            "n_moving": [
+              40,
+              33
+            ],
+            "mover_vector_distance_deg": 9.19,
+            "mover_vector_distance_ci95": [
+              2.79,
+              23.36
+            ],
+            "mover_pan_diff_deg": 2.51,
+            "mover_pan_diff_ci95": [
+              1.33,
+              3.68
+            ]
+          },
+          "strawberry_vs_peach": {
+            "n_moving": [
+              42,
+              33
+            ],
+            "mover_vector_distance_deg": 11.5,
+            "mover_vector_distance_ci95": [
+              3.61,
+              25.63
+            ],
+            "mover_pan_diff_deg": -0.32,
+            "mover_pan_diff_ci95": [
+              -1.12,
+              0.42
+            ]
+          }
+        },
+        "steps": {
+          "lemon": {
+            "max_in_chunk_step_deg": 4.15,
+            "max_state_to_first_jump_deg": 8.01
+          },
+          "apple": {
+            "max_in_chunk_step_deg": 4.88,
+            "max_state_to_first_jump_deg": 7.94
+          },
+          "strawberry": {
+            "max_in_chunk_step_deg": 5.1,
+            "max_state_to_first_jump_deg": 7.8
+          },
+          "peach": {
+            "max_in_chunk_step_deg": 4.98,
+            "max_state_to_first_jump_deg": 7.81
+          },
+          "_all": {
+            "max_in_chunk_step_deg": 5.1,
+            "max_state_to_first_jump_deg": 8.01
+          }
+        }
+      },
+      "2.0": {
+        "movers": {
+          "lemon": {
+            "fraction_moving": 0.648,
+            "n_moving": 83,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 30,
+              "elbow_flex": 53,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              0.58,
+              49.54,
+              -52.97,
+              19.96,
+              -5.06
+            ],
+            "mover_std_delta_deg": [
+              1.01,
+              25.06,
+              30.57,
+              12.42,
+              1.86
+            ]
+          },
+          "apple": {
+            "fraction_moving": 0.336,
+            "n_moving": 43,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 35,
+              "elbow_flex": 8,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              4.46,
+              36.32,
+              -32.8,
+              9.11,
+              -7.76
+            ],
+            "mover_std_delta_deg": [
+              4.18,
+              24.85,
+              31.18,
+              13.77,
+              2.22
+            ]
+          },
+          "strawberry": {
+            "fraction_moving": 0.336,
+            "n_moving": 43,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 36,
+              "elbow_flex": 7,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              1.0,
+              40.44,
+              -37.11,
+              8.39,
+              -5.6
+            ],
+            "mover_std_delta_deg": [
+              1.37,
+              27.11,
+              32.0,
+              12.15,
+              2.05
+            ]
+          },
+          "peach": {
+            "fraction_moving": 0.297,
+            "n_moving": 38,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 33,
+              "elbow_flex": 5,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              1.13,
+              29.02,
+              -23.28,
+              3.83,
+              -9.35
+            ],
+            "mover_std_delta_deg": [
+              2.69,
+              26.6,
+              30.88,
+              12.36,
+              2.79
+            ]
+          }
+        },
+        "mover_direction": {
+          "lemon_vs_apple": {
+            "n_moving": [
+              83,
+              43
+            ],
+            "mover_vector_distance_deg": 26.87,
+            "mover_vector_distance_ci95": [
+              12.96,
+              42.29
+            ],
+            "mover_pan_diff_deg": -3.88,
+            "mover_pan_diff_ci95": [
+              -5.21,
+              -2.67
+            ]
+          },
+          "lemon_vs_strawberry": {
+            "n_moving": [
+              83,
+              43
+            ],
+            "mover_vector_distance_deg": 21.66,
+            "mover_vector_distance_ci95": [
+              8.65,
+              37.09
+            ],
+            "mover_pan_diff_deg": -0.42,
+            "mover_pan_diff_ci95": [
+              -0.88,
+              0.04
+            ]
+          },
+          "lemon_vs_peach": {
+            "n_moving": [
+              83,
+              38
+            ],
+            "mover_vector_distance_deg": 39.77,
+            "mover_vector_distance_ci95": [
+              23.92,
+              54.43
+            ],
+            "mover_pan_diff_deg": -0.56,
+            "mover_pan_diff_ci95": [
+              -1.41,
+              0.3
+            ]
+          },
+          "apple_vs_strawberry": {
+            "n_moving": [
+              43,
+              43
+            ],
+            "mover_vector_distance_deg": 7.26,
+            "mover_vector_distance_ci95": [
+              4.75,
+              24.12
+            ],
+            "mover_pan_diff_deg": 3.46,
+            "mover_pan_diff_ci95": [
+              2.25,
+              4.85
+            ]
+          },
+          "apple_vs_peach": {
+            "n_moving": [
+              43,
+              38
+            ],
+            "mover_vector_distance_deg": 13.61,
+            "mover_vector_distance_ci95": [
+              3.48,
+              31.89
+            ],
+            "mover_pan_diff_deg": 3.32,
+            "mover_pan_diff_ci95": [
+              1.85,
+              4.92
+            ]
+          },
+          "strawberry_vs_peach": {
+            "n_moving": [
+              43,
+              38
+            ],
+            "mover_vector_distance_deg": 18.88,
+            "mover_vector_distance_ci95": [
+              4.72,
+              37.59
+            ],
+            "mover_pan_diff_deg": -0.14,
+            "mover_pan_diff_ci95": [
+              -1.13,
+              0.78
+            ]
+          }
+        },
+        "steps": {
+          "lemon": {
+            "max_in_chunk_step_deg": 5.52,
+            "max_state_to_first_jump_deg": 8.24
+          },
+          "apple": {
+            "max_in_chunk_step_deg": 6.53,
+            "max_state_to_first_jump_deg": 8.1
+          },
+          "strawberry": {
+            "max_in_chunk_step_deg": 6.68,
+            "max_state_to_first_jump_deg": 7.99
+          },
+          "peach": {
+            "max_in_chunk_step_deg": 6.67,
+            "max_state_to_first_jump_deg": 7.9
+          },
+          "_all": {
+            "max_in_chunk_step_deg": 6.68,
+            "max_state_to_first_jump_deg": 8.24
+          }
+        }
+      },
+      "3.0": {
+        "movers": {
+          "lemon": {
+            "fraction_moving": 0.703,
+            "n_moving": 90,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 36,
+              "elbow_flex": 54,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              1.6,
+              68.6,
+              -73.35,
+              27.71,
+              -6.24
+            ],
+            "mover_std_delta_deg": [
+              1.85,
+              40.18,
+              48.35,
+              19.35,
+              3.53
+            ]
+          },
+          "apple": {
+            "fraction_moving": 0.391,
+            "n_moving": 50,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 42,
+              "elbow_flex": 8,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              6.71,
+              47.1,
+              -42.2,
+              11.54,
+              -9.82
+            ],
+            "mover_std_delta_deg": [
+              6.25,
+              37.9,
+              46.01,
+              19.61,
+              3.66
+            ]
+          },
+          "strawberry": {
+            "fraction_moving": 0.383,
+            "n_moving": 49,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 40,
+              "elbow_flex": 9,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              2.18,
+              53.37,
+              -48.88,
+              10.91,
+              -6.72
+            ],
+            "mover_std_delta_deg": [
+              2.31,
+              41.44,
+              47.7,
+              17.37,
+              3.63
+            ]
+          },
+          "peach": {
+            "fraction_moving": 0.359,
+            "n_moving": 46,
+            "trigger_joint_counts": {
+              "shoulder_pan": 0,
+              "shoulder_lift": 41,
+              "elbow_flex": 5,
+              "wrist_flex": 0
+            },
+            "mover_mean_delta_deg": [
+              2.09,
+              36.26,
+              -28.75,
+              4.35,
+              -11.5
+            ],
+            "mover_std_delta_deg": [
+              3.95,
+              38.27,
+              43.41,
+              16.82,
+              4.34
+            ]
+          }
+        },
+        "mover_direction": {
+          "lemon_vs_apple": {
+            "n_moving": [
+              90,
+              50
+            ],
+            "mover_vector_distance_deg": 41.63,
+            "mover_vector_distance_ci95": [
+              20.9,
+              62.01
+            ],
+            "mover_pan_diff_deg": -5.11,
+            "mover_pan_diff_ci95": [
+              -7.0,
+              -3.43
+            ]
+          },
+          "lemon_vs_strawberry": {
+            "n_moving": [
+              90,
+              49
+            ],
+            "mover_vector_distance_deg": 33.37,
+            "mover_vector_distance_ci95": [
+              13.62,
+              54.53
+            ],
+            "mover_pan_diff_deg": -0.58,
+            "mover_pan_diff_ci95": [
+              -1.31,
+              0.12
+            ]
+          },
+          "lemon_vs_peach": {
+            "n_moving": [
+              90,
+              46
+            ],
+            "mover_vector_distance_deg": 60.08,
+            "mover_vector_distance_ci95": [
+              38.69,
+              81.06
+            ],
+            "mover_pan_diff_deg": -0.49,
+            "mover_pan_diff_ci95": [
+              -1.73,
+              0.68
+            ]
+          },
+          "apple_vs_strawberry": {
+            "n_moving": [
+              50,
+              49
+            ],
+            "mover_vector_distance_deg": 10.7,
+            "mover_vector_distance_ci95": [
+              6.49,
+              34.62
+            ],
+            "mover_pan_diff_deg": 4.53,
+            "mover_pan_diff_ci95": [
+              2.72,
+              6.43
+            ]
+          },
+          "apple_vs_peach": {
+            "n_moving": [
+              50,
+              46
+            ],
+            "mover_vector_distance_deg": 19.34,
+            "mover_vector_distance_ci95": [
+              4.57,
+              42.74
+            ],
+            "mover_pan_diff_deg": 4.62,
+            "mover_pan_diff_ci95": [
+              2.53,
+              6.66
+            ]
+          },
+          "strawberry_vs_peach": {
+            "n_moving": [
+              49,
+              46
+            ],
+            "mover_vector_distance_deg": 27.64,
+            "mover_vector_distance_ci95": [
+              6.85,
+              52.55
+            ],
+            "mover_pan_diff_deg": 0.09,
+            "mover_pan_diff_ci95": [
+              -1.37,
+              1.34
+            ]
+          }
+        },
+        "steps": {
+          "lemon": {
+            "max_in_chunk_step_deg": 8.29,
+            "max_state_to_first_jump_deg": 8.7
+          },
+          "apple": {
+            "max_in_chunk_step_deg": 9.84,
+            "max_state_to_first_jump_deg": 8.59
+          },
+          "strawberry": {
+            "max_in_chunk_step_deg": 9.91,
+            "max_state_to_first_jump_deg": 8.37
+          },
+          "peach": {
+            "max_in_chunk_step_deg": 10.04,
+            "max_state_to_first_jump_deg": 8.22
+          },
+          "_all": {
+            "max_in_chunk_step_deg": 10.04,
+            "max_state_to_first_jump_deg": 8.7
+          }
+        }
+      }
+    }
+  }
+}

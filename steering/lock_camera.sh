@@ -11,7 +11,10 @@
 # command has opened the camera. Record the printed values in the run log.
 set -euo pipefail
 dev=${1:?usage: lock_camera.sh DEVICE [exposure] [wb_kelvin] [gain] [focus]}
-exposure=${2:-156}
+# exposure_time_absolute is in 100 us units, so 100 = 10 ms. 50 Hz mains makes lights flicker at
+# 100 Hz (10 ms period); an exposure that is a whole multiple of 10 ms integrates full flicker cycles,
+# so frames do not band or pulse in brightness.
+exposure=${2:-100}
 wb=${3:-4600}
 gain=${4:-0}
 focus=${5:-0}
@@ -27,13 +30,23 @@ try white_balance_temperature_auto=0
 try focus_automatic_continuous=0    # older drivers: focus_auto=0
 try focus_auto=0
 try backlight_compensation=0
-try power_line_frequency=2          # 50 Hz mains (Singapore); stops fluorescent banding
+try power_line_frequency=1          # V4L2: 0 off, 1 = 50 Hz, 2 = 60 Hz. Singapore mains is 50 Hz
 
 try exposure_time_absolute="$exposure"
 try exposure_absolute="$exposure"
 try white_balance_temperature="$wb"
 try gain="$gain"
 try focus_absolute="$focus"
+
+# Some cameras only accept exposure in fixed steps and silently round the request: read it back.
+for ctrl in exposure_time_absolute exposure_absolute; do
+  if got=$(v4l2-ctl -d "$dev" --get-ctrl="$ctrl" 2>/dev/null); then
+    got=${got##*: }
+    if [[ "$got" != "$exposure" ]]; then
+      echo "WARNING: requested $ctrl=$exposure but the camera reports $got" >&2
+    fi
+  fi
+done
 
 echo "--- $dev"
 v4l2-ctl -d "$dev" --list-ctrls
