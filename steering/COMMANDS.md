@@ -7,6 +7,24 @@ in `~/.cache/huggingface/lerobot/local/`.
 If `lerobot-find-port` finds nothing, or the port appears and then vanishes, run
 `sudo apt remove brltty`. It grabs the USB-serial chips SO-101 boards use.
 
+## This rig (2 Oct 2026)
+
+| Device | Stable path |
+|---|---|
+| Follower (calibration `so101_follower`, verified against the motors) | `/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B8E114089-if00` |
+| Leader (`so101_leader`) | `/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B79018576-if00` |
+| **Wrist camera** (Sonix USB2.0_CAM1; checked from a frame: gripper jaws in view) | `/dev/v4l/by-id/usb-Sonix_Technology_Co.__Ltd._USB2.0_CAM1_USB2.0_CAM1-video-index0` |
+| Not a rig camera: Kingcome FHD WebCam, the laptop's built-in webcam (black frame, shutter closed) | `/dev/v4l/by-id/usb-Kingcome_FHD_WebCam_200901010001-video-index0` |
+
+Camera settings used on 2 Oct (wrist camera): manual exposure 200 (20 ms; 10 ms was too dark, mean
+brightness ~50/255), gain 0, 50 Hz, **auto white balance kept on**. This camera's manual white balance
+leaves a green cast at every temperature from 2800 to 6500 K, unlike its auto mode, so it is not used
+for now. Revisit before the pen pilot. To apply: `steering/lock_camera.sh <wrist path> 200`, then
+`v4l2-ctl -d <wrist path> --set-ctrl=white_balance_automatic=1`. Check with `--list-ctrls` after the
+first lerobot run, because OpenCV may reset them.
+
+Use these paths in place of `/dev/ttyACM0` / `/dev/ttyACM1` below: the `ttyACM` numbers can swap on replug.
+
 Always go through `uv run` so the fork's code runs, not a stray install. Replace ports and
 camera paths with what steps 2.1–2.2 report. Joint values are in **degrees**
 (`use_degrees=True` is the SO-101 default, and the MolmoAct2 frame correction assumes degrees).
@@ -84,6 +102,24 @@ uv run lerobot-rollout \
   --rename_map='{"observation.images.front": "observation.images.cam0", "observation.images.side": "observation.images.cam1"}' \
   --task="pick up the red cube" --duration=30
 ```
+
+**One camera (current rig: a single wrist webcam).** Use the one-view checkpoint copy
+`steering/checkpoints/MolmoAct2-SO100_101-LeRobot-1cam`: the same weights, with the input step set to
+expect only `cam0`. Name the camera `cam0`; no `--rename_map` is needed. Tested offline on Ai2's frame
+(`results/camera_count_test.json`): it runs, and it is a little faster (~266 ms per chunk). Which view
+is used matters, though, and a wrist view is untested.
+
+```bash
+uv run lerobot-rollout \
+  --policy.path=steering/checkpoints/MolmoAct2-SO100_101-LeRobot-1cam \
+  --robot.type=so101_follower --robot.port=/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B8E114089-if00 --robot.id=so101_follower \
+  --robot.max_relative_target=5 \
+  --robot.cameras='{cam0: {type: opencv, index_or_path: /dev/v4l/by-id/usb-Sonix_Technology_Co.__Ltd._USB2.0_CAM1_USB2.0_CAM1-video-index0, width: 640, height: 480, fps: 30}}' \
+  --task="pick up the red cube" --duration=30
+```
+
+The colleague's calibration ids are `so101_follower` / `so101_leader` (files in
+`~/.cache/huggingface/lerobot/calibration/`). Use them wherever these commands say `follower` / `leader`.
 
 Before the first rollout, and for the raised start pose used for pen frames, check that the arm
 starts inside the range the checkpoint was trained on. Outside it, the first action is a jump back

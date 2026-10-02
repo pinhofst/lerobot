@@ -1,0 +1,232 @@
+{
+  "two_views": {
+    "error": null,
+    "batch": {
+      "image_token_pooling": [
+        392,
+        4
+      ],
+      "image_grids": [
+        2,
+        4
+      ],
+      "image_num_crops": [
+        2
+      ],
+      "observation.images.cam0": [
+        1,
+        3,
+        480,
+        640
+      ],
+      "observation.images.cam1": [
+        1,
+        3,
+        480,
+        640
+      ],
+      "pixel_values": [
+        2,
+        729,
+        588
+      ],
+      "image_num_crops_values": [
+        1,
+        1
+      ],
+      "valid_tokens": 505
+    },
+    "latency_ms_median": 316.1048669999218,
+    "moving_seeds": "41/64",
+    "moving_mean_displacement_deg": {
+      "shoulder_pan": -0.54,
+      "shoulder_lift": 26.21,
+      "elbow_flex": -27.76
+    },
+    "first_action_mean_deg": {
+      "shoulder_pan": -1.66,
+      "shoulder_lift": -96.09,
+      "elbow_flex": 83.61,
+      "wrist_flex": 60.26,
+      "wrist_roll": -5.05,
+      "gripper": -0.03
+    }
+  },
+  "one_cam0": {
+    "error": null,
+    "batch": {
+      "image_token_pooling": [
+        196,
+        4
+      ],
+      "image_grids": [
+        1,
+        4
+      ],
+      "image_num_crops": [
+        1
+      ],
+      "observation.images.cam0": [
+        1,
+        3,
+        480,
+        640
+      ],
+      "pixel_values": [
+        1,
+        729,
+        588
+      ],
+      "image_num_crops_values": [
+        1
+      ],
+      "valid_tokens": 301
+    },
+    "latency_ms_median": 266.280176500004,
+    "moving_seeds": "28/64",
+    "moving_mean_displacement_deg": {
+      "shoulder_pan": 0.12,
+      "shoulder_lift": 23.44,
+      "elbow_flex": -27.77
+    },
+    "first_action_mean_deg": {
+      "shoulder_pan": -0.94,
+      "shoulder_lift": -96.08,
+      "elbow_flex": 83.6,
+      "wrist_flex": 60.62,
+      "wrist_roll": -4.3,
+      "gripper": 0.01
+    },
+    "rms_vs_two_views_deg": {
+      "mean_over_chunk": 2.2,
+      "last_step": 4.82
+    }
+  },
+  "cam0_twice": {
+    "error": null,
+    "batch": {
+      "image_token_pooling": [
+        392,
+        4
+      ],
+      "image_grids": [
+        2,
+        4
+      ],
+      "image_num_crops": [
+        2
+      ],
+      "observation.images.cam0": [
+        1,
+        3,
+        480,
+        640
+      ],
+      "observation.images.cam1": [
+        1,
+        3,
+        480,
+        640
+      ],
+      "pixel_values": [
+        2,
+        729,
+        588
+      ],
+      "image_num_crops_values": [
+        1,
+        1
+      ],
+      "valid_tokens": 505
+    },
+    "latency_ms_median": 318.6992940001119,
+    "moving_seeds": "35/64",
+    "moving_mean_displacement_deg": {
+      "shoulder_pan": -0.04,
+      "shoulder_lift": 28.85,
+      "elbow_flex": -34.24
+    },
+    "first_action_mean_deg": {
+      "shoulder_pan": -1.01,
+      "shoulder_lift": -96.07,
+      "elbow_flex": 83.6,
+      "wrist_flex": 60.72,
+      "wrist_roll": -4.36,
+      "gripper": -0.01
+    },
+    "rms_vs_two_views_deg": {
+      "mean_over_chunk": 1.44,
+      "last_step": 2.67
+    }
+  },
+  "one_cam1": {
+    "error": null,
+    "batch": {
+      "image_token_pooling": [
+        196,
+        4
+      ],
+      "image_grids": [
+        1,
+        4
+      ],
+      "image_num_crops": [
+        1
+      ],
+      "observation.images.cam1": [
+        1,
+        3,
+        480,
+        640
+      ],
+      "pixel_values": [
+        1,
+        729,
+        588
+      ],
+      "image_num_crops_values": [
+        1
+      ],
+      "valid_tokens": 301
+    },
+    "latency_ms_median": 265.39784850001524,
+    "moving_seeds": "4/64",
+    "moving_mean_displacement_deg": {
+      "shoulder_pan": 0.51,
+      "shoulder_lift": 9.91,
+      "elbow_flex": -20.28
+    },
+    "first_action_mean_deg": {
+      "shoulder_pan": -0.89,
+      "shoulder_lift": -96.11,
+      "elbow_flex": 83.61,
+      "wrist_flex": 60.54,
+      "wrist_roll": -4.1,
+      "gripper": 0.25
+    },
+    "rms_vs_two_views_deg": {
+      "mean_over_chunk": 4.02,
+      "last_step": 11.28
+    }
+  },
+  "_meta": {
+    "task": "Move the arm towards the lemon, grasp it, lift it up, and drop it into the red bowl.",
+    "seeds": 64,
+    "move_threshold_deg": 5.0,
+    "state_arm_frame": [
+      -0.527,
+      -99.141,
+      91.406,
+      60.645,
+      -3.604,
+      1.097
+    ],
+    "one_view_override": {
+      "molmoact2_pack_inputs": {
+        "image_keys": [
+          "<the one camera key>"
+        ]
+      }
+    }
+  }
+}
