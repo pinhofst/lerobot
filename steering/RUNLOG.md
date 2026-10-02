@@ -74,9 +74,49 @@ Reading:
   inversion. That inversion is verified by code review instead: it is the exact inverse of
   `MolmoAct2StateFrameTransformStep`.
 
-## Camera mapping
+## Camera mapping and the one-camera setup (2 Oct)
 
-_pending (arm steps)_
+Rig on 2 Oct: **one camera, on the wrist** (Sonix USB2.0_CAM1, `cam0`). The second USB camera the
+laptop lists (Kingcome FHD) is its built-in webcam. The LeRobot checkpoint is packaged for two views
+and raises an error if one is missing, so a one-view copy is used:
+`steering/checkpoints/MolmoAct2-SO100_101-LeRobot-1cam` (same weights; `molmoact2_pack_inputs.image_keys
+= [cam0]`). `lerobot-rollout` accepts it, because the robot's cameras only need to be a subset of the
+policy's (`rollout/context.py`).
+
+**Offline test on Ai2's frame** (`camera_count_test.py`, `results/camera_count_test.json`, 64 shared seeds):
+
+| Input | Seeds moving | Movers pan / lift / elbow (°) | RMS from two views (°) | Per chunk |
+|---|---|---|---|---|
+| Two views | 41 / 64 | −0.5 / +26.2 / −27.8 | — | ~316 ms |
+| Same frame twice (table-height) | 35 / 64 | 0.0 / +28.9 / −34.2 | 1.4 | ~319 ms |
+| One view: table-height | 28 / 64 | +0.1 / +23.4 / −27.8 | 2.2 | ~266 ms |
+| One view: overhead | 4 / 64 | +0.5 / +9.9 / −20.3 | 4.0 | ~265 ms |
+
+One view mostly makes the arm move less often. The view chosen matters a lot, and a wrist view was
+not testable offline.
+
+**What the paper says** (`MOLMO_PAPER_NOTES.md`):
+- About 11% of SO-100/101 training episodes have a single camera (Table 23).
+- Only about 1.7% of episodes (39 single-camera datasets) name that camera wrist, gripper or hand.
+- Every SO-100 evaluation in the paper used wrist + third-person (Sec. 6.2).
+- Views enter as "Image 1, Image 2…", with camera order shuffled per episode (Sec. 4.3.1), so the
+  cam0/cam1 slots carry no meaning.
+
+So one camera is in distribution, but **wrist-only is rare**: expect weaker behaviour, which is not
+by itself a sign of a fault. Add a fixed third-person camera before the pen pilot.
+
+**First rollout, 2 Oct 15:44** (one view, `--task="pick up the red pen"`, 20 s, `max_relative_target=3`,
+synchronous inference, started from the folded rest pose):
+- It ran end to end, but **the arm did not leave the rest pose**.
+- The model kept commanding elbow 83.6°, the edge of the trained range, because the clipped state
+  tells it the elbow is there. The 3° cap turned that into present − 3°, and the elbow stayed at
+  about 94.6°. A position error capped at 3° is likely too small for the elbow servo to unfold
+  the arm against its load.
+- Effective loop rate 15.5 Hz, against a 30 Hz target: the synchronous loop waits ~300 ms per chunk.
+- Nothing was recorded besides the terminal log.
+
+Next: start from the checkpoint's median training pose (`poses/molmo_median.json`, moved there with
+`goto_pose.py`), with a larger cap, `--inference.type=rtc`, and recording.
 
 ## Frame diagnostic on Ai2's sample frame (step 5 precursor, stand-in for the pen frame)
 

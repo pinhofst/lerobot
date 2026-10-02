@@ -1,0 +1,11 @@
+{
+  "source": "median (q50) of observation.state in lerobot/MolmoAct2-SO100_101-LeRobot normaliser stats, converted to the arm frame; the most in-distribution start pose",
+  "joints": {
+    "shoulder_pan": 3.1,
+    "shoulder_lift": -33.2,
+    "elbow_flex": 34.4,
+    "wrist_flex": 57.9,
+    "wrist_roll": -11.0,
+    "gripper": 9.2
+  }
+}

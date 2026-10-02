@@ -51,6 +51,9 @@ Newest first. "Plan" is the plan artifact the three of us work from.
 
 | Date | Decision | Why |
 |---|---|---|
+| 2 Oct | Start rollouts from the checkpoint's median training pose (`poses/molmo_median.json`: pan 3°, lift −33°, elbow 34°, wrist_flex 58°), moved there by software (`goto_pose.py`) | From the folded rest pose the state is clipped, and the first rollout never left rest |
+| 2 Oct | One wrist camera for now, with the one-view checkpoint copy (`checkpoints/…-1cam`); add a fixed third-person camera before the pen pilot | It is the only camera. Wrist-only is about 1.7% of the SO training episodes (paper), and the view used changes behaviour (offline test) |
+| 2 Oct | Use the colleague's calibration (`so101_follower` / `so101_leader`); verified against the motors and by teleop | Same arms; LeRobot 0.6.1 uses the convention MolmoAct2 expects |
 | 30 Sep | Lighting: lock cameras per session (`lock_camera.sh`, 10 ms exposure for 50 Hz mains), a quick look for banding, no flicker tooling | The policy is probably fairly robust to lighting; the risk is to our small blue-vs-red and activation differences. If lighting looks suspicious, test offline with synthetic brightness and white-balance shifts on a fixed frame |
 | 30 Sep | CAG as a complementary offline test, final-action variant only (`frame_diagnostic.py --cag-weights`); mixing inside the flow sampler rejected | Cheap and needs no change to `src/`. The core of the project is steering, not CAG. First result: CAG amplifies reach, not target choice (RUNLOG) |
 | 30 Sep | End-effector position by forward kinematics from joint states, live or offline (both cheap); one quick table-mark check that it is not badly wrong | Only needs to say which pen was contacted |
@@ -121,7 +124,7 @@ Still open:
 | 2 Install, ports, calibrate, teleop, servos | Install done; arm steps pending | COMMANDS §2 |
 | 2b Camera rig | Pending; lock script ready | COMMANDS §2b |
 | 3 Latency and VRAM | Done: 361 ms/chunk, 12.2 GiB peak | RUNLOG |
-| 4 First rollout | Pending; checkpoint built and verified | COMMANDS §4 |
+| 4 First rollout | 2 Oct: ran end to end, but the arm stayed at rest (state clipped, 3° cap). Next: median start pose, recorded | RUNLOG |
 | 5 Pilot | Precursor run on Ai2's frame; pen frame and rollouts pending | RUNLOG, COMMANDS §5 |
 | 6 Report | Ongoing in RUNLOG | RUNLOG |
 
