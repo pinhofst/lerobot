@@ -142,5 +142,11 @@ Still open:
 
 ## Open items
 
+- [ ] **MolmoAct2 behind the colleague's dashboard** (3 Oct). The server and wrappers are in
+  `~/Documents/so101_smolvla/so101_smolvla/molmoact2/` (his repo, new folder only, not committed; see
+  its README). They are tested in dry-run without the arm. The server records to `results/server_runs/`
+  (git-ignored). Running his client on the arm departs from the 2 Oct "rollout.py only" decision, and
+  there is no per-tick record of what the arm executed: decide before using it on the arm. Use
+  `run_local.sh all --keep-torque`, not the console's Run tab, which releases torque on quit.
 - [ ] Decide the camera pose once the rig is up (compare both poses on the frame diagnostic).
 - [ ] If `lerobot-find-port` misbehaves: `sudo apt remove brltty`.
