@@ -51,6 +51,7 @@ Newest first. "Plan" is the plan artifact the three of us work from.
 
 | Date | Decision | Why |
 |---|---|---|
+| 2 Oct | All policy runs on the arm go through `steering/rollout.py`: torque-safe connect (refuses rather than dropping the arm), a required per-step cap, every run recorded to `results/runs/` and plotted. Run folders are not committed by default; share one with `git add -f` | Plain `lerobot-rollout` drops a raised arm at connect and records nothing |
 | 2 Oct | Start rollouts from the checkpoint's median training pose (`poses/molmo_median.json`: pan 3°, lift −33°, elbow 34°, wrist_flex 58°), moved there by software (`goto_pose.py`) | From the folded rest pose the state is clipped, and the first rollout never left rest |
 | 2 Oct | One wrist camera for now, with the one-view checkpoint copy (`checkpoints/…-1cam`); add a fixed third-person camera before the pen pilot | It is the only camera. Wrist-only is about 1.7% of the SO training episodes (paper), and the view used changes behaviour (offline test) |
 | 2 Oct | Use the colleague's calibration (`so101_follower` / `so101_leader`); verified against the motors and by teleop | Same arms; LeRobot 0.6.1 uses the convention MolmoAct2 expects |

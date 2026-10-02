@@ -1,3 +1,6 @@
 checkpoints/
 results/*_chunks.npz
 __pycache__/
+# rollout recordings stay local by default; share a run explicitly with
+#   git add -f steering/results/runs/<run>/meta.json steering/results/runs/<run>/plots
+results/runs/

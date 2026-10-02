@@ -1,0 +1,12 @@
+{
+  "source": "colleague's so101_smolvla mac/home_pose.json (folded rest pose, same so101_follower calibration); outside MolmoAct2's trained range, use only as a rest/park pose",
+  "joints": {
+    "shoulder_pan": -1.6,
+    "shoulder_lift": -101.0,
+    "elbow_flex": 95.8,
+    "wrist_flex": 52.8,
+    "wrist_roll": 2.1,
+    "gripper": 0.9
+  },
+  "rest": true
+}

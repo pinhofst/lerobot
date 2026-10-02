@@ -128,9 +128,19 @@ def hold_here(robot: SOFollower) -> np.ndarray:
     return present
 
 
+def is_rest_pose(name: str) -> bool:
+    """True if the pose file is marked ``"rest": true`` (the arm rests on itself there)."""
+    return bool(json.loads(pose_path(name).read_text()).get("rest", False))
+
+
 def go(args: argparse.Namespace) -> None:
-    """Move slowly to the stored pose and leave torque on."""
+    """Move slowly to the stored pose; leave torque on, or release it at a rest pose (--release)."""
     target = load_pose(args.name)
+    if args.release and not is_rest_pose(args.name):
+        raise SystemExit(
+            f'--release refused: {args.name} is not marked as a rest pose ("rest": true in its file), '
+            "and releasing torque there would drop the arm"
+        )
     if args.dry_run:
         start = read_robot_state(args.robot_port, args.robot_id)
         goals = plan(start, target, args.speed, args.max_step, args.fps)
@@ -224,6 +234,19 @@ def go(args: argparse.Namespace) -> None:
     )
     if outcome == "interrupted":
         print("motion stopped where it was.")
+    max_err = float(np.abs(target - present).max())
+    # Release only on a real arrival: every joint within --tolerance after the full interpolation.
+    # A timeout or Ctrl-C keeps torque on, however close the arm ended up.
+    if args.release and outcome == "reached":
+        robot.bus.connect()
+        try:
+            robot.bus.disable_torque()
+        finally:
+            robot.bus.disconnect(disable_torque=False)
+        print(f"torque OFF: reached rest pose {args.name} (max |error| {max_err:.2f} <= {args.tolerance:g}).")
+        return
+    if args.release:
+        print(f"--release skipped (outcome {outcome}, not reached).")
     print("TORQUE IS STILL ON: the arm is holding this pose. Support it before anything disables torque.")
 
 
@@ -248,6 +271,12 @@ def main() -> None:
             p.add_argument("--timeout", type=float, default=15.0, help="s, from the first step")
             p.add_argument("--fps", type=float, default=30.0, help="goal rate, Hz")
             p.add_argument("--dry-run", action="store_true", help="read only; print the plan")
+            p.add_argument(
+                "--release",
+                action="store_true",
+                help="switch torque off only if the pose is reached (every joint within --tolerance "
+                "before --timeout; a timeout or Ctrl-C keeps torque on); only for poses marked rest",
+            )
     args = parser.parse_args()
     if args.command == "go" and min(args.max_step, args.speed, args.tolerance, args.timeout, args.fps) <= 0:
         parser.error("--max-step, --speed, --tolerance, --timeout and --fps must be positive")

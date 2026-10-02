@@ -110,7 +110,7 @@ expect only `cam0`. Name the camera `cam0`; no `--rename_map` is needed. Tested 
 is used matters, though, and a wrist view is untested.
 
 ```bash
-uv run lerobot-rollout \
+uv run python steering/rollout.py --tag onecam \
   --policy.path=steering/checkpoints/MolmoAct2-SO100_101-LeRobot-1cam \
   --robot.type=so101_follower --robot.port=/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B8E114089-if00 --robot.id=so101_follower \
   --robot.max_relative_target=5 \
@@ -138,6 +138,47 @@ the wrong way, check the calibration and `use_degrees` first.
 Step 3 measured about 360 ms per 30-action chunk. The synchronous loop (the default) pauses for that
 long at the start of every chunk, about once a second. Add `--inference.type=rtc` to hide it once
 the basic run looks sane.
+
+### Recorded rollouts (steering/rollout.py)
+
+**From now on, `steering/rollout.py` is the ONLY way to run a policy on the arm**: it records every
+run, plots it, and connects torque-safely. Do not call `lerobot-rollout` directly.
+
+`steering/rollout.py` runs `lerobot-rollout` in-process with the same arguments, plus wrapper-only
+`--tag`, `--allow-torque-blip` and `--no-plot`. It refuses to start without
+`--robot.max_relative_target=...`: the cap is per step at 30 Hz, so 4° per step ≈ 120°/s.
+It connects without the torque blip when the servos already hold the settings `configure()`
+would write (and keeps the goal of an arm already holding a pose with torque on); otherwise it exits
+with the list of mismatches, without touching torque. Only with `--allow-torque-blip` does it warn and
+run the stock `configure()`, and then the arm sags: support it. It also
+records every tick (state, policy and sent command, clipping), every inference call with its chunk,
+and a camera frame every 0.5 s to `steering/results/runs/<stamp>_<tag>/`. It adds
+`--robot.disable_torque_on_disconnect=false`, so the arm keeps holding its pose after the run.
+See the docstring for details.
+
+First move to the most in-distribution start pose (torque-safe, torque stays on), then run, then plot:
+
+```bash
+uv run python steering/goto_pose.py go molmo_median \
+  --robot-port /dev/serial/by-id/usb-1a86_USB_Single_Serial_5B8E114089-if00 --robot-id so101_follower
+
+uv run python steering/rollout.py --tag median_rtc \
+  --policy.path=steering/checkpoints/MolmoAct2-SO100_101-LeRobot-1cam \
+  --robot.type=so101_follower --robot.port=/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B8E114089-if00 --robot.id=so101_follower \
+  --robot.max_relative_target=4 \
+  --robot.cameras='{cam0: {type: opencv, index_or_path: /dev/v4l/by-id/usb-Sonix_Technology_Co.__Ltd._USB2.0_CAM1_USB2.0_CAM1-video-index0, width: 640, height: 480, fps: 30}}' \
+  --inference.type=rtc \
+  --task="pick up the red cube" --duration=30
+
+# plots are made automatically at the end (normal exit or Ctrl-C; --no-plot skips); to redo them:
+uv run python steering/plot_run.py steering/results/runs/<stamp>_median_rtc   # path is printed at the end
+```
+
+`plot_run.py` writes `plots/joints.png`, `chunks.png`, `cadence.png` and `frames.png`, and prints a summary:
+Hz, % of ticks clipped per joint, travel, the start and end pose, and whether the start was inside
+the trained range. `uv run python steering/plot_run.py --self-test` checks the plotting without the arm.
+At the end the stock teardown still returns the arm to its start pose over 3 s
+(`--return_to_initial_position=false` to skip).
 
 ## 5 · Pilot: pens on one frame, then on the arm
 
@@ -186,7 +227,7 @@ session per instruction × layout; the instruction is in the dataset name and ta
 
 ```bash
 uv run python steering/goto_pose.py go raised
-uv run lerobot-rollout --strategy.type=episodic \
+uv run python steering/rollout.py --tag pilot_pens_blue_A --strategy.type=episodic \
   --policy.path=steering/checkpoints/MolmoAct2-SO100_101-LeRobot \
   --robot.type=so101_follower --robot.port=/dev/ttyACM0 --robot.id=follower \
   --robot.max_relative_target=5 \
