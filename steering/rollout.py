@@ -5,7 +5,8 @@
 
 Wrapper-only flags (stripped before forwarding): ``--tag NAME`` (default ``run``),
 ``--allow-torque-blip`` (see patch a), ``--no-plot`` (skip the automatic plot_run on the run dir
-after the run, normal exit or Ctrl-C) and ``--skip-gpu-check`` (see GPU check). ``--robot.max_relative_target=DEG`` is required: the cap is
+after the run, normal exit or Ctrl-C), ``--skip-gpu-check`` (see GPU check) and ``--stock-load`` (see
+fast load). ``--robot.max_relative_target=DEG`` is required: the cap is
 per control step at 30 Hz, so 4 deg per step is about 120 deg/s. Every other argument is passed
 unchanged to ``lerobot.scripts.lerobot_rollout.main``. If ``--robot.disable_torque_on_disconnect`` is not given,
 ``--robot.disable_torque_on_disconnect=false`` is added, so the arm keeps holding its pose when the
@@ -45,12 +46,39 @@ Patch b: recording, into steering/results/runs/<YYYYmmdd-HHMMSS>_<tag>/
                 unnormalised and converted to the arm frame, as the postprocessor does; computed at
                 the end of the run), ``inference_delay`` (RTC only, else -1), and the ``phase`` and
                 ``episode`` labels at t_start.
+                RTC queue merges (patch c), one value per chunk row: ``merged`` (bool), ``merge_t``
+                (ticks' ``t`` clock, NaN if not merged), ``merge_t_wall`` (epoch s), ``merge_delay``
+                (steps actually dropped from the front of the chunk: ``min(new_delay, indexes_diff)``
+                as resolved by ``ActionQueue._check_and_resolve_delays``, clamped to the chunk length;
+                -1 if not merged), ``merge_new_delay`` (latency-based delay passed to merge),
+                ``merge_indexes_diff`` (actions consumed during the inference, -1 if not known),
+                ``merge_prev_consumed`` / ``merge_prev_len`` (actions consumed from / length of the
+                queue this chunk replaced; prev_len 0 after an engine reset or for the first chunk:
+                the previous chunk then ran ``[merge_delay, merge_delay + prev_consumed)``) and
+                ``discard_reason`` (0 merged or sync, 1 engine reset, 2 other: a trained-RTC delay
+                discard, an error, or the run ended first). ``engine_reset_t`` lists the times of
+                ``RTCInferenceEngine.reset()``; ``merge_hooked`` is True when the merge wrapper was in
+                place. Sync runs have no merges: merged all False, the rest NaN / -1.
     frames/     one RGB JPEG per camera every FRAME_PERIOD_S (0.1 s), taken from the observation
                 dict, written by a background thread. Named ``<index>_<t>s_<label>_<camera>.jpg``,
                 label = ``pre``, ``ep<kk>_policy``, ``ep<kk>_reset`` or ``teardown``.
     meta.json   argv (as typed and as forwarded), tag, task, fps, policy path, robot and dataset
-                settings, the connect report (fast path or fallback, and why), counts, recording
-                errors and ``episodes`` (below).
+                settings, the connect report (fast path or fallback, and why), ``fast_load`` (below),
+                counts, recording errors and ``episodes`` (below).
+
+Patch c: RTC merge recording. ``ActionQueue.merge`` and ``ActionQueue._check_and_resolve_delays`` are
+    wrapped at class level (they run in the RTC thread, the queue lock held for the latter); the merge
+    is matched to the chunk the same thread recorded last (a thread-local id set by the
+    predict_action_chunk wrapper, consumed by the merge). ``RTCInferenceEngine.reset`` is wrapped on
+    the instance to time engine resets. A chunk that never merged is classified at save time: a reset
+    between the end of the previous chunk's inference and the start of the next chunk's means the
+    engine discarded it for the reset (``discard_reason`` 1).
+
+Fast load: unless ``--stock-load`` is given, ``steering/fast_load.py`` is installed just before
+    lerobot_rollout.main(), so MolmoAct2 is built from the local checkpoint without reading the
+    allenai weight shards (see that module; Hub ids and non-full re-saves fall back to the stock
+    load). ``meta.json["fast_load"]`` records whether it was installed, the path taken (``fast`` or
+    ``stock``) and why. If the install itself fails, the stock load runs and the error is recorded.
 
 Episodes. With ``--strategy.type=episodic`` (one model load, ``--dataset.num_episodes`` episodes)
 the strategy instance's ``_policy_loop``, ``_reset_loop`` and ``return_to_initial_position`` are
@@ -126,13 +154,14 @@ logger = logging.getLogger("steering.rollout")
 def split_argv(argv: list[str]) -> tuple[str, list[str], dict[str, bool]]:
     """Strip the wrapper flags, require ``--robot.max_relative_target``, add the torque default.
 
-    Wrapper flags: ``--tag``, ``--allow-torque-blip``, ``--no-plot``, ``--skip-gpu-check``.
+    Wrapper flags: ``--tag``, ``--allow-torque-blip``, ``--no-plot``, ``--skip-gpu-check``,
+    ``--stock-load``.
     """
     tag, rest, i = "run", [], 0
-    flags = {"allow_torque_blip": False, "no_plot": False, "skip_gpu_check": False}
+    flags = {"allow_torque_blip": False, "no_plot": False, "skip_gpu_check": False, "stock_load": False}
     while i < len(argv):
         arg = argv[i]
-        if arg in ("--allow-torque-blip", "--no-plot", "--skip-gpu-check"):
+        if arg in ("--allow-torque-blip", "--no-plot", "--skip-gpu-check", "--stock-load"):
             flags[arg[2:].replace("-", "_")] = True
             i += 1
             continue
@@ -243,6 +272,11 @@ class Recorder:
         self.chunks: dict[str, list] = {
             k: [] for k in ("t_start", "duration", "chunk_norm", "inference_delay", "phase", "episode")
         }
+        self.merges: dict[int, dict[str, Any]] = {}  # chunk row -> its RTC queue merge (patch c)
+        self.merges_unmatched = 0  # merges with no recorded chunk to attach to
+        self.engine_resets: list[float] = []
+        self.merge_hooked = False
+        self._tls = threading.local()  # per-thread: last recorded chunk row, resolved-delay stash
         self.frames: list[dict[str, Any]] = []
         self.next_frame_t = 0.0
         self.errors: dict[str, int] = {}
@@ -373,12 +407,99 @@ class Recorder:
             arr = arr[0]
         delay = kwargs.get("inference_delay")
         with self.lock:
+            row = len(self.chunks["t_start"])
             self.chunks["t_start"].append(t_start)
             self.chunks["duration"].append(duration)
             self.chunks["chunk_norm"].append(arr)
             self.chunks["inference_delay"].append(-1 if delay is None else int(delay))
             self.chunks["phase"].append(label[0])
             self.chunks["episode"].append(label[1])
+        self._tls.pending_chunk = row  # the merge that follows in this thread belongs to this row
+
+    def clear_pending_chunk(self) -> None:
+        """Forget this thread's last chunk row (before each inference: no stale id for the next merge)."""
+        self._tls.pending_chunk = None
+
+    def on_resolve(self, queue: Any, real_delay: int, index_before: int | None, resolved: int) -> None:
+        """Stash ActionQueue._check_and_resolve_delays' inputs and result (queue lock held)."""
+        last_index = int(queue.last_index)
+        self._tls.resolve = {
+            "new_delay": int(real_delay),
+            "indexes_diff": -1 if index_before is None else max(0, last_index - int(index_before)),
+            "resolved": int(resolved),
+            "prev_consumed": last_index,
+            "prev_len": 0 if queue.queue is None else len(queue.queue),
+        }
+
+    def begin_merge(self) -> None:
+        """Drop a stale resolved-delay stash before a merge."""
+        self._tls.resolve = None
+
+    def on_merge(self, queue: Any, n_original: int, n_processed: int) -> None:
+        """Record one ActionQueue.merge against this thread's last recorded chunk."""
+        t, t_wall = self.now(), time.time()
+        res = getattr(self._tls, "resolve", None)
+        row = getattr(self._tls, "pending_chunk", None)
+        self._tls.resolve = None
+        self._tls.pending_chunk = None
+        if res is None:
+            raise RuntimeError("merge without a resolved delay")
+        enabled = bool(getattr(queue.cfg, "enabled", True))
+        dropped = max(0, min(res["resolved"], n_original, n_processed)) if enabled else 0
+        record = {"t": t, "t_wall": t_wall, "delay": dropped, "rtc_enabled": enabled, **res}
+        with self.lock:
+            if row is None or row in self.merges:
+                self.merges_unmatched += 1
+                return
+            self.merges[row] = record
+
+    def on_engine_reset(self) -> None:
+        """Time of an RTCInferenceEngine.reset() (it clears the queue, discarding an in-flight chunk)."""
+        t = self.now()
+        with self.lock:
+            self.engine_resets.append(t)
+
+    def merge_arrays(self, chunks: dict[str, list]) -> dict[str, np.ndarray]:
+        """Per-chunk merge columns for chunks.npz (see the module docstring)."""
+        with self.lock:
+            merges = dict(self.merges)
+            resets = np.asarray(sorted(self.engine_resets), dtype=np.float64)
+        n = len(chunks["t_start"])
+        t_start = np.asarray(chunks["t_start"], dtype=np.float64)
+        t_end = t_start + np.asarray(chunks["duration"], dtype=np.float64)
+        delays = np.asarray(chunks["inference_delay"], dtype=np.int64)
+        out: dict[str, np.ndarray] = {
+            "merged": np.zeros(n, dtype=bool),
+            "merge_t": np.full(n, np.nan),
+            "merge_t_wall": np.full(n, np.nan),
+            "discard_reason": np.zeros(n, dtype=np.int8),
+        }
+        int_cols = {
+            "merge_delay": "delay",
+            "merge_new_delay": "new_delay",
+            "merge_indexes_diff": "indexes_diff",
+            "merge_prev_consumed": "prev_consumed",
+            "merge_prev_len": "prev_len",
+        }
+        for col in int_cols:
+            out[col] = np.full(n, -1, dtype=np.int64)
+        for row, m in merges.items():
+            if not 0 <= row < n:
+                continue
+            out["merged"][row] = True
+            out["merge_t"][row] = m["t"]
+            out["merge_t_wall"][row] = m["t_wall"]
+            for col, key in int_cols.items():
+                out[col][row] = m[key]
+        for i in range(n):
+            if delays[i] < 0 or out["merged"][i]:
+                continue  # sync chunk (no merges) or merged
+            lo = t_end[i - 1] if i > 0 else -np.inf
+            hi = t_start[i + 1] if i + 1 < n else np.inf
+            out["discard_reason"][i] = 1 if np.any((resets > lo) & (resets < hi)) else 2
+        out["engine_reset_t"] = resets
+        out["merge_hooked"] = np.asarray(self.merge_hooked)
+        return out
 
     def _frame_writer(self) -> None:
         from PIL import Image
@@ -440,6 +561,10 @@ class Recorder:
             "phase": np.asarray(chunks["phase"], dtype=np.int8),
             "episode": np.asarray(chunks["episode"], dtype=np.int16),
         }
+        try:
+            out.update(self.merge_arrays(chunks))
+        except Exception as e:  # noqa: BLE001
+            self.error("merge_arrays", e)
         if self.policy_path and len(chunk_norm):
             try:
                 from plot_run import chunk_norm_to_arm
@@ -457,6 +582,10 @@ class Recorder:
                 "phase_codes": {str(k): v for k, v in PHASE_NAMES.items()},
                 "episodes": self.episodes,
                 "n_chunks": len(chunks["t_start"]),
+                "n_merges": len(self.merges),
+                "merges_unmatched": self.merges_unmatched,
+                "n_engine_resets": len(self.engine_resets),
+                "discard_reason_codes": {"0": "merged or sync", "1": "engine reset", "2": "other"},
                 "n_frames": len(self.frames),
                 "frames": sorted(self.frames, key=lambda f: f["t"]),
                 "recording_errors": self.errors,
@@ -653,8 +782,16 @@ def _patch_recording(rollout_module: Any) -> None:
         except Exception as e:  # noqa: BLE001
             if REC is not None:
                 REC.error("context", e)
+        try:
+            _wrap_engine_reset(ctx.policy.inference)
+        except Exception as e:  # noqa: BLE001
+            _rec_error("engine_reset_wrap", e)
         rec = REC
         if rec is not None:
+            try:
+                rec.meta["fast_load"] = _fast_load_meta()
+            except Exception as e:  # noqa: BLE001
+                rec.error("meta.fast_load", e)
             try:
                 rec.policy_path = str(cfg.policy.pretrained_path) if cfg.policy else None
             except Exception as e:  # noqa: BLE001
@@ -970,6 +1107,11 @@ def _wrap_policy(policy: Any) -> None:
     def predict_action_chunk(batch: Any, **kwargs: Any) -> Any:
         t_start = REC.now() if REC is not None else 0.0
         label = REC.label() if REC is not None else (PHASE_PRE, -1)
+        if REC is not None:
+            try:
+                REC.clear_pending_chunk()
+            except Exception as e:  # noqa: BLE001
+                REC.error("chunk", e)
         actions = original(batch, **kwargs)
         if REC is not None:
             try:
@@ -979,6 +1121,118 @@ def _wrap_policy(policy: Any) -> None:
         return actions
 
     policy.predict_action_chunk = predict_action_chunk
+
+
+# ---------------------------------------------------------------------------
+# Patch c: RTC queue merges, engine resets
+# ---------------------------------------------------------------------------
+
+
+def _patch_rtc_queue() -> None:
+    """Class-level wraps of ActionQueue.merge / _check_and_resolve_delays (see the module docstring)."""
+    from lerobot.policies.rtc.action_queue import ActionQueue
+
+    original_merge = ActionQueue.merge
+    original_resolve = ActionQueue._check_and_resolve_delays
+    merge_sig = inspect.signature(original_merge)
+
+    @functools.wraps(original_resolve)
+    def _check_and_resolve_delays(
+        self: Any, real_delay: int, action_index_before_inference: int | None = None
+    ) -> int:
+        resolved = original_resolve(self, real_delay, action_index_before_inference)
+        rec = REC
+        if rec is not None:
+            try:
+                rec.on_resolve(self, real_delay, action_index_before_inference, resolved)
+            except Exception as e:  # noqa: BLE001
+                rec.error("merge", e)
+        return resolved
+
+    @functools.wraps(original_merge)
+    def merge(self: Any, *args: Any, **kwargs: Any) -> Any:
+        rec = REC
+        if rec is not None:
+            try:
+                rec.begin_merge()
+            except Exception as e:  # noqa: BLE001
+                rec.error("merge", e)
+        out = original_merge(self, *args, **kwargs)
+        if rec is not None:
+            try:
+                bound = _bind(merge_sig, (self, *args), kwargs)
+                rec.on_merge(self, len(bound["original_actions"]), len(bound["processed_actions"]))
+            except Exception as e:  # noqa: BLE001
+                rec.error("merge", e)
+        return out
+
+    ActionQueue._check_and_resolve_delays = _check_and_resolve_delays  # type: ignore[method-assign]
+    ActionQueue.merge = merge  # type: ignore[method-assign]
+    if REC is not None:
+        REC.merge_hooked = True
+
+
+def _wrap_engine_reset(engine: Any) -> None:
+    """Instance-level wrap of RTCInferenceEngine.reset (no-op for the sync engine)."""
+    if not hasattr(engine, "_action_queue"):
+        return
+    original = engine.reset
+
+    @functools.wraps(original)
+    def reset(*args: Any, **kwargs: Any) -> Any:
+        out = original(*args, **kwargs)
+        if REC is not None:
+            try:
+                REC.on_engine_reset()
+            except Exception as e:  # noqa: BLE001
+                REC.error("engine_reset", e)
+        return out
+
+    engine.reset = reset
+
+
+# ---------------------------------------------------------------------------
+# Fast load
+# ---------------------------------------------------------------------------
+
+FAST_LOAD: dict[str, Any] = {"installed": False, "reason": "not installed"}
+
+
+def _install_fast_load(stock_load: bool) -> None:
+    """Install steering/fast_load.py unless --stock-load; a failure falls back to the stock load."""
+    if stock_load:
+        FAST_LOAD.update(installed=False, reason="--stock-load")
+        return
+    try:
+        import fast_load
+
+        fast_load.install()
+        FAST_LOAD.update(installed=True, reason="")
+    except Exception as e:  # noqa: BLE001  (never stop the session over the loader)
+        FAST_LOAD.update(installed=False, reason=f"install failed: {e!r}")
+        print(f"fast_load: install failed ({e!r}); using the stock load", file=sys.stderr, flush=True)
+
+
+def _fast_load_meta() -> dict[str, Any]:
+    """meta.json["fast_load"]: installed?, path taken (fast / stock) and why, from fast_load.LAST_LOAD."""
+    meta = dict(FAST_LOAD)
+    if not meta["installed"]:
+        meta["path"] = "stock"
+        return meta
+    import fast_load
+
+    info = fast_load.LAST_LOAD
+    if info is None:
+        meta.update(path="stock", reason="MolmoAct2Policy.from_pretrained was not called")
+        return meta
+    meta.update(
+        path="fast" if info.fast else "stock",
+        reason=info.reason or ("full re-save" if info.fast else ""),
+        checkpoint=info.path,
+        weights_file=info.weights_file,
+        seconds=round(info.seconds, 2),
+    )
+    return meta
 
 
 # ---------------------------------------------------------------------------
@@ -1018,9 +1272,15 @@ def main() -> None:
             },
         )
         atexit.register(REC.save)
+        try:
+            _patch_rtc_queue()
+        except Exception as e:  # noqa: BLE001
+            REC.error("patch_rtc_queue", e)
         print(f"recording to {run_dir}", flush=True)
 
     sys.argv = [sys.argv[0], *forwarded]
+    if not is_help:
+        _install_fast_load(flags["stock_load"])
     try:
         lerobot_rollout.main()
     finally:
