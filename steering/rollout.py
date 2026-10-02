@@ -61,6 +61,7 @@ import functools
 import json
 import logging
 import queue
+import subprocess
 import sys
 import threading
 import time
@@ -72,7 +73,7 @@ import numpy as np
 
 RUNS = Path(__file__).parent / "results" / "runs"
 JOINTS = ("shoulder_pan", "shoulder_lift", "elbow_flex", "wrist_flex", "wrist_roll", "gripper")
-FRAME_PERIOD_S = 0.5
+FRAME_PERIOD_S = 0.1  # 10 fps: enough to judge a grasp; replay.mp4 is built from these
 CLIP_EPS = 1e-4  # ensure_safe_goal_position's own threshold
 MAX_LOGGED_ERRORS = 5
 
@@ -623,6 +624,21 @@ def _plot(run_dir: Path) -> None:
         print(f"plots:   {run_dir / 'plots'}", flush=True)
     except (Exception, SystemExit) as e:  # noqa: BLE001  (plot_run raises SystemExit on an empty run)
         print(f"plotting failed ({e!r}); run: uv run python steering/plot_run.py {run_dir}", file=sys.stderr)
+    _video(run_dir)
+
+
+def _video(run_dir: Path) -> None:
+    """Build replay.mp4 (real time) from the saved frames with ffmpeg; never raises."""
+    try:
+        if not any((run_dir / "frames").glob("*.jpg")):
+            return
+        cmd = ["ffmpeg", "-loglevel", "error", "-y", "-framerate", f"{1 / FRAME_PERIOD_S:g}", "-pattern_type",
+               "glob", "-i", str(run_dir / "frames" / "*.jpg"), "-vf", "scale=640:-2,format=yuv420p",
+               "-c:v", "libx264", str(run_dir / "replay.mp4")]  # fmt: skip
+        subprocess.run(cmd, check=True, timeout=300)
+        print(f"video:   {run_dir / 'replay.mp4'}", flush=True)
+    except Exception as e:  # noqa: BLE001
+        print(f"video failed ({e!r})", file=sys.stderr)
 
 
 if __name__ == "__main__":
