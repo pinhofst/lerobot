@@ -152,7 +152,7 @@ would write (and keeps the goal of an arm already holding a pose with torque on)
 with the list of mismatches, without touching torque. Only with `--allow-torque-blip` does it warn and
 run the stock `configure()`, and then the arm sags: support it. It also
 records every tick (state, policy and sent command, clipping), every inference call with its chunk,
-and a camera frame every 0.5 s to `steering/results/runs/<stamp>_<tag>/`. It adds
+and a camera frame every 0.1 s (10 fps) to `steering/results/runs/<stamp>_<tag>/`. It adds
 `--robot.disable_torque_on_disconnect=false`, so the arm keeps holding its pose after the run.
 See the docstring for details.
 
@@ -179,6 +179,42 @@ Hz, % of ticks clipped per joint, travel, the start and end pose, and whether th
 the trained range. `uv run python steering/plot_run.py --self-test` checks the plotting without the arm.
 At the end the stock teardown still returns the arm to its start pose over 3 s
 (`--return_to_initial_position=false` to skip).
+
+#### Looped episodes (one model load)
+
+`--strategy.type=episodic` loads the model once and runs `--dataset.num_episodes` episodes. Each one is a
+policy phase of up to `episode_time_s`, then a reset of up to `reset_time_s`. No reset follows the last
+episode. It also writes a LeRobot dataset, and the repo name must start with `rollout_`. The reset moves
+the arm back to the pose it had at connect **in 1 s**, which is fast. So start from the median pose and
+keep a hand near the arm and the power switch:
+
+```bash
+uv run python steering/goto_pose.py go molmo_median \
+  --robot-port /dev/serial/by-id/usb-1a86_USB_Single_Serial_5B8E114089-if00 --robot-id so101_follower
+
+uv run python steering/rollout.py --tag loop_cube \
+  --strategy.type=episodic \
+  --policy.path=steering/checkpoints/MolmoAct2-SO100_101-LeRobot-1cam \
+  --robot.type=so101_follower --robot.port=/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B8E114089-if00 --robot.id=so101_follower \
+  --robot.max_relative_target=6 \
+  --robot.cameras='{cam0: {type: opencv, index_or_path: /dev/v4l/by-id/usb-Sonix_Technology_Co.__Ltd._USB2.0_CAM1_USB2.0_CAM1-video-index0, width: 640, height: 480, fps: 30}}' \
+  --inference.type=rtc \
+  --dataset.repo_id=local/rollout_cube --dataset.single_task="pick up the red cube" \
+  --dataset.num_episodes=5 --dataset.episode_time_s=25 --dataset.reset_time_s=15 \
+  --dataset.push_to_hub=false
+```
+
+- Keys: right arrow (or `n`) ends the current episode or reset early. Left arrow (or `r`) discards the
+  episode and re-records it. Escape (or `q`) stops the session.
+- One prompt per session: `--dataset.single_task` is used for every episode. To change the
+  instruction, start a new session.
+- In the run dir, `plots/` has the whole-session plots, `episodes.png` (all episodes overlaid,
+  time from each episode's start), `ep<k>/` (joints, chunks, frames for attempt k) and a per-episode
+  table at the top of `summary.txt`. The videos are `replay.mp4` (the whole session) and
+  `replay_ep<k>.mp4` (attempt k, its policy phase plus reset). `k` counts attempts, so a discarded
+  attempt keeps its own number, and `meta.json["episodes"]` maps each one to its dataset episode
+  index, or marks it `discarded`.
+- The dataset lands in `~/.cache/huggingface/lerobot/local/rollout_cube_<timestamp>/`.
 
 ## 5 · Pilot: pens on one frame, then on the arm
 

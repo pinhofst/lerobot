@@ -118,6 +118,34 @@ synchronous inference, started from the folded rest pose):
 Next: start from the checkpoint's median training pose (`poses/molmo_median.json`, moved there with
 `goto_pose.py`), with a larger cap, `--inference.type=rtc`, and recording.
 
+## How action chunking runs here (read from LeRobot's code, 2 Oct)
+
+- **Each inference predicts 30 actions (1.0 s at 30 Hz)**, from one pass of the vision-language model
+  plus 10 flow-matching steps. Nothing is ever averaged across chunks; there is no ACT-style
+  temporal ensembling anywhere.
+- **Sync mode** (the default): plays all 30 actions open-loop, then stalls about 0.4 s on the control
+  thread for the next chunk. That gives a ~1.4 s cycle and is where the first run's 15.5 Hz came
+  from. This matches the paper's open-loop setup, except for the stall.
+- **RTC mode** (`--inference.type=rtc`, defaults `execution_horizon=10`, `max_guidance_weight=10`,
+  `queue_threshold=30`):
+  - Inference runs back to back, about one chunk per 0.47 s (d ≈ 14 steps).
+  - Each new chunk *replaces* the old one: its first d actions are dropped, and roughly indices
+    14–27 actually run. That is about 14 open-loop actions per observation, each executed 0.47–0.9 s
+    after the observation was taken.
+  - Guidance pulls indices 0–9 of the new chunk towards the old plan, but those are exactly the
+    dropped ones. **At these defaults, guidance shapes only discarded actions.** Executed actions are
+    pulled towards the old plan only indirectly, so seam smoothing is weak.
+  - The original RTC method weights all indices below d and fades out over the overlap. A larger
+    `--inference.rtc.execution_horizon` (about 20, within the 16 actions left in the queue)
+    would move guidance onto executed actions. Untested.
+  - The model-side delay is a running maximum that is never reset, so one latency spike raises it
+    for the rest of the session.
+- **Noise:** fresh and unseeded for every chunk (`per_episode_seed=False`), so runs are not
+  reproducible. Compare distributions over runs, not runs pair by pair.
+- **For analysis:** in RTC runs only about `chunk[k][d:2d]` was executed. Match `ticks.action_policy`
+  against the chunk rows to find it. Seam continuity is `chunk_k[d]` against the last executed action
+  of chunk k−1.
+
 ## Frame diagnostic on Ai2's sample frame (step 5 precursor, stand-in for the pen frame)
 
 This is **not** the pen test. It is the same method run on the only frame available so far

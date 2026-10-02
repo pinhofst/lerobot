@@ -115,6 +115,10 @@ Still open:
   5. Record the frame index of that first contact (for the end-effector position) and a
      confidence (sure / unsure). Unsure episodes get a second labeller.
 - [ ] The raised start pose, picked on arm day with teleop.
+- [ ] **Offline prompt comparison on recorded runs:** re-run the model on frames and states saved
+  during real rollouts with each prompt ("red pen", "pen", empty, "blue pen") and the same noise
+  seeds, so only the words differ. This is the frame diagnostic on our own rig. Do it once the
+  two-pen runs exist.
 
 ## Status
 
