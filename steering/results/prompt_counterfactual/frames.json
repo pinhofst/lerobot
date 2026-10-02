@@ -1,0 +1,1282 @@
+[
+ {
+  "id": "20261002-170142+0s",
+  "run": "20261002-170142_median_rtc_cap6_no_color_prompt_2_pens_1",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-170142_median_rtc_cap6_no_color_prompt_2_pens_1",
+  "tag": "median_rtc_cap6_no_color_prompt_2_pens_1",
+  "run_task": "pick up the pen",
+  "offset_s": 0.0,
+  "t": 97.8709,
+  "t_from_start": 0.006,
+  "file": "frames/00003_0097.871s_cam0.jpg",
+  "tick_t": 98.7070398119995,
+  "state": [
+   3.0329670906066895,
+   -25.80219841003418,
+   40.92307662963867,
+   61.626373291015625,
+   -12.263736724853516,
+   8.921161651611328
+  ],
+  "pan_moved_since_start_deg": 0.0,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 402.75236733964624,
+    "y": 148.28819010184029,
+    "area": 5597,
+    "visible": true
+   },
+   "green": {
+    "x": 208.5071933036882,
+    "y": 226.7750457755689,
+    "area": 3823,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": 1,
+   "layout": "green|red"
+  }
+ },
+ {
+  "id": "20261002-170142+1s",
+  "run": "20261002-170142_median_rtc_cap6_no_color_prompt_2_pens_1",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-170142_median_rtc_cap6_no_color_prompt_2_pens_1",
+  "tag": "median_rtc_cap6_no_color_prompt_2_pens_1",
+  "run_task": "pick up the pen",
+  "offset_s": 1.0,
+  "t": 98.8743,
+  "t_from_start": 1.01,
+  "file": "frames/00013_0098.874s_cam0.jpg",
+  "tick_t": 98.87445784299962,
+  "state": [
+   -0.5714285969734192,
+   -30.549449920654297,
+   39.868133544921875,
+   68.04395294189453,
+   -14.98901081085205,
+   8.091286659240723
+  ],
+  "pan_moved_since_start_deg": -3.6,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 425.654763978401,
+    "y": 122.79463508099634,
+    "area": 5741,
+    "visible": true
+   },
+   "green": {
+    "x": 236.8181818181818,
+    "y": 195.45095693779905,
+    "area": 3344,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": 1,
+   "layout": "green|red"
+  }
+ },
+ {
+  "id": "20261002-170142+2s",
+  "run": "20261002-170142_median_rtc_cap6_no_color_prompt_2_pens_1",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-170142_median_rtc_cap6_no_color_prompt_2_pens_1",
+  "tag": "median_rtc_cap6_no_color_prompt_2_pens_1",
+  "run_task": "pick up the pen",
+  "offset_s": 2.0,
+  "t": 99.8778,
+  "t_from_start": 2.013,
+  "file": "frames/00023_0099.878s_cam0.jpg",
+  "tick_t": 99.87799202399947,
+  "state": [
+   0.8351648449897766,
+   -79.6043930053711,
+   50.32966995239258,
+   83.42857360839844,
+   -20.52747344970703,
+   3.4578146934509277
+  ],
+  "pan_moved_since_start_deg": -2.2,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 391.90362087326946,
+    "y": 128.48935037273696,
+    "area": 1878,
+    "visible": true
+   },
+   "green": {
+    "x": 273.9261744966443,
+    "y": 181.28926174496644,
+    "area": 1490,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": 1,
+   "layout": "green|red"
+  }
+ },
+ {
+  "id": "20261002-170142+3s",
+  "run": "20261002-170142_median_rtc_cap6_no_color_prompt_2_pens_1",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-170142_median_rtc_cap6_no_color_prompt_2_pens_1",
+  "tag": "median_rtc_cap6_no_color_prompt_2_pens_1",
+  "run_task": "pick up the pen",
+  "offset_s": 3.0,
+  "t": 100.9144,
+  "t_from_start": 3.05,
+  "file": "frames/00033_0100.914s_cam0.jpg",
+  "tick_t": 100.91460234199985,
+  "state": [
+   1.6263736486434937,
+   -89.0988998413086,
+   79.86813354492188,
+   64.87911987304688,
+   -10.15384578704834,
+   3.803596019744873
+  ],
+  "pan_moved_since_start_deg": -1.41,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 400.5943617854346,
+    "y": 121.63873662229183,
+    "area": 3831,
+    "visible": true
+   },
+   "green": {
+    "x": 229.56048906048906,
+    "y": 177.253861003861,
+    "area": 3108,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": 1,
+   "layout": "green|red"
+  }
+ },
+ {
+  "id": "20261002-170744+0s",
+  "run": "20261002-170744_median_rtc_cap6_no_color_prompt_2_pens_2",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-170744_median_rtc_cap6_no_color_prompt_2_pens_2",
+  "tag": "median_rtc_cap6_no_color_prompt_2_pens_2",
+  "run_task": "pick up the pen",
+  "offset_s": 0.0,
+  "t": 104.6974,
+  "t_from_start": -0.01,
+  "file": "frames/00003_0104.697s_cam0.jpg",
+  "tick_t": 105.59583902699978,
+  "state": [
+   2.681318759918213,
+   -25.80219841003418,
+   43.912086486816406,
+   62.41758346557617,
+   -12.79120922088623,
+   8.713692665100098
+  ],
+  "pan_moved_since_start_deg": 0.0,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 410.7808952939676,
+    "y": 98.08047442928198,
+    "area": 7841,
+    "visible": true
+   },
+   "green": {
+    "x": 188.13788409179307,
+    "y": 191.7421236872812,
+    "area": 5142,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": 1,
+   "layout": "green|red"
+  }
+ },
+ {
+  "id": "20261002-170744+1s",
+  "run": "20261002-170744_median_rtc_cap6_no_color_prompt_2_pens_2",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-170744_median_rtc_cap6_no_color_prompt_2_pens_2",
+  "tag": "median_rtc_cap6_no_color_prompt_2_pens_2",
+  "run_task": "pick up the pen",
+  "offset_s": 1.0,
+  "t": 105.7299,
+  "t_from_start": 1.023,
+  "file": "frames/00013_0105.730s_cam0.jpg",
+  "tick_t": 105.73009793099936,
+  "state": [
+   2.681318759918213,
+   -25.80219841003418,
+   43.912086486816406,
+   62.41758346557617,
+   -12.79120922088623,
+   8.367911338806152
+  ],
+  "pan_moved_since_start_deg": 0.0,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 410.47292280117784,
+    "y": 96.7741646396108,
+    "area": 7811,
+    "visible": true
+   },
+   "green": {
+    "x": 187.798871814822,
+    "y": 190.63956428710367,
+    "area": 5141,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": 1,
+   "layout": "green|red"
+  }
+ },
+ {
+  "id": "20261002-170744+2s",
+  "run": "20261002-170744_median_rtc_cap6_no_color_prompt_2_pens_2",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-170744_median_rtc_cap6_no_color_prompt_2_pens_2",
+  "tag": "median_rtc_cap6_no_color_prompt_2_pens_2",
+  "run_task": "pick up the pen",
+  "offset_s": 2.0,
+  "t": 106.7338,
+  "t_from_start": 2.027,
+  "file": "frames/00023_0106.734s_cam0.jpg",
+  "tick_t": 106.73406940699988,
+  "state": [
+   7.956043720245361,
+   -33.626373291015625,
+   28.96703338623047,
+   82.19779968261719,
+   -34.85714340209961,
+   12.240663528442383
+  ],
+  "pan_moved_since_start_deg": 5.27,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 323.57276173811607,
+    "y": 94.10790317876932,
+    "area": 3429,
+    "visible": true
+   },
+   "green": {
+    "x": 221.98665348492338,
+    "y": 212.36233316856155,
+    "area": 2023,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": 1,
+   "layout": "green|red"
+  }
+ },
+ {
+  "id": "20261002-170744+3s",
+  "run": "20261002-170744_median_rtc_cap6_no_color_prompt_2_pens_2",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-170744_median_rtc_cap6_no_color_prompt_2_pens_2",
+  "tag": "median_rtc_cap6_no_color_prompt_2_pens_2",
+  "run_task": "pick up the pen",
+  "offset_s": 3.0,
+  "t": 107.6679,
+  "t_from_start": 2.961,
+  "file": "frames/00032_0107.668s_cam0.jpg",
+  "tick_t": 107.66801147600017,
+  "state": [
+   13.230769157409668,
+   -35.912086486816406,
+   31.516483306884766,
+   75.78022003173828,
+   -57.098899841308594,
+   18.603042602539062
+  ],
+  "pan_moved_since_start_deg": 10.55,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 319.7779461917393,
+    "y": 144.53846153846155,
+    "area": 2639,
+    "visible": true
+   },
+   "green": {
+    "x": 275.1931818181818,
+    "y": 272.4217914438503,
+    "area": 1496,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": 1,
+   "layout": "green|red"
+  }
+ },
+ {
+  "id": "20261002-171844+0s",
+  "run": "20261002-171844_median_rtc_cap6_red_prompt_2_pens_1",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-171844_median_rtc_cap6_red_prompt_2_pens_1",
+  "tag": "median_rtc_cap6_red_prompt_2_pens_1",
+  "run_task": "pick up the red pen",
+  "offset_s": 0.0,
+  "t": 107.3103,
+  "t_from_start": -0.034,
+  "file": "frames/00003_0107.310s_cam0.jpg",
+  "tick_t": 108.1508608639997,
+  "state": [
+   3.296703338623047,
+   -31.604394912719727,
+   37.406593322753906,
+   58.72527313232422,
+   -11.384614944458008,
+   9.059473991394043
+  ],
+  "pan_moved_since_start_deg": 0.0,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 219.90649536045683,
+    "y": 298.28265524625266,
+    "area": 1401,
+    "visible": true
+   },
+   "green": {
+    "x": 384.4445266272189,
+    "y": 266.6150147928994,
+    "area": 2704,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": -1,
+   "layout": "red|green"
+  }
+ },
+ {
+  "id": "20261002-171844+1s",
+  "run": "20261002-171844_median_rtc_cap6_red_prompt_2_pens_1",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-171844_median_rtc_cap6_red_prompt_2_pens_1",
+  "tag": "median_rtc_cap6_red_prompt_2_pens_1",
+  "run_task": "pick up the red pen",
+  "offset_s": 1.0,
+  "t": 108.3182,
+  "t_from_start": 0.974,
+  "file": "frames/00013_0108.318s_cam0.jpg",
+  "tick_t": 108.3184406750006,
+  "state": [
+   0.5714285969734192,
+   -32.131866455078125,
+   36.79121017456055,
+   64.61538696289062,
+   -13.142857551574707,
+   15.076071739196777
+  ],
+  "pan_moved_since_start_deg": -2.73,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 231.73294059891998,
+    "y": 277.1286205203731,
+    "area": 2037,
+    "visible": true
+   },
+   "green": {
+    "x": 397.1748709122203,
+    "y": 239.0120481927711,
+    "area": 2905,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": -1,
+   "layout": "red|green"
+  }
+ },
+ {
+  "id": "20261002-171844+2s",
+  "run": "20261002-171844_median_rtc_cap6_red_prompt_2_pens_1",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-171844_median_rtc_cap6_red_prompt_2_pens_1",
+  "tag": "median_rtc_cap6_red_prompt_2_pens_1",
+  "run_task": "pick up the red pen",
+  "offset_s": 2.0,
+  "t": 109.389,
+  "t_from_start": 2.045,
+  "file": "frames/00023_0109.389s_cam0.jpg",
+  "tick_t": 109.38915828000063,
+  "state": [
+   -11.912087440490723,
+   -13.142857551574707,
+   40.0439567565918,
+   56.35165023803711,
+   -13.406593322753906,
+   20.401105880737305
+  ],
+  "pan_moved_since_start_deg": -15.21,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 312.8572415381073,
+    "y": 215.7805664287359,
+    "area": 8686,
+    "visible": true
+   },
+   "green": {
+    "x": 613.8379812064262,
+    "y": 206.59608972415884,
+    "area": 6598,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": -1,
+   "layout": "red|green"
+  }
+ },
+ {
+  "id": "20261002-171844+3s",
+  "run": "20261002-171844_median_rtc_cap6_red_prompt_2_pens_1",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-171844_median_rtc_cap6_red_prompt_2_pens_1",
+  "tag": "median_rtc_cap6_red_prompt_2_pens_1",
+  "run_task": "pick up the red pen",
+  "offset_s": 3.0,
+  "t": 110.2936,
+  "t_from_start": 2.95,
+  "file": "frames/00032_0110.294s_cam0.jpg",
+  "tick_t": 110.29368547400009,
+  "state": [
+   -12.615385055541992,
+   -6.373626232147217,
+   39.868133544921875,
+   52.30769348144531,
+   -14.021978378295898,
+   22.06085777282715
+  ],
+  "pan_moved_since_start_deg": -15.91,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 326.5031020408163,
+    "y": 249.34073469387755,
+    "area": 12250,
+    "visible": true
+   },
+   "green": {
+    "x": 628.2153432032302,
+    "y": 300.2880215343203,
+    "area": 743,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": -1,
+   "layout": "red|green"
+  }
+ },
+ {
+  "id": "20261002-172239+0s",
+  "run": "20261002-172239_median_rtc_cap6_green_prompt_2_pens_1",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-172239_median_rtc_cap6_green_prompt_2_pens_1",
+  "tag": "median_rtc_cap6_green_prompt_2_pens_1",
+  "run_task": "pick up the green pen",
+  "offset_s": 0.0,
+  "t": 95.763,
+  "t_from_start": 0.011,
+  "file": "frames/00003_0095.763s_cam0.jpg",
+  "tick_t": 96.56671491400084,
+  "state": [
+   3.472527503967285,
+   -29.846153259277344,
+   37.67033004760742,
+   59.42856979370117,
+   -11.736263275146484,
+   9.336099624633789
+  ],
+  "pan_moved_since_start_deg": 0.0,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 342.59980204552954,
+    "y": 179.27350709336852,
+    "area": 3031,
+    "visible": true
+   },
+   "green": {
+    "x": 125.86106811145511,
+    "y": 247.71323529411765,
+    "area": 2584,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": 1,
+   "layout": "green|red"
+  }
+ },
+ {
+  "id": "20261002-172239+1s",
+  "run": "20261002-172239_median_rtc_cap6_green_prompt_2_pens_1",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-172239_median_rtc_cap6_green_prompt_2_pens_1",
+  "tag": "median_rtc_cap6_green_prompt_2_pens_1",
+  "run_task": "pick up the green pen",
+  "offset_s": 1.0,
+  "t": 96.7689,
+  "t_from_start": 1.017,
+  "file": "frames/00013_0096.769s_cam0.jpg",
+  "tick_t": 96.76925823199963,
+  "state": [
+   1.0989011526107788,
+   -29.406593322753906,
+   37.67033004760742,
+   59.42856979370117,
+   -11.824175834655762,
+   16.874135971069336
+  ],
+  "pan_moved_since_start_deg": -2.37,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 360.4503745318352,
+    "y": 175.66666666666666,
+    "area": 3204,
+    "visible": true
+   },
+   "green": {
+    "x": 139.59704251386322,
+    "y": 238.147134935305,
+    "area": 2705,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": 1,
+   "layout": "green|red"
+  }
+ },
+ {
+  "id": "20261002-172239+2s",
+  "run": "20261002-172239_median_rtc_cap6_green_prompt_2_pens_1",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-172239_median_rtc_cap6_green_prompt_2_pens_1",
+  "tag": "median_rtc_cap6_green_prompt_2_pens_1",
+  "run_task": "pick up the green pen",
+  "offset_s": 2.0,
+  "t": 97.7044,
+  "t_from_start": 1.952,
+  "file": "frames/00022_0097.704s_cam0.jpg",
+  "tick_t": 97.70503738400112,
+  "state": [
+   -10.769230842590332,
+   -6.285714149475098,
+   27.47252655029297,
+   60.74725341796875,
+   -20.351648330688477,
+   32.01936340332031
+  ],
+  "pan_moved_since_start_deg": -14.24,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 537.5958555090024,
+    "y": 112.3111765371985,
+    "area": 8831,
+    "visible": true
+   },
+   "green": {
+    "x": 200.91811746699827,
+    "y": 181.40022957719532,
+    "area": 5227,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": 1,
+   "layout": "green|red"
+  }
+ },
+ {
+  "id": "20261002-172239+3s",
+  "run": "20261002-172239_median_rtc_cap6_green_prompt_2_pens_1",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-172239_median_rtc_cap6_green_prompt_2_pens_1",
+  "tag": "median_rtc_cap6_green_prompt_2_pens_1",
+  "run_task": "pick up the green pen",
+  "offset_s": 3.0,
+  "t": 98.708,
+  "t_from_start": 2.956,
+  "file": "frames/00032_0098.708s_cam0.jpg",
+  "tick_t": 98.70814710500053,
+  "state": [
+   -13.230769157409668,
+   -3.2087912559509277,
+   22.19780158996582,
+   62.769229888916016,
+   -23.604394912719727,
+   32.295989990234375
+  ],
+  "pan_moved_since_start_deg": -16.7,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 569.0724043715848,
+    "y": 73.09180327868853,
+    "area": 10980,
+    "visible": true
+   },
+   "green": {
+    "x": 197.06993243243244,
+    "y": 170.5278716216216,
+    "area": 5920,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": 1,
+   "layout": "green|red"
+  }
+ },
+ {
+  "id": "20261002-172628+0s",
+  "run": "20261002-172628_median_rtc_cap6_green_prompt_2_pens_2",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-172628_median_rtc_cap6_green_prompt_2_pens_2",
+  "tag": "median_rtc_cap6_green_prompt_2_pens_2",
+  "run_task": "pick up the green pen",
+  "offset_s": 0.0,
+  "t": 104.4032,
+  "t_from_start": 0.002,
+  "file": "frames/00003_0104.403s_cam0.jpg",
+  "tick_t": 105.20892757199908,
+  "state": [
+   3.1208791732788086,
+   -29.758241653442383,
+   37.93406677246094,
+   60.30769348144531,
+   -11.472527503967285,
+   9.059473991394043
+  ],
+  "pan_moved_since_start_deg": 0.0,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 148.42,
+    "y": 264.4488888888889,
+    "area": 3150,
+    "visible": true
+   },
+   "green": {
+    "x": 338.62645011600927,
+    "y": 197.04971826317535,
+    "area": 3017,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": -1,
+   "layout": "red|green"
+  }
+ },
+ {
+  "id": "20261002-172628+1s",
+  "run": "20261002-172628_median_rtc_cap6_green_prompt_2_pens_2",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-172628_median_rtc_cap6_green_prompt_2_pens_2",
+  "tag": "median_rtc_cap6_green_prompt_2_pens_2",
+  "run_task": "pick up the green pen",
+  "offset_s": 1.0,
+  "t": 105.4094,
+  "t_from_start": 1.008,
+  "file": "frames/00013_0105.409s_cam0.jpg",
+  "tick_t": 105.40951360399959,
+  "state": [
+   3.296703338623047,
+   -28.879121780395508,
+   38.373626708984375,
+   60.39560317993164,
+   -11.472527503967285,
+   14.522821426391602
+  ],
+  "pan_moved_since_start_deg": 0.18,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 143.53296364756625,
+    "y": 261.78034504004927,
+    "area": 3246,
+    "visible": true
+   },
+   "green": {
+    "x": 335.65109140518416,
+    "y": 190.53922237380627,
+    "area": 2932,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": -1,
+   "layout": "red|green"
+  }
+ },
+ {
+  "id": "20261002-172628+2s",
+  "run": "20261002-172628_median_rtc_cap6_green_prompt_2_pens_2",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-172628_median_rtc_cap6_green_prompt_2_pens_2",
+  "tag": "median_rtc_cap6_green_prompt_2_pens_2",
+  "run_task": "pick up the green pen",
+  "offset_s": 2.0,
+  "t": 106.4468,
+  "t_from_start": 2.046,
+  "file": "frames/00023_0106.447s_cam0.jpg",
+  "tick_t": 106.44743992599979,
+  "state": [
+   5.142857074737549,
+   -11.736263275146484,
+   40.0439567565918,
+   51.16483688354492,
+   -11.384614944458008,
+   22.47579574584961
+  ],
+  "pan_moved_since_start_deg": 2.02,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 40.03055555555556,
+    "y": 296.22266081871345,
+    "area": 6840,
+    "visible": true
+   },
+   "green": {
+    "x": 314.6855690785074,
+    "y": 182.51919218938076,
+    "area": 7477,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": -1,
+   "layout": "red|green"
+  }
+ },
+ {
+  "id": "20261002-172628+3s",
+  "run": "20261002-172628_median_rtc_cap6_green_prompt_2_pens_2",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-172628_median_rtc_cap6_green_prompt_2_pens_2",
+  "tag": "median_rtc_cap6_green_prompt_2_pens_2",
+  "run_task": "pick up the green pen",
+  "offset_s": 3.0,
+  "t": 107.4165,
+  "t_from_start": 3.015,
+  "file": "frames/00032_0107.416s_cam0.jpg",
+  "tick_t": 107.41671129599854,
+  "state": [
+   4.263736248016357,
+   -5.230769157409668,
+   39.42856979370117,
+   49.4945068359375,
+   -8.395604133605957,
+   22.47579574584961
+  ],
+  "pan_moved_since_start_deg": 1.14,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 21.32984126984127,
+    "y": 332.88,
+    "area": 3150,
+    "visible": true
+   },
+   "green": {
+    "x": 320.3480419194705,
+    "y": 174.84752974548894,
+    "area": 12691,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": -1,
+   "layout": "red|green"
+  }
+ },
+ {
+  "id": "20261002-173041+0s",
+  "run": "20261002-173041_median_rtc_cap6_no_color_prompt_2_pens_3",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-173041_median_rtc_cap6_no_color_prompt_2_pens_3",
+  "tag": "median_rtc_cap6_no_color_prompt_2_pens_3",
+  "run_task": "pick up a pen of any color",
+  "offset_s": 0.0,
+  "t": 104.7554,
+  "t_from_start": 0.008,
+  "file": "frames/00003_0104.755s_cam0.jpg",
+  "tick_t": 105.55861188000017,
+  "state": [
+   2.5934066772460938,
+   -27.91208839416504,
+   38.19780349731445,
+   61.010990142822266,
+   -11.824175834655762,
+   9.336099624633789
+  ],
+  "pan_moved_since_start_deg": 0.0,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 158.77735019241342,
+    "y": 215.62836723474436,
+    "area": 3638,
+    "visible": true
+   },
+   "green": {
+    "x": 405.6301969365427,
+    "y": 142.08412351081935,
+    "area": 4113,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": -1,
+   "layout": "red|green"
+  }
+ },
+ {
+  "id": "20261002-173041+1s",
+  "run": "20261002-173041_median_rtc_cap6_no_color_prompt_2_pens_3",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-173041_median_rtc_cap6_no_color_prompt_2_pens_3",
+  "tag": "median_rtc_cap6_no_color_prompt_2_pens_3",
+  "run_task": "pick up a pen of any color",
+  "offset_s": 1.0,
+  "t": 105.7592,
+  "t_from_start": 1.012,
+  "file": "frames/00013_0105.759s_cam0.jpg",
+  "tick_t": 105.75974233700072,
+  "state": [
+   3.1208791732788086,
+   -28.351648330688477,
+   38.19780349731445,
+   61.010990142822266,
+   -11.824175834655762,
+   9.405256271362305
+  ],
+  "pan_moved_since_start_deg": 0.53,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 152.2545945945946,
+    "y": 217.85783783783785,
+    "area": 3700,
+    "visible": true
+   },
+   "green": {
+    "x": 397.34458788480634,
+    "y": 140.33714001986098,
+    "area": 4028,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": -1,
+   "layout": "red|green"
+  }
+ },
+ {
+  "id": "20261002-173041+2s",
+  "run": "20261002-173041_median_rtc_cap6_no_color_prompt_2_pens_3",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-173041_median_rtc_cap6_no_color_prompt_2_pens_3",
+  "tag": "median_rtc_cap6_no_color_prompt_2_pens_3",
+  "run_task": "pick up a pen of any color",
+  "offset_s": 2.0,
+  "t": 106.7632,
+  "t_from_start": 2.016,
+  "file": "frames/00023_0106.763s_cam0.jpg",
+  "tick_t": 106.7635185830004,
+  "state": [
+   1.4505494832992554,
+   -15.164834976196289,
+   39.868133544921875,
+   51.16483688354492,
+   -14.637362480163574,
+   26.97095489501953
+  ],
+  "pan_moved_since_start_deg": -1.14,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 124.29263290739864,
+    "y": 242.10821896198138,
+    "area": 6339,
+    "visible": true
+   },
+   "green": {
+    "x": 443.4656728665208,
+    "y": 134.15727571115974,
+    "area": 7312,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": -1,
+   "layout": "red|green"
+  }
+ },
+ {
+  "id": "20261002-173041+3s",
+  "run": "20261002-173041_median_rtc_cap6_no_color_prompt_2_pens_3",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-173041_median_rtc_cap6_no_color_prompt_2_pens_3",
+  "tag": "median_rtc_cap6_no_color_prompt_2_pens_3",
+  "run_task": "pick up a pen of any color",
+  "offset_s": 3.0,
+  "t": 107.7679,
+  "t_from_start": 3.02,
+  "file": "frames/00033_0107.768s_cam0.jpg",
+  "tick_t": 107.76809920600135,
+  "state": [
+   9.01098918914795,
+   -1.274725317955017,
+   32.483516693115234,
+   48.79121017456055,
+   -17.27472496032715,
+   33.60995864868164
+  ],
+  "pan_moved_since_start_deg": 6.42,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 41.24391393120779,
+    "y": 365.89288518925713,
+    "area": 6367,
+    "visible": true
+   },
+   "green": {
+    "x": 338.8130659025788,
+    "y": 197.97157593123208,
+    "area": 8725,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": -1,
+   "layout": "red|green"
+  }
+ },
+ {
+  "id": "20261002-173536+0s",
+  "run": "20261002-173536_median_rtc_cap6_no_color_prompt_2_pens_4",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-173536_median_rtc_cap6_no_color_prompt_2_pens_4",
+  "tag": "median_rtc_cap6_no_color_prompt_2_pens_4",
+  "run_task": "pick up a pen of any color",
+  "offset_s": 0.0,
+  "t": 107.467,
+  "t_from_start": 0.014,
+  "file": "frames/00003_0107.467s_policy_cam0.jpg",
+  "tick_t": 108.27293274399926,
+  "state": [
+   2.857142925262451,
+   -26.505495071411133,
+   38.373626708984375,
+   61.71428680419922,
+   -12.263736724853516,
+   9.612724304199219
+  ],
+  "pan_moved_since_start_deg": 0.0,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 176.26977329974812,
+    "y": 194.7581863979849,
+    "area": 3970,
+    "visible": true
+   },
+   "green": {
+    "x": 416.7551584769198,
+    "y": 109.79387364390556,
+    "area": 4701,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": -1,
+   "layout": "red|green"
+  }
+ },
+ {
+  "id": "20261002-173536+1s",
+  "run": "20261002-173536_median_rtc_cap6_no_color_prompt_2_pens_4",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-173536_median_rtc_cap6_no_color_prompt_2_pens_4",
+  "tag": "median_rtc_cap6_no_color_prompt_2_pens_4",
+  "run_task": "pick up a pen of any color",
+  "offset_s": 1.0,
+  "t": 108.4055,
+  "t_from_start": 0.952,
+  "file": "frames/00012_0108.406s_policy_cam0.jpg",
+  "tick_t": 108.40567910000027,
+  "state": [
+   2.857142925262451,
+   -26.153846740722656,
+   38.373626708984375,
+   63.912086486816406,
+   -12.351648330688477,
+   12.517289161682129
+  ],
+  "pan_moved_since_start_deg": 0.0,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 168.80371163454674,
+    "y": 181.4235070187961,
+    "area": 4203,
+    "visible": true
+   },
+   "green": {
+    "x": 417.81282357626446,
+    "y": 96.62604540023895,
+    "area": 5022,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": -1,
+   "layout": "red|green"
+  }
+ },
+ {
+  "id": "20261002-173536+2s",
+  "run": "20261002-173536_median_rtc_cap6_no_color_prompt_2_pens_4",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-173536_median_rtc_cap6_no_color_prompt_2_pens_4",
+  "tag": "median_rtc_cap6_no_color_prompt_2_pens_4",
+  "run_task": "pick up a pen of any color",
+  "offset_s": 2.0,
+  "t": 109.4437,
+  "t_from_start": 1.991,
+  "file": "frames/00022_0109.444s_policy_cam0.jpg",
+  "tick_t": 109.44381355500082,
+  "state": [
+   6.637362480163574,
+   -14.461538314819336,
+   38.81318664550781,
+   57.758243560791016,
+   -21.230770111083984,
+   33.33333206176758
+  ],
+  "pan_moved_since_start_deg": 3.78,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 89.3185814771395,
+    "y": 227.8591735052755,
+    "area": 6824,
+    "visible": true
+   },
+   "green": {
+    "x": 356.87270306258324,
+    "y": 61.80266311584554,
+    "area": 7510,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": -1,
+   "layout": "red|green"
+  }
+ },
+ {
+  "id": "20261002-173536+3s",
+  "run": "20261002-173536_median_rtc_cap6_no_color_prompt_2_pens_4",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-173536_median_rtc_cap6_no_color_prompt_2_pens_4",
+  "tag": "median_rtc_cap6_no_color_prompt_2_pens_4",
+  "run_task": "pick up a pen of any color",
+  "offset_s": 3.0,
+  "t": 110.4472,
+  "t_from_start": 2.994,
+  "file": "frames/00032_0110.447s_policy_cam0.jpg",
+  "tick_t": 110.44734266799969,
+  "state": [
+   4.703296661376953,
+   0.6593406796455383,
+   36.43955993652344,
+   45.71428680419922,
+   -28.175825119018555,
+   22.75242042541504
+  ],
+  "pan_moved_since_start_deg": 1.85,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 72.96884202526836,
+    "y": 354.84136031157976,
+    "area": 10527,
+    "visible": true
+   },
+   "green": {
+    "x": 297.7851068999028,
+    "y": 135.83412293488823,
+    "area": 16464,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": -1,
+   "layout": "red|green"
+  }
+ },
+ {
+  "id": "20261002-174626+0s",
+  "run": "20261002-174626_median_rtc_cap6_no_color_prompt_2_pens_5",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-174626_median_rtc_cap6_no_color_prompt_2_pens_5",
+  "tag": "median_rtc_cap6_no_color_prompt_2_pens_5",
+  "run_task": "pick up a pen of any color",
+  "offset_s": 0.0,
+  "t": 119.8204,
+  "t_from_start": 0.009,
+  "file": "frames/00003_0119.820s_ep00_policy_cam0.jpg",
+  "tick_t": 120.65960360700046,
+  "state": [
+   3.1208791732788086,
+   -31.516483306884766,
+   37.31867980957031,
+   58.72527313232422,
+   -11.560439109802246,
+   9.336099624633789
+  ],
+  "pan_moved_since_start_deg": 0.0,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 402.8688963210702,
+    "y": 252.53478260869565,
+    "area": 2990,
+    "visible": true
+   },
+   "green": {
+    "x": 192.79465930018415,
+    "y": 300.4088397790055,
+    "area": 2172,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": 1,
+   "layout": "green|red"
+  }
+ },
+ {
+  "id": "20261002-174626+1s",
+  "run": "20261002-174626_median_rtc_cap6_no_color_prompt_2_pens_5",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-174626_median_rtc_cap6_no_color_prompt_2_pens_5",
+  "tag": "median_rtc_cap6_no_color_prompt_2_pens_5",
+  "run_task": "pick up a pen of any color",
+  "offset_s": 1.0,
+  "t": 120.86,
+  "t_from_start": 1.048,
+  "file": "frames/00013_0120.860s_ep00_policy_cam0.jpg",
+  "tick_t": 120.86017139599971,
+  "state": [
+   2.3296704292297363,
+   -38.373626708984375,
+   45.846153259277344,
+   55.120880126953125,
+   -9.626373291015625,
+   5.255878448486328
+  ],
+  "pan_moved_since_start_deg": -0.79,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 414.2047477744807,
+    "y": 260.60962743158586,
+    "area": 3033,
+    "visible": true
+   },
+   "green": {
+    "x": 200.83810375670842,
+    "y": 297.2468694096601,
+    "area": 2236,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": 1,
+   "layout": "green|red"
+  }
+ },
+ {
+  "id": "20261002-174626+2s",
+  "run": "20261002-174626_median_rtc_cap6_no_color_prompt_2_pens_5",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-174626_median_rtc_cap6_no_color_prompt_2_pens_5",
+  "tag": "median_rtc_cap6_no_color_prompt_2_pens_5",
+  "run_task": "pick up a pen of any color",
+  "offset_s": 2.0,
+  "t": 121.8311,
+  "t_from_start": 2.019,
+  "file": "frames/00022_0121.831s_ep00_policy_cam0.jpg",
+  "tick_t": 121.8312726059994,
+  "state": [
+   1.9780219793319702,
+   -86.81318664550781,
+   81.80220031738281,
+   54.85714340209961,
+   -6.1978020668029785,
+   4.356846332550049
+  ],
+  "pan_moved_since_start_deg": -1.14,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 412.4965128755365,
+    "y": 188.64538626609442,
+    "area": 3728,
+    "visible": true
+   },
+   "green": {
+    "x": 166.87420622921076,
+    "y": 226.77834895675838,
+    "area": 3307,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": 1,
+   "layout": "green|red"
+  }
+ },
+ {
+  "id": "20261002-174626+3s",
+  "run": "20261002-174626_median_rtc_cap6_no_color_prompt_2_pens_5",
+  "run_dir": "/home/pinho/Documents/lerobot/steering/results/runs/20261002-174626_median_rtc_cap6_no_color_prompt_2_pens_5",
+  "tag": "median_rtc_cap6_no_color_prompt_2_pens_5",
+  "run_task": "pick up a pen of any color",
+  "offset_s": 3.0,
+  "t": 122.837,
+  "t_from_start": 3.025,
+  "file": "frames/00032_0122.837s_ep00_policy_cam0.jpg",
+  "tick_t": 122.83760001399969,
+  "state": [
+   1.802197813987732,
+   -94.9011001586914,
+   83.64835357666016,
+   56.087913513183594,
+   -6.549450397491455,
+   0.7607192397117615
+  ],
+  "pan_moved_since_start_deg": -1.32,
+  "layout": {
+   "width": 640,
+   "height": 480,
+   "red": {
+    "x": 404.5243243243243,
+    "y": 233.11855855855856,
+    "area": 2775,
+    "visible": true
+   },
+   "green": {
+    "x": 184.4409298780488,
+    "y": 264.9832317073171,
+    "area": 2624,
+    "visible": true
+   },
+   "both_visible": true,
+   "red_side": 1,
+   "layout": "green|red"
+  }
+ }
+]

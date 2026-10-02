@@ -256,6 +256,94 @@ Measured from the preprocessed batch, not assumed (`results/model_input_view.png
 - The `224×224` shape in the checkpoint config is nominal: nothing in the LeRobot pipeline resizes
   to it.
 
+## Rollouts on 2 Oct (median start pose, RTC, one wrist view)
+
+Full analysis: `results/ANALYSIS_2026-10-02.md`. Per-run table: `results/runs.csv`. Labels so far are
+**provisional machine labels** (gripper stalls plus a look at each contact sheet,
+`results/labels_provisional.csv`), not the protocol's blind human labelling.
+
+**Setup.** 20 recorded runs: one with a 4° cap, 19 with 6°. 12 single-pen runs and 8 two-pen runs.
+
+**Control loop.**
+- 29.7–29.9 Hz in every run.
+- Inference median 377–463 ms per chunk; 11–14 steps dropped per chunk.
+- The two runs with the live display were the slowest (≈ +40–60 ms per chunk, n = 2). Keep it off.
+
+**Single pen.**
+- The arm reaches the pen in every run, but only 2 of 12 runs grasped, late (22 s, 27.5 s).
+- 35 empty closes in total.
+- Empty closes happen at the same computed tip depth as the grasps. The pen probably sits beyond or
+  below the fingertips, which a wrist view cannot show.
+
+**Two pens:**
+
+| Prompt | Runs | Outcome |
+|---|---|---|
+| "red pen" | 1 (red left) | went to red, grasped, lifted 8.7 cm |
+| "green pen" | 2 (green left; green **right**) | went to green both times, grasped |
+| "the pen" / "any colour" | 5 | 3 parked or hovered without approaching (all with green on the left); 2 went to green (on the right), one push |
+
+So the named colour won 3 of 3, including once with the pen on the right. The n is tiny. Two
+cases were never run: red prompt with red on the right, and green prompt with green on the left
+(more than once).
+
+**RTC plan consistency** (`plan_consistency.py`):
+- The tick-to-chunk alignment comes from matching each tick's command to the chunk rows: 100% of
+  ticks match.
+- The guided steps (0–9) agree with the old plan to 0.02–0.24°, but they are the dropped ones.
+- The executed, unguided overlap disagrees by 0.3–6° (2–20 mm at the tip).
+- Hovering coincides with larger disagreement in all 8 runs that have both kinds of window
+  (median ≈ 1.8×). Successive plans disagree, the command jumps at each switch, and the 6° cap clips
+  the jumps.
+- This confirms the chunking note above with data. Next: RTC A/B with `execution_horizon` 10 vs ≈ 20.
+
+**Forward kinematics.** The tip computes 0.1–1.6 cm below the assumed table. The mat dents by a few
+mm, so ≈ 1 cm is likely a calibration or mount offset. Check against table marks.
+
+## Offline prompt comparison on the two-pen runs (2 Oct)
+
+`prompt_counterfactual.py`; full numbers in `results/prompt_counterfactual/SUMMARY.md`.
+
+**Setup.**
+- 8 two-pen rollouts (wrist view only), 4 per layout.
+- 4 frames each, at +0/1/2/3 s.
+- The saved frame and state, re-run with 5 prompts × the same 64 seeds, so only the words differ.
+- Bit-exact against stock `predict_action_chunk` at batch 1; within 0.4° when the seeds are batched.
+- "Colour effect" = pan of the "red pen" seeds minus pan of the "green pen" seeds, signed so that +
+  means towards the red pen. Movers only; resampled over runs, then seeds.
+
+**Results** (frames up to +1 s, before the arm commits):
+
+| Readout | Value |
+|---|---|
+| Colour effect, all runs | **+6.0°** (95% CI −1.9 to +11.9), positive on 13/16 frames |
+| Red pen on the left | +10.1° (8.5 to 12.1), 8/8 frames positive |
+| Red pen on the right | +1.9° (−12.0 to +13.8); the spread is all from no_color_1/2 |
+| First frame per run | positive in 6/8 runs (+3 to +18°); no_color_1 −3.1°, no_color_2 −20.8° |
+| Neutral prompts ("any colour", "the pen", "") | drift +2 to +3° to the image right in both layouts, colour-blind |
+| Seeds moving (≤ +1 s) | 86–96% for every prompt, "" included; on Ai2's frame "" moved 2% |
+| The arm's own first chunk vs the offline seeds | 37th–91st percentile (median 59th) |
+
+**Reading.**
+- The pre-registered rule says **unclear**: the run-level CI includes 0.
+- The percentile CIs are approximate, because there are only 4–8 runs. A t-interval over the per-run means is
+  wider: about −3.6 to +15.6 overall, and 6.8 to 13.5 with the red pen on the left. The verdict is unchanged.
+- In plain terms, the colour word picks the pen in 6 of 8 scenes, in both layouts.
+- "Position dominates" is not supported.
+- It is not robust across scenes: in the two earliest scenes the words did not select the pen.
+- On the arm's own frames, swapping the colour word sends the median seed towards the other pen
+  (red_1 with "green": −26 mm; green_2 with "red": +34 mm).
+- green_2 had the green pen on the right, and the arm went right.
+
+**Limits.**
+- One wrist view.
+- Pan only.
+- 8 scenes.
+- No RTC guidance offline.
+- "" fills an unseen template.
+
+Next: more counterbalanced scenes from one fixed start pose, especially with green on the left.
+
 ## Pilot table (step 5)
 
 _pending (arm steps)_

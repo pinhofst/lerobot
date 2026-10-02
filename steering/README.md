@@ -1,8 +1,8 @@
-# steering/ — MolmoAct2 on the SO-101
-
-Status on 30 Sep 2026: the software side of steps 0–3 is done and measured. Steps 2, 2b, 4 and 5 are
-waiting on the arm. The checkpoint fits a 16 GB laptop GPU, at 361 ms per 30-action chunk, but only
-with the workarounds below.
+Status on 3 Oct 2026: MolmoAct2 runs zero-shot on the SO-101 from one wrist camera, at 29.9 Hz with RTC.
+It reaches pens reliably but rarely grasps them. With two pens, the named colour won 3 of 3 runs.
+Offline, on the same frames, the colour word turns the arm towards the named pen in 6 of 8 scenes,
+but the pre-registered verdict is still "unclear" (RUNLOG). The checkpoint fits a 16 GB laptop GPU
+only with the workarounds below.
 
 Shareable summary for colleagues: https://claude.ai/artifact/En5od24WhQKE6LD37nTahs (private until shared from its Share menu; generated from this file and RUNLOG, republished when they change).
 
@@ -21,6 +21,15 @@ This folder holds all experiment code. `src/` is unchanged, so rebasing on upstr
 | `lock_camera.sh` | Step 2b: lock exposure, white balance, gain and focus with `v4l2-ctl`. |
 | `make_local_checkpoint.py` | Builds the bf16 checkpoint that `lerobot-rollout` can load on 16 GB. |
 | `verify_local_checkpoint.py` | Checks that checkpoint against the streamed load (identical actions). |
+| `fast_load.py` | Loads the local bf16 checkpoint in ~25 s instead of ~110 s (used by `rollout.py`). |
+| `goto_pose.py`, `poses/` | Saves a joint pose and moves the arm to it, without dropping torque. `molmo_median.json` is the start pose, `home.json` the rest pose. |
+| `capture_frame.py` | Saves camera frames and the joint state, with the range check. Never touches torque. |
+| `rollout.py` | Wraps `lerobot-rollout` for every policy run: torque-safe connect, required per-step cap, GPU check, recording to `results/runs/`, plots and a replay video. |
+| `plot_run.py`, `plot_chunks3d.py`, `runs_table.py` | Per-run plots, a 3-D view of the chunks (forward kinematics), and the table of runs (`results/runs.csv`). |
+| `so101_fk.py`, `assets/so101/` | SO-101 forward kinematics from the pinned URDF. |
+| `camera_count_test.py` | Offline: one view vs two views on Ai2's frame. |
+| `prompt_counterfactual.py` | Offline: frames from recorded runs, re-run with each prompt and the same seeds (`results/prompt_counterfactual/`). |
+| `label_provisional.py`, `plan_consistency.py` | Provisional machine labels for the runs, and the RTC plan-consistency analysis (`results/ANALYSIS_2026-10-02.md`). |
 | `results/` | Raw data behind the RUNLOG tables. A few one-off checks (the OOM test, the mask comparison, host RAM) are recorded only in RUNLOG. |
 
 ## Setup
@@ -114,11 +123,9 @@ Still open:
      other pen), or null if there is none within the 20 s episode. Later contacts are ignored.
   5. Record the frame index of that first contact (for the end-effector position) and a
      confidence (sure / unsure). Unsure episodes get a second labeller.
-- [ ] The raised start pose, picked on arm day with teleop.
-- [ ] **Offline prompt comparison on recorded runs:** re-run the model on frames and states saved
-  during real rollouts with each prompt ("red pen", "pen", empty, "blue pen") and the same noise
-  seeds, so only the words differ. This is the frame diagnostic on our own rig. Do it once the
-  two-pen runs exist.
+- [ ] A fixed start pose for the counterbalanced two-pen block (the median training pose is used so far).
+- [x] **Offline prompt comparison on recorded runs** (done 2 Oct, `prompt_counterfactual.py`; red/green
+  pens rather than blue/red): the colour word steers in 6 of 8 scenes; the pre-registered verdict is "unclear".
 
 ## Status
 
@@ -126,11 +133,11 @@ Still open:
 |---|---|---|
 | 0 Fork, branch, pin | Done: branch `steering`, tag `steering-base` = `d8a09caa` | — |
 | 1 Machine check | Done: RTX 5080 Laptop 16.3 GB, driver 580, cu128 wheels, Python 3.13 | RUNLOG |
-| 2 Install, ports, calibrate, teleop, servos | Install done; arm steps pending | COMMANDS §2 |
-| 2b Camera rig | Pending; lock script ready | COMMANDS §2b |
+| 2 Install, ports, calibrate, teleop, servos | Done 2 Oct (the colleague's calibration; teleop OK) | COMMANDS §2 |
+| 2b Camera rig | One wrist camera, locked (20 ms exposure); third-person camera still to add | COMMANDS §2b |
 | 3 Latency and VRAM | Done: 361 ms/chunk, 12.2 GiB peak | RUNLOG |
-| 4 First rollout | 2 Oct: ran end to end, but the arm stayed at rest (state clipped, 3° cap). Next: median start pose, recorded | RUNLOG |
-| 5 Pilot | Precursor run on Ai2's frame; pen frame and rollouts pending | RUNLOG, COMMANDS §5 |
+| 4 First rollout | Done 2 Oct: 20 recorded runs from the median pose with RTC. Reaches reliably, grasps rarely (2 of 12 single-pen runs) | RUNLOG, `results/ANALYSIS_2026-10-02.md` |
+| 5 Pilot | 8 two-pen runs (named colour 3 of 3, n tiny) and the offline prompt comparison (verdict "unclear"). Next: a counterbalanced block, blind human labels | RUNLOG, `results/prompt_counterfactual/SUMMARY.md` |
 | 6 Report | Ongoing in RUNLOG | RUNLOG |
 
 ## Open items
