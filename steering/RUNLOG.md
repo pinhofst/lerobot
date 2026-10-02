@@ -48,7 +48,8 @@ raw data: `results/latency_bfloat16_graph-*.json`.
 
 A rerun on 30 Sep (graph on) gave a median of **321 ms** (p90 360 ms), model only 278 ms, and the same
 peak memory (`results/latency_bfloat16_graph-on_rerun-2026-09-30.json`). Treat per-chunk latency as
-about 320–360 ms on this machine.
+about 320–360 ms on this machine. Preprocessing was ~43 ms in the rerun against ~89 ms in the first
+run, so the CPU share varies with machine load.
 
 Reading:
 - It fits, with about 1.5–2 GB of VRAM to spare. CUDA graphs save about 80 ms and cost almost no memory at bf16.
@@ -108,7 +109,8 @@ strawberry +2.2° (1.5 to 2.9), apple − peach +1.7° (0.9 to 2.6), lemon − s
 
 **The start pose sits outside the trained range, and the model never sees it.** Ai2's rest pose
 has shoulder_lift and elbow_flex beyond the checkpoint's 99th percentile (arm frame: lift 3.9° and
-elbow 8.3° outside; `check_state_range.py`). The preprocessor clips the normalised *state* to the
+elbow 8.3° outside the *state* range, 3.0° and 7.8° outside the slightly wider *action* range;
+`check_state_range.py`). The preprocessor clips the normalised *state* to the
 trained range (`molmoact2_clamp_normalized`) before the model sees it. So the model believes the
 elbow is at the edge of the range, 7.8° from where it really is, and plans from there. The first
 action therefore jumps about 8° (elbow 91.4° → 83.6°). "Holding still" means staying at that edge.

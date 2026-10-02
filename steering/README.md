@@ -100,7 +100,16 @@ Amendments agreed on 30 Sep (see Decisions):
 6. **CAG as a complementary offline test** (final-action variant, `--cag-weights`).
 
 Still open:
-- [ ] The written video-labelling rule for "first sustained contact" (what counts, which frame).
+- [ ] The written video-labelling rule for "first sustained contact". Draft, to approve:
+  1. Label from the overhead camera (cam1), with the side camera for occlusions, without the
+     instruction visible (episodes shuffled, file names hidden).
+  2. *Contact* = a gripper jaw touches a pen, and the pen visibly moves or the jaws close on it.
+     Brushing past without moving it does not count.
+  3. *Sustained* = the contact lasts at least 10 frames (0.33 s) or ends in a grasp.
+  4. The first sustained contact decides the outcome: compliant (the named pen), violating (the
+     other pen), or null if there is none within the 20 s episode. Later contacts are ignored.
+  5. Record the frame index of that first contact (for the end-effector position) and a
+     confidence (sure / unsure). Unsure episodes get a second labeller.
 - [ ] The raised start pose, picked on arm day with teleop.
 
 ## Status

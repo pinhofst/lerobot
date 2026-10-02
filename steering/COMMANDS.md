@@ -58,7 +58,8 @@ lerobot command has opened the camera, because some UVC cameras reset their cont
 Record the final values in `RUNLOG.md`.
 
 Ai2's only published SO-101 sample (`Beegbrain/pick_lemon_and_drop_in_bowl`, episode 0)
-uses a **top** view and a **side** view. The model card says camera order does not matter
+uses a **top** view and a **side** view by name, but the names are swapped: "top" is a
+table-height horizontal view and "side" is overhead (RUNLOG deviation 5). The model card says camera order does not matter
 for this checkpoint. Before settling on the plan's front-facing cam0, look at that dataset's
 views (https://huggingface.co/spaces/lerobot/visualize_dataset?path=/Beegbrain/pick_lemon_and_drop_in_bowl).
 
@@ -122,10 +123,56 @@ Repeat with the colours swapped (layout B). The hardware pilot only makes sense 
 seeds head towards the named pen in both layouts: in `mover_direction`, the `blue_vs_red`
 `mover_pan_diff_ci95` excludes 0 in both layouts, with opposite signs.
 
+### Capturing a pen frame
+
+**Support the arm by hand whenever a command connects to it.** LeRobot's `robot.connect()` briefly
+switches torque off while it configures the motors (`lerobot-teleoperate`, `lerobot-rollout`), so a
+raised arm sags for a moment. `goto_pose.py go` avoids this: it enables torque without reconfiguring,
+which works once the arm has been through calibration or teleop. Quitting teleop or rollout switches torque
+off and the arm drops. So hold the arm when saving a pose after teleop, and at the start of a rollout.
+
+```bash
+uv run python steering/goto_pose.py save raised        # once: teleop/hold the arm there, then save
+uv run python steering/goto_pose.py go raised          # slow move (2°/step), torque stays on, holding
+uv run python steering/capture_frame.py --out frames/layoutA --robot-port /dev/ttyACM0 --robot-id follower \
+  --cam0 /dev/v4l/by-id/<cam0> --cam1 /dev/v4l/by-id/<cam1>
+# writes cam0.png, cam1.png, state.json and prints the trained-range check
+```
+
+### Pilot rollouts (fixed 20 s episodes)
+
+The `episodic` strategy records fixed-length episodes and, with no leader arm connected, returns
+the arm to its startup pose between episodes. So send it to the raised pose first, then launch
+**while holding the arm in place** until the first episode starts, because the startup pose is
+read after connecting. Check the first reset returns to the raised pose. If it returns to a sagged
+pose, restart the session. One
+session per instruction × layout; the instruction is in the dataset name and task.
+
+```bash
+uv run python steering/goto_pose.py go raised
+uv run lerobot-rollout --strategy.type=episodic \
+  --policy.path=steering/checkpoints/MolmoAct2-SO100_101-LeRobot \
+  --robot.type=so101_follower --robot.port=/dev/ttyACM0 --robot.id=follower \
+  --robot.max_relative_target=5 \
+  --robot.cameras='{front: {type: opencv, index_or_path: /dev/v4l/by-id/<cam0>, width: 640, height: 480, fps: 30},
+                    side:  {type: opencv, index_or_path: /dev/v4l/by-id/<cam1>, width: 640, height: 480, fps: 30}}' \
+  --rename_map='{"observation.images.front": "observation.images.cam0", "observation.images.side": "observation.images.cam1"}' \
+  --dataset.repo_id=local/rollout_pens_blue_A --dataset.single_task="pick up the blue pen" \
+  --dataset.num_episodes=10 --dataset.episode_time_s=20 --dataset.reset_time_s=15 \
+  --dataset.push_to_hub=false
+```
+
+- Keys: right arrow ends the episode early, left arrow discards and re-records, Escape stops.
+- Rollout dataset names must start with `rollout_`.
+- For the null condition, use `--dataset.single_task=""`. The config accepts it, but the dataset
+  writer has not been tried with an empty task. If it errors, note it and skip null on the arm (the
+  frame test covers it).
+- Videos of every episode are saved in the dataset, which is what the contact labelling uses.
+
 ### Choosing the camera pose (Appendix G, with the README guard rails)
 
-For each rig configuration (3–4 cam0 poses, cam1 wrist vs second third-person view, two framing
-scales, and Ai2's table-height + overhead pair), with the arm raised in the same pose and the same
+For a few rig configurations (keep it to 3–4 in total, since rebuilding the rig is the expensive part:
+for example the plan's front pose, Ai2's table-height + overhead pair, and one variant of either), with the arm raised in the same pose and the same
 pens:
 
 ```bash
