@@ -6,3 +6,4 @@ __pycache__/
 #   git add -f steering/results/runs/<run>/meta.json steering/results/runs/<run>/plots
 results/runs/
 results/server_runs/
+results/hover_causes/samples.npz

@@ -30,6 +30,9 @@ This folder holds all experiment code. `src/` is unchanged, so rebasing on upstr
 | `camera_count_test.py` | Offline: one view vs two views on Ai2's frame. |
 | `prompt_counterfactual.py` | Offline: frames from recorded runs, re-run with each prompt and the same seeds (`results/prompt_counterfactual/`). |
 | `label_provisional.py`, `plan_consistency.py` | Provisional machine labels for the runs, and the RTC plan-consistency analysis (`results/ANALYSIS_2026-10-02.md`). |
+| `hover_causes.py` | Offline: why consecutive chunks disagree while hovering (noise vs observation), and the remedies (`results/hover_causes/`). |
+| `results_page.py` | Builds the results dashboard `results/results_page.html` (published at https://claude.ai/artifact/DgeXSsn5hB4fpZUqVDK3TJ). Re-run it, then republish, when results change. |
+| `CHUNK_CONSISTENCY_NOTES.md` | Literature and LeRobot code notes on chunk disagreement and RTC. |
 | `results/` | Raw data behind the RUNLOG tables. A few one-off checks (the OOM test, the mask comparison, host RAM) are recorded only in RUNLOG. |
 
 ## Setup
@@ -60,6 +63,7 @@ Newest first. "Plan" is the plan artifact the three of us work from.
 
 | Date | Decision | Why |
 |---|---|---|
+| 3 Oct | Deploy through the colleague's interface (his client, dashboard and console, with our MolmoAct2 server), keeping our core features: torque-safe connect, a required per-step cap, the median start pose, per-tick and per-chunk recording in `rollout.py`'s format, and the automatic plots and replay | His interface is easier to deploy; our features are what make runs safe and analysable |
 | 2 Oct | All policy runs on the arm go through `steering/rollout.py`: torque-safe connect (refuses rather than dropping the arm), a required per-step cap, every run recorded to `results/runs/` and plotted. Run folders are not committed by default; share one with `git add -f` | Plain `lerobot-rollout` drops a raised arm at connect and records nothing |
 | 2 Oct | Start rollouts from the checkpoint's median training pose (`poses/molmo_median.json`: pan 3°, lift −33°, elbow 34°, wrist_flex 58°), moved there by software (`goto_pose.py`) | From the folded rest pose the state is clipped, and the first rollout never left rest |
 | 2 Oct | One wrist camera for now, with the one-view checkpoint copy (`checkpoints/…-1cam`); add a fixed third-person camera before the pen pilot | It is the only camera. Wrist-only is about 1.7% of the SO training episodes (paper), and the view used changes behaviour (offline test) |
@@ -144,9 +148,8 @@ Still open:
 
 - [ ] **MolmoAct2 behind the colleague's dashboard** (3 Oct). The server and wrappers are in
   `~/Documents/so101_smolvla/so101_smolvla/molmoact2/` (his repo, new folder only, not committed; see
-  its README). They are tested in dry-run without the arm. The server records to `results/server_runs/`
-  (git-ignored). Running his client on the arm departs from the 2 Oct "rollout.py only" decision, and
-  there is no per-tick record of what the arm executed: decide before using it on the arm. Use
+  its README). They are tested in dry-run without the arm, and the server records to `results/server_runs/`
+  (git-ignored). Per-tick recording on the client side is in progress (decision of 3 Oct). Use
   `run_local.sh all --keep-torque`, not the console's Run tab, which releases torque on quit.
 - [ ] Decide the camera pose once the rig is up (compare both poses on the frame diagnostic).
 - [ ] If `lerobot-find-port` misbehaves: `sudo apt remove brltty`.

@@ -300,6 +300,54 @@ cases were never run: red prompt with red on the right, and green prompt with gr
 **Forward kinematics.** The tip computes 0.1–1.6 cm below the assumed table. The mat dents by a few
 mm, so ≈ 1 cm is likely a calibration or mount offset. Check against table marks.
 
+## Why chunks disagree while hovering (offline, 3 Oct)
+
+`hover_causes.py`; full numbers in `results/hover_causes/SUMMARY.md`. Literature and LeRobot code notes
+are in `CHUNK_CONSISTENCY_NOTES.md`.
+
+**Setup.**
+- Hover windows from 9 runs (63 consecutive-chunk pairs) and moving windows from 8 runs (56 pairs).
+- Each chunk re-sampled offline from its recorded frame and state. The sampler is bit-exact against stock
+  inference, with or without RTC.
+- Metric: RMS disagreement in degrees over the executed overlap, arm joints 0–4 (plan_consistency's
+  "unguided").
+
+| Readout (median) | Hover | Moving |
+|---|---|---|
+| Measured on the arm | 5.4° | 2.2° |
+| Offline with RTC h10, against the recorded previous chunk | 6.0° | 2.5° |
+| Two seeds, same frame (noise only; ≈ 3.0° / 1.4° over the full overlap) | 2.7° | 1.0° |
+| Same noise, consecutive frames (observation change only) | 7.4° | 3.4° |
+| Fresh noise, consecutive frames | 7.7° | 3.6° |
+
+**Reading.**
+- **Observation sensitivity dominates; sampling noise is minor.** Holding the noise fixed barely lowers the
+  disagreement (7.4 vs 7.7°). The fixed-noise change across frames exceeds the same-frame seed spread in
+  9 of 9 hover runs.
+- A frame only 0.1 s later already moves the plan by 3.7°.
+- Hovering is the same mechanism, about 2× larger.
+- wrist_roll carries the most. Its distribution is wide but mostly unimodal (bimodal at 7 of 72 hover
+  frames). The whole distribution shifts from one observation to the next.
+
+**Remedies, offline** (hover):
+
+| Remedy | Effect | Cost |
+|---|---|---|
+| One noise sample per episode | none (7.8 vs 7.7°) | — |
+| Lower noise temperature (0.7, 0.5) | none across frames | — |
+| Best-of-16 closest to the previous plan | −27% (−34% on top of RTC h10); wrist_roll seam 10.0 → 4.6° | +68 ms per chunk; biases the plan by up to ≈ 2.3° (wrist_roll) |
+| RTC `execution_horizon` 20 instead of 10 | 6.0 → 1.0°; wrist_roll seam 4.0 → 0.2° | commits to the old plan (new steps shift 3.2°); partly by construction, since it guides the measured steps |
+
+Image and state changes are not yet separated.
+
+**Code notes.**
+- LeRobot's `execution_horizon` is where guidance ends. With an inference delay of 12–14 steps and h = 10,
+  no executed step is guided (`modeling_rtc.py:256`, checked).
+- `per_episode_seed` draws new noise every chunk, so it is not a fixed noise sample.
+- The colleague's client sends no previous chunk and its seams have no guidance at all.
+
+**Next on the arm:** A/B RTC h20 vs h10 on the same scenes, then best-of-16 on top.
+
 ## Offline prompt comparison on the two-pen runs (2 Oct)
 
 `prompt_counterfactual.py`; full numbers in `results/prompt_counterfactual/SUMMARY.md`.
