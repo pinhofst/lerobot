@@ -63,6 +63,7 @@ Newest first. "Plan" is the plan artifact the three of us work from.
 
 | Date | Decision | Why |
 |---|---|---|
+| 3 Oct | The colleague's interface uses the same LeRobot RTC as `lerobot-rollout`, computed server-side (his protocol carries no previous chunk) | Same chunking on both paths, so runs stay comparable |
 | 3 Oct | Deploy through the colleague's interface (his client, dashboard and console, with our MolmoAct2 server), keeping our core features: torque-safe connect, a required per-step cap, the median start pose, per-tick and per-chunk recording in `rollout.py`'s format, and the automatic plots and replay | His interface is easier to deploy; our features are what make runs safe and analysable |
 | 2 Oct | All policy runs on the arm go through `steering/rollout.py`: torque-safe connect (refuses rather than dropping the arm), a required per-step cap, every run recorded to `results/runs/` and plotted. Run folders are not committed by default; share one with `git add -f` | Plain `lerobot-rollout` drops a raised arm at connect and records nothing |
 | 2 Oct | Start rollouts from the checkpoint's median training pose (`poses/molmo_median.json`: pan 3°, lift −33°, elbow 34°, wrist_flex 58°), moved there by software (`goto_pose.py`) | From the folded rest pose the state is clipped, and the first rollout never left rest |
@@ -149,7 +150,8 @@ Still open:
 - [ ] **MolmoAct2 behind the colleague's dashboard** (3 Oct). The server and wrappers are in
   `~/Documents/so101_smolvla/so101_smolvla/molmoact2/` (his repo, new folder only, not committed; see
   its README). They are tested in dry-run without the arm, and the server records to `results/server_runs/`
-  (git-ignored). Per-tick recording on the client side is in progress (decision of 3 Oct). Use
-  `run_local.sh all --keep-torque`, not the console's Run tab, which releases torque on quit.
+  (git-ignored). Per-tick client recording in `rollout.py`'s format, a required step cap, and keep-torque on
+  exit are in place. Server-side LeRobot RTC is on by default (h = 10; `--rtc-execution-horizon 20` for the A/B),
+  bit-exact against LeRobot's own RTC call. Everything is dry-run tested only; nothing has run on the arm.
 - [ ] Decide the camera pose once the rig is up (compare both poses on the frame diagnostic).
 - [ ] If `lerobot-find-port` misbehaves: `sudo apt remove brltty`.
