@@ -315,3 +315,31 @@ uv run lerobot-record <robot and teleop flags as in §2, camera flags as in §4>
 ```
 
 `--dataset.num_episodes` counts the episodes to add in that session, not the dataset total.
+
+## Hosted MolmoAct2 API (cgpa0, no local GPU)
+
+Haoyu runs the stock two-camera checkpoint in fp32 on cgpa0 behind HTTPS (`POST /predict`: one observation in,
+30 × 6 joint targets out, about 0.73–0.9 s per chunk on the server). `steering/remote_api.py` is our client.
+Site details (host names, IP, port, fingerprint) stay out of git: they are in `steering/remote/config.json`, and the
+pinned certificate is `steering/remote/cgpa0.crt` (both git-ignored; ask a teammate for the config). The token lives in `~/.molmoact2_token`
+(mode 600; ask Haoyu).
+
+Network: from this laptop the SoC hosts resolve to private 192.168.x addresses and time out. Connect the SoC VPN
+first, then use the server directly, or open the tunnel and pass the `url_tunnel` from the config as `--url`:
+
+```bash
+ssh -N -L <port>:<server ip>:<port> <soc-id>@<login node>   # values in remote/config.json; leave running
+```
+
+```bash
+uv run python steering/remote_api.py fetch-cert   # once; saves the certificate only if its SHA-256 matches
+uv run python steering/remote_api.py health       # no token needed
+uv run python steering/remote_api.py info
+uv run python steering/remote_api.py sample --save   # Ai2's frame at seed 29: repeat determinism, vs our bf16 chunk
+uv run python steering/remote_api.py frame steering/results/runs/<run> --wrist-as-both --save
+```
+
+- The server needs both cameras (cam0 third-person, cam1 side or wrist). Our rig has only the wrist camera, so
+  `frame` sends it as both: a test of access, not of the rig.
+- The client refuses a chunk whose first action is more than 30° from the state, or whose steps move a joint more
+  than 15° (`UnsafeChunk`). It drives no hardware; keep the arm-side per-step cap.

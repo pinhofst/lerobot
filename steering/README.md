@@ -33,6 +33,7 @@ This folder holds all experiment code. `src/` is unchanged, so rebasing on upstr
 | `hover_causes.py` | Offline: why consecutive chunks disagree while hovering (noise vs observation), and the remedies (`results/hover_causes/`). |
 | `results_page.py` | Builds the results dashboard `results/results_page.html` (published at https://claude.ai/artifact/DgeXSsn5hB4fpZUqVDK3TJ). Re-run it, then republish, when results change. |
 | `CHUNK_CONSISTENCY_NOTES.md` | Literature and LeRobot code notes on chunk disagreement and RTC. |
+| `remote_api.py` | Client and access test for the hosted MolmoAct2 API on cgpa0 (two cameras, fp32; COMMANDS "Hosted MolmoAct2 API"). Endpoint and certificate in git-ignored `remote/`. |
 | `results/` | Raw data behind the RUNLOG tables. A few one-off checks (the OOM test, the mask comparison, host RAM) are recorded only in RUNLOG. |
 
 ## Setup
