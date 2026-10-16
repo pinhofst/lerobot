@@ -148,6 +148,9 @@ Still open:
 
 ## Open items
 
+- [ ] **Single side-view camera** (16 Oct): record wrist and side together in the same counterbalanced scenes,
+  then compare wrist-only, side-only and wrist+side offline (colour effect on pan, seeds moving under the empty
+  prompt) before side-only rollouts. A low side view may also show the gripper-to-pen height behind the empty closes.
 - [ ] **MolmoAct2 behind the colleague's dashboard** (3 Oct). The server and wrappers are in
   `~/Documents/so101_smolvla/so101_smolvla/molmoact2/` (his repo, new folder only, not committed; see
   its README). They are tested in dry-run without the arm, and the server records to `results/server_runs/`
