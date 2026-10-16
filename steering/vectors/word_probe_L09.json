@@ -1,0 +1,24 @@
+{
+ "dim": 2560,
+ "sign_convention": "+alpha = toward red, -alpha = toward green",
+ "alpha_unit": "median L2 norm of text-token activations (block output) at this layer, averaged over fit-set policy calls",
+ "norm_before_normalisation": 1.0603867882665123,
+ "created": "2026-10-16T13:45:22",
+ "layer": 9,
+ "pooling": "mean_text",
+ "positions": "text",
+ "alpha_unit_value": 48.945518493652344,
+ "name": "word_probe_L09",
+ "kind": "word_probe",
+ "fit": {
+  "source": "fit_word/{red,green}",
+  "seeds": "2000-2049",
+  "episodes": "pick matched the prompt",
+  "n_episodes": 88,
+  "n_layouts": 49,
+  "calls": "all",
+  "n_rows": 956,
+  "n_red_rows": 484,
+  "method": "L2 logistic regression (lam=10.0, features centred and divided by one global std), red prompt = 1"
+ }
+}
