@@ -8,3 +8,4 @@ results/runs/
 results/server_runs/
 results/hover_causes/samples.npz
 remote/
+results/.cache/

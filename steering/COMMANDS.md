@@ -343,3 +343,17 @@ uv run python steering/remote_api.py frame steering/results/runs/<run> --wrist-a
   `frame` sends it as both: a test of access, not of the rig.
 - The client refuses a chunk whose first action is more than 30° from the state, or whose steps move a joint more
   than 15° (`UnsafeChunk`). It drives no hardware; keep the arm-side per-step cap.
+
+## Sharing recordings (private Hugging Face dataset)
+
+Recordings and analysis outputs live in the private dataset `pinhofst10d/so-101-steering`, visible to members of the
+`pinhofst10d` organisation only. Git keeps code and docs.
+
+```bash
+uv run hf auth login                              # once per machine; a token that can write to the organisation
+uv run python steering/sync_runs.py --dry-run     # what is not uploaded yet
+uv run python steering/sync_runs.py               # upload runs/, server_runs/, analyses/ (resumable)
+uv run python steering/sync_runs.py --download    # on a new machine: fetch them into steering/results/
+```
+
+New analysis scripts write their outputs to `steering/results/analyses/<name>/`, which syncs, not into git.

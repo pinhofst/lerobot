@@ -34,6 +34,7 @@ This folder holds all experiment code. `src/` is unchanged, so rebasing on upstr
 | `results_page.py` | Builds the results dashboard `results/results_page.html` (published at https://claude.ai/artifact/DgeXSsn5hB4fpZUqVDK3TJ). Re-run it, then republish, when results change. |
 | `CHUNK_CONSISTENCY_NOTES.md` | Literature and LeRobot code notes on chunk disagreement and RTC. |
 | `remote_api.py` | Client and access test for the hosted MolmoAct2 API on cgpa0 (two cameras, fp32; COMMANDS "Hosted MolmoAct2 API"). Endpoint and certificate in git-ignored `remote/`. |
+| `sync_runs.py` | Uploads `results/runs/`, `server_runs/` and `analyses/` to the private dataset `pinhofst10d/so-101-steering` (`--dry-run`, `--download` on a new machine). |
 | `results/` | Raw data behind the RUNLOG tables. A few one-off checks (the OOM test, the mask comparison, host RAM) are recorded only in RUNLOG. |
 
 ## Setup
@@ -64,6 +65,7 @@ Newest first. "Plan" is the plan artifact the three of us work from.
 
 | Date | Decision | Why |
 |---|---|---|
+| 16 Oct | Recordings and new results go to the private Hugging Face dataset `pinhofst10d/so-101-steering` (organisation members only), uploaded with `sync_runs.py`; git keeps code and docs. Supersedes the 30 Sep "no Hugging Face account" entry. Results already tracked in `results/` stay | Run folders existed only on this laptop; the fork is public and the wrist videos show the lab; an organisation is the only free way to share a private repo |
 | 3 Oct | The colleague's interface uses the same LeRobot RTC as `lerobot-rollout`, computed server-side (his protocol carries no previous chunk) | Same chunking on both paths, so runs stay comparable |
 | 3 Oct | Deploy through the colleague's interface (his client, dashboard and console, with our MolmoAct2 server), keeping our core features: torque-safe connect, a required per-step cap, the median start pose, per-tick and per-chunk recording in `rollout.py`'s format, and the automatic plots and replay | His interface is easier to deploy; our features are what make runs safe and analysable |
 | 2 Oct | All policy runs on the arm go through `steering/rollout.py`: torque-safe connect (refuses rather than dropping the arm), a required per-step cap, every run recorded to `results/runs/` and plotted. Run folders are not committed by default; share one with `git add -f` | Plain `lerobot-rollout` drops a raised arm at connect and records nothing |

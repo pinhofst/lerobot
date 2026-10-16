@@ -1293,6 +1293,8 @@ def main() -> None:
                 print(f"recording: could not save ({e!r})", file=sys.stderr)
             if saved and not flags["no_plot"]:
                 _plot(REC.run_dir)
+            if saved:  # recordings live in the private HF dataset, not git (16 Oct)
+                print("sync:    uv run python steering/sync_runs.py   (uploads new runs to the group's dataset)")
 
 
 def _plot(run_dir: Path) -> None:
