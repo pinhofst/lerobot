@@ -1,0 +1,21 @@
+{
+ "dim": 2560,
+ "sign_convention": "+alpha = toward GREEN, -alpha = toward red",
+ "alpha_unit": "median L2 norm of text-token activations (block output) at this layer, averaged over fit-set policy calls",
+ "norm_before_normalisation": 0.8620659949370523,
+ "created": "2026-10-16T17:22:06",
+ "layer": 6,
+ "pooling": "mean_text",
+ "positions": "text",
+ "alpha_unit_value": 36.5982551574707,
+ "name": "green_meandiff_L06",
+ "kind": "green_meandiff",
+ "fit": {
+  "source": "fit_word/green + fit_behav/cube",
+  "seeds": "2000-2049 (green prompt, correct picks) vs 2100-2199 (ambiguous)",
+  "calls": "all",
+  "n_green_rows": 472,
+  "n_ambiguous_rows": 1194,
+  "method": "mean(green prompt) - mean(ambiguous prompt)"
+ }
+}
