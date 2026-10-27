@@ -214,6 +214,22 @@ def test_exported_libero_barrier_loads(name):
     assert v.shape == (2560,) and vmeta["alpha_unit_value"] == mod.scale
 
 
+def test_exported_so101_files_load_and_match_policy():
+    """The SO-101 files are the primary ones: no mismatch warning on the SO-101 checkpoint's checkpoint_path."""
+    import warnings
+
+    mod, meta = steer_barrier.load_barrier(HERE / "barriers" / "barrier_so101.pt")
+    assert meta["layer"] == 6 and meta["positions"] == "task" and meta["k_default"] == 1.0
+    assert tuple(mod.bank.shape) == (5, 2560)
+    v, vmeta = steer_hooks.load_vector(HERE / "vectors" / "const_so101.npy")
+    assert vmeta["layer"] == 6 and vmeta["positions"] == "task" and vmeta["k_default"] == 1.0
+    assert np.linalg.norm(np.float32(vmeta["alpha_unit_value"]) * v) == pytest.approx(54.05, abs=0.01)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        for m in (meta, vmeta):  # the 1cam checkpoint's config.checkpoint_path
+            assert not steer_barrier.check_policy(m, "allenai/MolmoAct2-SO100_101")
+
+
 # ----------------------------------------------------------------------------- real tokenizer
 
 
