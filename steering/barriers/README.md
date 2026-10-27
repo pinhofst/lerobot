@@ -5,7 +5,16 @@ Trained barrier modules for `--steer-barrier` (README "Steering modes"; format i
 sidecar: layer, positions, `k_default`, `policy_checkpoint`, `trained_on`, the bank, and the source checkpoint with
 its sha256.
 
-`barrier_r3_L06.{pt,json}` (13.7 MB): the round-3 barrier of steervla's `steering_dial`, block 6, task-span tokens,
+**Primary:** `barrier_so101.{pt,json}` (13.7 MB): the barrier calibrated offline in steervla `runs/steering_so101`
+on the one-view SO-101 checkpoint (`lerobot/MolmoAct2-SO100_101-LeRobot`, bf16, wrist `cam0` only) with recorded
+real frames of two pens, teacher "pick up the red pen"; SO-101 description bank inside. Block 6, task span, k = 1.
+Offline on held-out frames: 12% of the no-edit loss at k = 1, the red teacher's heading on 20/20 two-pen frames
+(neutral and "green" prompts), better than the calibrated constant (loss ratio 0.65). Offline proxy only, no
+real-robot runs yet (README "Calibration").
+
+    uv run python steering/rollout.py --tag bar_k0 ... --steer-barrier steering/barriers/barrier_so101.pt --steer-k 0
+
+**Secondary:** `barrier_r3_L06.{pt,json}` (13.7 MB): the round-3 barrier of steervla's `steering_dial`, block 6, task-span tokens,
 3.41 M parameters. Trained on **MolmoAct2-LIBERO** in simulation (two cameras, agentview + wrist; red and green
 cubes) by on-policy velocity matching to the same frozen policy prompted "pick up the red cube". It pushes toward
 **red**. LIBERO test: hard red 79% under the neutral prompt and 77% under "pick up the green cube", the same as the
@@ -17,7 +26,7 @@ the trained module.
 
     uv run python steering/rollout.py --tag bar_k0 ... --steer-barrier steering/barriers/barrier_r3_L06.pt --steer-k 0
 
-To add an SO-101 version (same format), export the steervla checkpoint:
+To add another module (same format), export the steervla checkpoint:
 
     python steering/steer_barrier.py --src <steervla ckpt.pt> --out steering/barriers/<name>.pt --layer 6 \
       --policy-checkpoint allenai/MolmoAct2-SO100_101 --trained-on "..." --src-id "steervla:<path>"

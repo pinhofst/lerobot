@@ -218,45 +218,66 @@ uv run python steering/rollout.py --tag loop_cube \
 
 ### Steered rollouts (`--steer-vector` / `--steer-barrier`)
 
-The two modes (constant vector, barrier), what they add and their status are in README "Steering modes".
-Give one of `--steer-vector` and `--steer-barrier`, never both. `rollout.py` strips every `--steer-*` flag
-before `lerobot-rollout` sees it. The current files were trained on **MolmoAct2-LIBERO** (two cameras, cubes),
-so on this checkpoint they print a mismatch warning and may not transfer.
+The two modes (constant vector, barrier), what they add, the offline calibration and the status are in README
+"Steering modes". Give one of `--steer-vector` and `--steer-barrier`, never both. `rollout.py` strips every
+`--steer-*` flag before `lerobot-rollout` sees it.
 
-Start pose: both markers must be in the wrist view at the first frame. Save that pose once (raised over the
-middle of the workspace, inside the trained range), check it with `capture_frame.py`, and go there before every
-run. Same scene, same pose, same task for the k = 0 baseline and the steered run; the task is neutral (no colour
-word), and the barrier pushes toward **red**.
+Primary files: `barriers/barrier_so101.pt` and `vectors/const_so101.npy`, calibrated offline on this one-view
+checkpoint (`MolmoAct2-SO100_101-LeRobot-1cam`) with two pens; k = 1 is the calibrated strength. Use the 1cam
+checkpoint: the sidecar check cannot tell it from the two-camera one. The LIBERO files (`*_r3_L06`, `word_probe_L09`,
+`green_meandiff_L06`) are secondary and print a mismatch warning here.
+
+Scene and start pose: a red and a green pen, as in the calibration (markers are untested). Both pens must be in the
+wrist view at the first frame. The calibration frames come from runs started at `molmo_median`; if both pens are not
+visible from it, save a pose that shows both (inside the trained range, check with `capture_frame.py`) and use it for
+every run. Same scene, same pose, same task for every k. The task is neutral (no colour word); the steering pushes
+toward **red**.
 
 ```bash
-uv run python steering/goto_pose.py save markers      # once: hold the arm where the wrist view shows both markers
-uv run python steering/goto_pose.py go markers \
-  --robot-port /dev/serial/by-id/usb-1a86_USB_Single_Serial_5B8E114089-if00 --robot-id so101_follower
+uv run python steering/goto_pose.py save steer_start   # once: hold the arm where the wrist view shows both pens
 
 # 1. baseline: barrier loaded, k = 0 (no edit, bitwise the unsteered policy; checks the task span is found)
+uv run python steering/goto_pose.py go steer_start --robot-port /dev/serial/by-id/usb-1a86_USB_Single_Serial_5B8E114089-if00 --robot-id so101_follower
 uv run python steering/rollout.py --tag bar_k0 \
   --policy.path=steering/checkpoints/MolmoAct2-SO100_101-LeRobot-1cam \
   --robot.type=so101_follower --robot.port=/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B8E114089-if00 --robot.id=so101_follower \
   --robot.max_relative_target=4 \
   --robot.cameras='{cam0: {type: opencv, index_or_path: /dev/v4l/by-id/usb-Sonix_Technology_Co.__Ltd._USB2.0_CAM1_USB2.0_CAM1-video-index0, width: 640, height: 480, fps: 30}}' \
   --inference.type=rtc \
-  --task="pick up the marker" --duration=30 \
-  --steer-barrier steering/barriers/barrier_r3_L06.pt --steer-k 0
+  --task="pick up the pen" --duration=30 \
+  --steer-barrier steering/barriers/barrier_so101.pt --steer-k 0
 
-# 2. same command with a small k (go to the pose again first)
-  ... --tag bar_k025 ... --steer-barrier steering/barriers/barrier_r3_L06.pt --steer-k 0.25
+# 2. k = 0.5
+uv run python steering/goto_pose.py go steer_start --robot-port /dev/serial/by-id/usb-1a86_USB_Single_Serial_5B8E114089-if00 --robot-id so101_follower
+uv run python steering/rollout.py --tag bar_k05 \
+  --policy.path=steering/checkpoints/MolmoAct2-SO100_101-LeRobot-1cam \
+  --robot.type=so101_follower --robot.port=/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B8E114089-if00 --robot.id=so101_follower \
+  --robot.max_relative_target=4 \
+  --robot.cameras='{cam0: {type: opencv, index_or_path: /dev/v4l/by-id/usb-Sonix_Technology_Co.__Ltd._USB2.0_CAM1_USB2.0_CAM1-video-index0, width: 640, height: 480, fps: 30}}' \
+  --inference.type=rtc \
+  --task="pick up the pen" --duration=30 \
+  --steer-barrier steering/barriers/barrier_so101.pt --steer-k 0.5
+
+# 3. k = 1 (the calibrated strength)
+uv run python steering/goto_pose.py go steer_start --robot-port /dev/serial/by-id/usb-1a86_USB_Single_Serial_5B8E114089-if00 --robot-id so101_follower
+uv run python steering/rollout.py --tag bar_k1 \
+  --policy.path=steering/checkpoints/MolmoAct2-SO100_101-LeRobot-1cam \
+  --robot.type=so101_follower --robot.port=/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B8E114089-if00 --robot.id=so101_follower \
+  --robot.max_relative_target=4 \
+  --robot.cameras='{cam0: {type: opencv, index_or_path: /dev/v4l/by-id/usb-Sonix_Technology_Co.__Ltd._USB2.0_CAM1_USB2.0_CAM1-video-index0, width: 640, height: 480, fps: 30}}' \
+  --inference.type=rtc \
+  --task="pick up the pen" --duration=30 \
+  --steer-barrier steering/barriers/barrier_so101.pt --steer-k 1
 ```
 
-Then `--steer-k 0.5` and `1` (the trained strength), each from the same pose. k scales the barrier's edit, so the
-edit norm grows linearly with k (README).
-Check `meta.json["steering"]` after each run: `n_fires == n_calls`, `task_span_text` is " pick up the marker",
-and the mean edit norm.
+Check `meta.json["steering"]` after each run: `n_fires == n_calls`, `task_span_text` is " pick up the pen",
+`policy_mismatch` is false, and the mean edit norm (k times the k = 1 norm; 0 at k = 0).
 
-The constant-vector mode takes the same flags with `--steer-vector`:
+The constant-vector mode takes the same command with `--steer-vector` in place of `--steer-barrier`:
 
 ```bash
-  ... --steer-vector steering/vectors/const_r3_L06.npy --steer-k 1      # trained constant vector
-  ... --steer-vector steering/vectors/word_probe_L09.npy --steer-k 0.25 # hand-fitted, block 9, text tokens
+  ... --steer-vector steering/vectors/const_so101.npy --steer-k 1      # calibrated constant (SO-101), norm 54.0
+  ... --steer-vector steering/vectors/word_probe_L09.npy --steer-k 0.25 # LIBERO, hand-fitted, block 9, text tokens
 ```
 
 ## 5 · Pilot: pens on one frame, then on the arm

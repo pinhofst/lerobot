@@ -1,5 +1,15 @@
 # Steering vectors
 
+**Primary:** `const_so101.{npy,json}`: the constant vector calibrated offline in steervla `runs/steering_so101` on
+the one-view SO-101 checkpoint (`lerobot/MolmoAct2-SO100_101-LeRobot`, bf16, wrist `cam0`), two pens, teacher "pick up
+the red pen". Block 6, task-span tokens, +k = toward red. `--steer-k 1` (the calibrated k) adds scale·w, norm 54.0
+(bitwise steervla's `const_so101_k1.npy`). Offline it is behind the calibrated barrier (loss ratio 0.65). Offline
+proxy only, no real-robot runs yet.
+
+    --steer-vector steering/vectors/const_so101.npy --steer-k 1
+
+The files below were fitted on **MolmoAct2-LIBERO** (secondary).
+
 `word_probe_L09.{npy,json}`: red-vs-green colour direction fitted on **MolmoAct2-LIBERO** in simulation
 (two cubes, agentview + wrist cameras). Block 9, text tokens, +alpha = toward red, -alpha = toward green.
 Validation-selected strength k = 0.25 (alpha = k * 48.9). In LIBERO it raised red picks from 9/50 to 38/50.
