@@ -16,3 +16,12 @@ prompt), block 6, text tokens. **Sign is opposite to the red file: +alpha = towa
 "pick up the green cube" prompt (86%). Not tested on the SO-101 checkpoint.
 
     --steer-vector steering/vectors/green_meandiff_L06.npy --steer-k 0.25
+
+`const_r3_L06.{npy,json}`: the trained constant vector of steervla's `steering_dial` (round 3), the baseline arm next
+to the barrier (`../barriers/barrier_r3_L06.pt`). Block 6, **task-span tokens** (the instruction only; the tokenizer
+is loaded from the policy). Trained on **MolmoAct2-LIBERO** (two cameras, cubes) by on-policy velocity matching to
+the policy prompted "pick up the red cube": +k = toward red. Stored as w with `alpha_unit_value` = the module scale,
+so `--steer-k 1` adds exactly the trained vector (norm 49.9). LIBERO test: the same as the barrier in every setting
+(hard red 78% under the neutral prompt and 78% under the green prompt; barrier 79% and 77%). Not tested on the SO-101 checkpoint.
+
+    --steer-vector steering/vectors/const_r3_L06.npy --steer-k 1
