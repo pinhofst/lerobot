@@ -225,7 +225,7 @@ def _slim_extra(extra: dict) -> dict:
 
 def export(src: str | Path, out: str | Path, *, layer: int, positions: str, policy_checkpoint: str,
            trained_on: str, k_default: float = 1.0, bank_note: str = "", notes: dict | None = None,
-           src_id: str | None = None) -> dict:
+           src_id: str | None = None, target: str | None = None) -> dict:
     """Copy a steervla checkpoint to ``out`` and write the sidecar ``out.json``. Returns the sidecar.
 
     ``out`` ending in ``.pt``: the module, tensors only (``load_barrier`` / ``--steer-barrier``). ``out`` ending in
@@ -248,6 +248,7 @@ def export(src: str | Path, out: str | Path, *, layer: int, positions: str, poli
     side: dict[str, Any] = {
         "name": out.stem,
         "kind": mod.kind,
+        "target": target,
         "layer": int(layer),
         "positions": positions,
         "k_default": float(k_default),
@@ -282,12 +283,13 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--trained-on", required=True)
     ap.add_argument("--k-default", type=float, default=1.0)
     ap.add_argument("--bank-note", default="")
+    ap.add_argument("--target", default=None, help="colour the module steers toward (red / green)")
     ap.add_argument("--src-id", default=None, help="how the sidecar names the source (default: its file name)")
     ap.add_argument("--notes-json", default="", help="extra sidecar fields as a JSON object")
     a = ap.parse_args(argv)
     side = export(a.src, a.out, layer=a.layer, positions=a.positions, policy_checkpoint=a.policy_checkpoint,
                   trained_on=a.trained_on, k_default=a.k_default, bank_note=a.bank_note,
-                  notes=json.loads(a.notes_json) if a.notes_json else None, src_id=a.src_id)
+                  notes=json.loads(a.notes_json) if a.notes_json else None, src_id=a.src_id, target=a.target)
     print(json.dumps(side, indent=1))
 
 

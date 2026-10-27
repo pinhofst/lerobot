@@ -230,6 +230,43 @@ def test_exported_so101_files_load_and_match_policy():
             assert not steer_barrier.check_policy(m, "allenai/MolmoAct2-SO100_101")
 
 
+TARGETS = {"barriers/barrier_so101.pt": "red", "barriers/barrier_r3_L06.pt": "red",
+           "barriers/barrier_so101_green.pt": "green", "vectors/const_so101.npy": "red",
+           "vectors/const_r3_L06.npy": "red", "vectors/const_so101_green.npy": "green",
+           "vectors/word_probe_L09.npy": "red", "vectors/green_meandiff_L06.npy": "green"}
+
+
+@pytest.mark.parametrize("rel,target", sorted(TARGETS.items()))
+def test_sidecar_target(rel, target):
+    assert json.loads((HERE / rel).with_suffix(".json").read_text())["target"] == target
+
+
+def test_green_files_roundtrip_and_differ_from_red(tmp_path):
+    import warnings
+
+    green, gmeta = steer_barrier.load_barrier(HERE / "barriers" / "barrier_so101_green.pt")
+    red, _ = steer_barrier.load_barrier(HERE / "barriers" / "barrier_so101.pt")
+    assert gmeta["target"] == "green" and gmeta["layer"] == 6 and gmeta["k_default"] == 1.0
+    assert not torch.equal(green.bank, red.bank) and not torch.equal(green.bias_dir, red.bias_dir)
+    steer_barrier.save_module(green, tmp_path / "g2.pt")
+    g2, _ = steer_barrier.load_barrier(tmp_path / "g2.pt")
+    assert all(torch.equal(a, b) for a, b in zip(green.state_dict().values(), g2.state_dict().values()))
+    v, vmeta = steer_hooks.load_vector(HERE / "vectors" / "const_so101_green.npy")
+    assert vmeta["target"] == "green"
+    assert np.linalg.norm(np.float32(vmeta["alpha_unit_value"]) * v) == pytest.approx(45.27, abs=0.01)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        assert not steer_barrier.check_policy(gmeta, "allenai/MolmoAct2-SO100_101")
+        assert not steer_barrier.check_policy(vmeta, "allenai/MolmoAct2-SO100_101")
+
+
+def test_summary_records_target(monkeypatch):
+    import steer_patch
+
+    monkeypatch.setattr(steer_patch, "STEER", {"installed": True, "mode": "barrier", "target": "green"})
+    assert steer_patch.summary()["target"] == "green"
+
+
 # ----------------------------------------------------------------------------- real tokenizer
 
 

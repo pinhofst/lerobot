@@ -1,6 +1,7 @@
 {
  "name": "const_r3_L06",
  "kind": "const",
+ "target": "red",
  "layer": 6,
  "positions": "task",
  "k_default": 1.0,

@@ -17,5 +17,6 @@
   "n_green_rows": 472,
   "n_ambiguous_rows": 1194,
   "method": "mean(green prompt) - mean(ambiguous prompt)"
- }
+ },
+ "target": "green"
 }

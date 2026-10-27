@@ -1,6 +1,7 @@
 {
  "name": "barrier_so101",
  "kind": "barrier",
+ "target": "red",
  "layer": 6,
  "positions": "task",
  "k_default": 1.0,

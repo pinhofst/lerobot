@@ -109,10 +109,11 @@ def install(vector: str | None, layer: int | None, k: float | None, alpha: float
     if barrier is not None:
         mod, layer, k_val, pos, meta = resolve_barrier(barrier, layer, k, alpha, positions)
         STEER.update(mode="barrier", barrier=str(barrier), barrier_sha256=steer_barrier.sha256(barrier),
-                     kind=mod.kind, layer=layer, k=k_val, positions=pos, sidecar=meta)
+                     kind=mod.kind, target=meta.get("target"), layer=layer, k=k_val, positions=pos, sidecar=meta)
     else:
         v, layer, alpha_val, pos, meta = resolve(vector, layer, k, alpha, positions)
-        STEER.update(mode="vector", vector=str(vector), vector_sha256=steer_barrier.sha256(vector), layer=layer,
+        STEER.update(mode="vector", vector=str(vector), vector_sha256=steer_barrier.sha256(vector),
+                     target=meta.get("target"), layer=layer,
                      alpha=alpha_val, k=k, positions=pos, vector_norm=float(abs(v).sum()),
                      edit_norm=abs(alpha_val) * float((v.astype("float64") ** 2).sum() ** 0.5), sidecar=meta)
     if pos not in steer_hooks.POSITIONS:
@@ -139,7 +140,7 @@ def install(vector: str | None, layer: int | None, k: float | None, alpha: float
             steerer = steer_hooks.ActivationSteerer(policy, layer, v, alpha_val, pos, task_span=span).attach()
             what = f"vector {Path(vector).name}, alpha {alpha_val:.4f}"
         STEER.update(installed=True, steerer=steerer)
-        print(f"steer: {what}, layer {layer}, positions {pos}", flush=True)
+        print(f"steer: {what}, target {meta.get('target') or 'unknown'}, layer {layer}, positions {pos}", flush=True)
         return policy
 
     cls.from_pretrained = classmethod(from_pretrained)

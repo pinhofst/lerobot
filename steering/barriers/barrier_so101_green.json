@@ -1,0 +1,51 @@
+{
+ "name": "barrier_so101_green",
+ "kind": "barrier",
+ "target": "green",
+ "layer": 6,
+ "positions": "task",
+ "k_default": 1.0,
+ "policy_checkpoint": "allenai/MolmoAct2-SO100_101",
+ "trained_on": "MolmoAct2-SO100_101 (lerobot/MolmoAct2-SO100_101-LeRobot, bf16 re-save, ONE-VIEW copy MolmoAct2-SO100_101-LeRobot-1cam: wrist camera cam0 only), real SO-101 frames, two pens (red/green); calibrated OFFLINE only (velocity matching to the same frozen policy prompted \"pick up the green pen\" on recorded frames; students \"pick up the pen\" and \"pick up the red pen\"), initialised from the LIBERO mirror (green) module. No real-robot runs yet. Not checked on the two-camera checkpoint or with markers.",
+ "dim": 2560,
+ "alpha_unit_value": 36.5982551574707,
+ "alpha_unit": "module scale: median L2 norm of text-token activations at this layer (fit set)",
+ "source": {
+  "file": "steervla:runs/steering_so101/export/barrier_so101_green.pt",
+  "sha256": "d178f0588aafd72cd597a75ca76724060527864dd3de679ed1640d1df04c9eb0",
+  "steps_done": 800,
+  "args": {
+   "arm": "barrier",
+   "init": "runs/steering_dial/ckpt/m_barrier_r1.pt",
+   "bank": "runs/steering_so101/data/bank_green.npy",
+   "teacher": "green",
+   "out": "runs/steering_so101/ckpt/barrier_so101_green.pt",
+   "steps": 800,
+   "B": 4,
+   "nt": 4,
+   "lr": 0.0005,
+   "lr_tau": 0.005,
+   "eval_every": 100,
+   "seed": 0,
+   "mem_gb": 25.0,
+   "device": "cuda",
+   "monitor_runs": null,
+   "probe": ""
+  }
+ },
+ "created": "2026-10-27T15:52:15",
+ "bank": {
+  "included": true,
+  "shape": [
+   5,
+   2560
+  ],
+  "how": "SO-101 green bank: mean block-6 output of the 5 tokens ' pick up the green pen' under the teacher prompt over recorded SO-101 frames (steervla runs/steering_so101/data/bank_green.npy); frozen"
+ },
+ "n_params": 3414530,
+ "policy_lerobot": "lerobot/MolmoAct2-SO100_101-LeRobot (1cam copy)",
+ "cameras": "one view (wrist, cam0); the policy_checkpoint check cannot tell 1cam from 2cam, use the -1cam checkpoint",
+ "sign_convention": "toward GREEN (the teacher prompt)",
+ "k_note": "k scales the edit, u = k * ReLU(tau - <a,h>) a; k = 1 is the calibrated module and the chosen k",
+ "calibration": "steervla runs/steering_so101 (offline proxy, held-out real frames): k=1 loss 0.00140 vs 0.0111 no edit (green constant 0.00175); on 18/18 frames where the red barrier heads to red, this one heads away from red, under the neutral and the red-pen students. A separate module: the red barrier with a green bank does not work (0.0128)"
+}
