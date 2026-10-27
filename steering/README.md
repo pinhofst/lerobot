@@ -150,8 +150,7 @@ exclusive: giving both exits with an error.
 | When it acts | Always, on every call | In principle only where ⟨a,h⟩ < τ (zero edit elsewhere) |
 | Strength | `--steer-k` (alpha = k × the sidecar's `alpha_unit_value`) or `--steer-alpha` (absolute) | `--steer-k` scales the edit (ControlLLM's form), continuously from 0. k = 0 is no edit; k = 1 is the trained module |
 | File | `vectors/<name>.npy` + `.json` sidecar | `barriers/<name>.pt` (module with its frozen description bank) + `.json` sidecar |
-| Primary file | `const_so101` (calibrated offline on SO-101, 1cam, pens; k = 1) | `barrier_so101` (calibrated offline on SO-101, 1cam, pens; k = 1) |
-| Secondary files | `const_r3_L06` (trained), `word_probe_L09`, `green_meandiff_L06` (hand-fitted); all MolmoAct2-LIBERO | `barrier_r3_L06`, MolmoAct2-LIBERO |
+| Files | Primary: `const_so101` (calibrated offline on SO-101 real frames, 1cam, pens; k = 1). Secondary: `const_r3_L06` (trained), `word_probe_L09`, `green_meandiff_L06` (hand-fitted); all MolmoAct2-LIBERO | Two versions to compare on the robot, both targeting **red**, k = 1:<br>**calibrated (SO-101 real frames)**: `barrier_so101.pt`<br>**uncalibrated (LIBERO sim only)**: `barrier_r3_L06.pt` |
 
 - The constant vector covers both the hand-fitted vectors and the trained constant vector. It is simple, predictable
   and always on.
@@ -175,12 +174,21 @@ exclusive: giving both exits with an error.
 `cam0`). The data were recorded real SO-101 frames with two pens. The target was velocity matching to the same frozen
 policy prompted "pick up the red pen", from the students "pick up the pen" and "pick up the green pen". On held-out
 real frames:
-- At k = 1 the barrier reaches 12% of the no-edit loss.
-- It matches the red teacher's heading on 20 of 20 two-pen frames, under both the neutral and the "green" prompt.
-- It beats the calibrated constant (barrier / constant loss ratio 0.65).
+- The calibrated barrier reaches 12% of the no-edit loss at k = 1, and beats the calibrated constant (barrier /
+  constant loss ratio 0.65).
 - k = 1 was the pre-registered choice for both modules.
 
-Deploy-path smoke test (GPU, 27 Oct). Setup:
+The two barrier versions on the 8 held-out real runs (20 two-pen frames). Both target **RED**. "Gap" is the gap to the
+red-pen teacher, with unsteered = 100%. Heading counts the frames where the predicted motion heads the same way as
+the teacher's; the teacher moves +7.5 mm toward red.
+
+| barrier | gap | heading matches red, neutral prompt | heading matches red, "green pen" prompt |
+|---|---|---|---|
+| none | 100% | 9/20 | 1/20 |
+| uncalibrated (LIBERO sim only), k = 1 | 47% | 17/20 (+3.5 mm toward red) | 18/20 (+9.4 mm) |
+| calibrated (SO-101 real frames), k = 1 | 12% | 20/20 (+7.6 mm) | 20/20 (+7.5 mm) |
+
+Deploy-path smoke test of the calibrated barrier (GPU, 27 Oct). Setup:
 - `steer_patch` + `steer_hooks` + `steer_barrier`, with the 1cam checkpoint loaded as `prompt_counterfactual` does,
   CUDA graph on;
 - one recorded frame (`20261002-170142_median_rtc_cap6_no_color_prompt_2_pens_1`, frame 00003) with
@@ -194,6 +202,12 @@ Results:
 - At k = 1 the chunk moved by a mean of 9.5° per joint and step from the unsteered one (shoulder_lift 27°); at
   k = 0.5 it moved 9.0°.
 - At k = 1 the output was bitwise steervla `steering_so101`'s own hook on the same frame and noise.
+- The uncalibrated barrier (`barrier_r3_L06`), same frame and noise:
+  - the span was found, n_fires == n_calls, k = 0 was bitwise;
+  - the mismatch warning fired and meta.json recorded `policy_mismatch: true`;
+  - the mean edit norm was 12.4 at k = 0.5 and 24.9 at k = 1;
+  - the chunk moved by a mean of 5.9° from the unsteered one at k = 1 (shoulder_lift 14.7°) and 1.5° at k = 0.5;
+  - the output was bitwise steervla's hook with `barrier_r3.pt`.
 
 These are offline proxies: loss and heading on recorded frames. They say nothing yet about grasps, closed-loop
 drift, markers or two cameras. The barrier still never switches off (zero-edit fraction 0, as in LIBERO), so it also

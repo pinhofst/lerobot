@@ -273,6 +273,51 @@ uv run python steering/rollout.py --tag bar_k1 \
 Check `meta.json["steering"]` after each run: `n_fires == n_calls`, `task_span_text` is " pick up the pen",
 `policy_mismatch` is false, and the mean edit norm (k times the k = 1 norm; 0 at k = 0).
 
+#### Real-robot comparison: uncalibrated vs calibrated barrier
+
+Two barrier files, both targeting **red**, both at k = 1: **uncalibrated** `barriers/barrier_r3_L06.pt` (LIBERO sim
+only; prints the mismatch warning, expected) and **calibrated** `barriers/barrier_so101.pt` (SO-101 real frames).
+Offline numbers: README "Calibration".
+
+Scene: a red and a green pen; the target is red. Start each run from the `steer_start` pose with both pens in the
+wrist view. Swap the pens left/right between runs. Layouts:
+- easy: red nearer;
+- hard: red farther;
+- behind: green in front, red still visible.
+
+About 3–5 runs per cell (run × layout, left/right balanced).
+
+| # | `--task` | steering | `--tag` |
+|---|---|---|---|
+| 1 | "pick up the pen" | none (`--steer-barrier ... --steer-k 0`) | `none_neutral` |
+| 2 | "pick up the red pen" | none (ceiling; no `--steer-*` flags) | `none_red` |
+| 3 | "pick up the pen" | uncalibrated, `--steer-k 1` | `unc_k1_neutral` |
+| 4 | "pick up the pen" | calibrated, `--steer-k 1` | `cal_k1_neutral` |
+| 5 | "pick up the green pen" | none (no `--steer-*` flags) | `none_green` |
+| 6 | "pick up the green pen" | uncalibrated, `--steer-k 1` | `unc_k1_green` |
+| 7 | "pick up the green pen" | calibrated, `--steer-k 1` | `cal_k1_green` |
+
+- First session: before the k = 1 runs, do the k = 0 → 0.5 → 1 ramp above with each barrier on one easy layout.
+- Never combine a barrier with "pick up the red pen". Row 2 is the unsteered ceiling.
+- Add the layout and side to the tag, for example `cal_k1_green_hard_redleft`.
+- In the run notes, record which pen was picked (red / green), or that none was picked.
+
+Row 6 (uncalibrated, green prompt), for example:
+
+```bash
+uv run python steering/goto_pose.py go steer_start --robot-port /dev/serial/by-id/usb-1a86_USB_Single_Serial_5B8E114089-if00 --robot-id so101_follower
+uv run python steering/rollout.py --tag unc_k1_green_hard_redleft \
+  --policy.path=steering/checkpoints/MolmoAct2-SO100_101-LeRobot-1cam \
+  --robot.type=so101_follower --robot.port=/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B8E114089-if00 --robot.id=so101_follower \
+  --robot.max_relative_target=4 \
+  --robot.cameras='{cam0: {type: opencv, index_or_path: /dev/v4l/by-id/usb-Sonix_Technology_Co.__Ltd._USB2.0_CAM1_USB2.0_CAM1-video-index0, width: 640, height: 480, fps: 30}}' \
+  --inference.type=rtc \
+  --task="pick up the green pen" --duration=30 \
+  --steer-barrier steering/barriers/barrier_r3_L06.pt --steer-k 1
+```
+
+For row 7, use `--steer-barrier steering/barriers/barrier_so101.pt`. For rows 2 and 5, drop both `--steer-*` flags.
+
 The constant-vector mode takes the same command with `--steer-vector` in place of `--steer-barrier`:
 
 ```bash
