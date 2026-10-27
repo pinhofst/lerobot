@@ -6,7 +6,11 @@
 Wrapper-only flags (stripped before forwarding): ``--tag NAME`` (default ``run``),
 ``--allow-torque-blip`` (see patch a), ``--no-plot`` (skip the automatic plot_run on the run dir
 after the run, normal exit or Ctrl-C), ``--skip-gpu-check`` (see GPU check) and ``--stock-load`` (see
-fast load). ``--robot.max_relative_target=DEG`` is required: the cap is
+fast load). Steering (see steer_patch.py and README "Steering modes"; stripped too):
+``--steer-vector FILE.npy`` (constant vector: adds alpha * v on every call) or ``--steer-barrier FILE.pt``
+(trained barrier: adds the smallest edit that brings <a, h> up to k * tau), mutually exclusive, with
+``--steer-k`` (vector: alpha = k * alpha_unit_value; barrier: threshold scale, 0 = off), ``--steer-alpha``
+(vector only), ``--steer-layer`` and ``--steer-positions`` (all/image/text/last/task). ``--robot.max_relative_target=DEG`` is required: the cap is
 per control step at 30 Hz, so 4 deg per step is about 120 deg/s. Every other argument is passed
 unchanged to ``lerobot.scripts.lerobot_rollout.main``. If ``--robot.disable_torque_on_disconnect`` is not given,
 ``--robot.disable_torque_on_disconnect=false`` is added, so the arm keeps holding its pose when the
@@ -153,6 +157,7 @@ logger = logging.getLogger("steering.rollout")
 
 STEER_FLAGS = {
     "--steer-vector": "vector",
+    "--steer-barrier": "barrier",
     "--steer-layer": "layer",
     "--steer-k": "k",
     "--steer-alpha": "alpha",
@@ -164,7 +169,7 @@ def split_argv(argv: list[str]) -> tuple[str, list[str], dict[str, Any]]:
     """Strip the wrapper flags, require ``--robot.max_relative_target``, add the torque default.
 
     Wrapper flags: ``--tag``, ``--allow-torque-blip``, ``--no-plot``, ``--skip-gpu-check``,
-    ``--stock-load``; value flags ``--steer-vector/-layer/-k/-alpha/-positions`` (see steer_patch.py)
+    ``--stock-load``; value flags ``--steer-vector/-barrier/-layer/-k/-alpha/-positions`` (see steer_patch.py)
     come back as ``flags["steer"]``.
     """
     tag, rest, i = "run", [], 0
@@ -1240,19 +1245,22 @@ def _install_fast_load(stock_load: bool) -> None:
 
 
 def _install_steering(steer: dict[str, str]) -> None:
-    """Attach an activation steerer to the MolmoAct2 policy when --steer-vector is given."""
+    """Attach a steerer to the MolmoAct2 policy when --steer-vector or --steer-barrier is given."""
     if not steer:
         return
-    if "vector" not in steer:
-        raise SystemExit("--steer-layer/-k/-alpha/-positions need --steer-vector")
+    if "vector" in steer and "barrier" in steer:
+        raise SystemExit("--steer-vector and --steer-barrier are mutually exclusive: give one")
+    if "vector" not in steer and "barrier" not in steer:
+        raise SystemExit("--steer-layer/-k/-alpha/-positions need --steer-vector or --steer-barrier")
     import steer_patch
 
     steer_patch.install(
-        steer["vector"],
+        steer.get("vector"),
         int(steer["layer"]) if "layer" in steer else None,
         float(steer["k"]) if "k" in steer else None,
         float(steer["alpha"]) if "alpha" in steer else None,
         steer.get("positions"),
+        barrier=steer.get("barrier"),
     )
 
 
