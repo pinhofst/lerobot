@@ -35,6 +35,9 @@ This folder holds all experiment code. `src/` is unchanged, so rebasing on upstr
 | `CHUNK_CONSISTENCY_NOTES.md` | Literature and LeRobot code notes on chunk disagreement and RTC. |
 | `remote_api.py` | Client and access test for the hosted MolmoAct2 API on cgpa0 (two cameras, fp32; COMMANDS "Hosted MolmoAct2 API"). Endpoint and certificate in git-ignored `remote/`. |
 | `sync_runs.py` | Uploads `results/runs/`, `server_runs/` and `analyses/` to the private dataset `pinhofst10d/so-101-steering` (`--dry-run`, `--download` on a new machine). |
+| `steer_hooks.py`, `steer_patch.py`, `steer_barrier.py` | Activation steering for `rollout.py` (`--steer-vector`, `--steer-barrier`; see "Steering modes"). Standalone ports of the steervla hooks and the trained barrier. |
+| `vectors/`, `barriers/` | Steering files with JSON sidecars (each README says what they were fitted on). All current files are from **MolmoAct2-LIBERO**. |
+| `test_steer_hooks.py`, `test_steer_barrier.py` | CPU tests of the steering code (toy policy, no checkpoint). |
 | `results/` | Raw data behind the RUNLOG tables. A few one-off checks (the OOM test, the mask comparison, host RAM) are recorded only in RUNLOG. |
 
 ## Setup
@@ -134,6 +137,48 @@ Still open:
 - [ ] A fixed start pose for the counterbalanced two-pen block (the median training pose is used so far).
 - [x] **Offline prompt comparison on recorded runs** (done 2 Oct, `prompt_counterfactual.py`; red/green
   pens rather than blue/red): the colour word steers in 6 of 8 scenes; the pre-registered verdict is "unclear".
+
+## Steering modes
+
+`rollout.py` can edit the VLM's hidden states at one decoder block in the prompt pass of every policy call
+(`steer_hooks.py`, `steer_patch.py`). There are two modes. `--steer-vector` and `--steer-barrier` are mutually
+exclusive: giving both exits with an error.
+
+| | Constant vector (`--steer-vector`) | Barrier (`--steer-barrier`) |
+|---|---|---|
+| What is added | The same fixed vector, alpha·v, at every chosen token | u = ReLU(k·τ − ⟨a,h⟩)·a: the smallest edit that brings ⟨a,h⟩ up to k·τ. A small trained network reads the layer's states and gives the direction a (unit) and the threshold τ per token |
+| When it acts | Always, on every call | In principle only where ⟨a,h⟩ < k·τ (zero edit elsewhere) |
+| Strength | `--steer-k` (alpha = k × the sidecar's `alpha_unit_value`) or `--steer-alpha` (absolute) | `--steer-k` scales the threshold τ. k = 1 is the trained module; k = 0 is off |
+| File | `vectors/<name>.npy` + `.json` sidecar | `barriers/<name>.pt` (module with its frozen description bank) + `.json` sidecar |
+| Trained on | Hand-fitted (`word_probe_L09`, `green_meandiff_L06`) or trained by on-policy distillation (`const_r3_L06`); all on MolmoAct2-LIBERO | On-policy distillation (`barrier_r3_L06`), MolmoAct2-LIBERO |
+
+- The constant vector covers both the hand-fitted vectors and the trained constant vector. It is simple, predictable
+  and always on.
+- The barrier is the AdaBarrier method (ControlLLM / barriersteer), adapted to MolmoAct2 (`steer_barrier.py`). It reads
+  only the instruction tokens (`positions = task`, the " pick up the red marker" span located with the policy's
+  tokenizer; it fails loudly if the span is not found).
+- `--steer-k 0` with a barrier is bitwise the unsteered policy, but it still locates the span and counts the calls.
+  Any k > 0 is **not** a small edit: ⟨a,h⟩ is negative on the task span (about −4 in LIBERO), so every k > 0 pushes by
+  at least −⟨a,h⟩. At k = 1 the mean edit norm was 28.5 in LIBERO under the neutral prompt (0.8 alpha units).
+- meta.json `steering` records the file and its sha256, k, layer, positions, the decoded task span, n_calls and
+  n_fires (must be equal), and, for the barrier, the mean zero-edit fraction and the mean edit norm. If the policy is
+  not the one the file was trained on, it prints a warning and records `policy_mismatch: true`.
+
+Status (27 Oct):
+- In LIBERO sim, the trained barrier and the trained constant vector performed the same in every setting.
+- So far the barrier never switches off in practice: its zero-edit fraction was 0%, because its training data had no
+  states where it should be off.
+- Both were trained on the LIBERO checkpoint (two cameras, cubes). SO-101 calibration is in progress; the
+  calibrated files will go into `barriers/` and `vectors/` in the same format.
+
+```bash
+# constant vector (trained, k = 1 is the trained strength)
+uv run python steering/rollout.py --tag steer_const ... --steer-vector steering/vectors/const_r3_L06.npy --steer-k 1
+# barrier (always run --steer-k 0 first, same scene)
+uv run python steering/rollout.py --tag steer_bar_k0 ... --steer-barrier steering/barriers/barrier_r3_L06.pt --steer-k 0
+```
+
+Full commands: COMMANDS "Steered rollouts".
 
 ## Status
 
