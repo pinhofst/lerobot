@@ -158,7 +158,7 @@ exclusive: giving both exits with an error.
 | When it acts | Always, on every call | In principle only where ⟨a,h⟩ < τ (zero edit elsewhere) |
 | Strength | `--steer-k` (alpha = k × the sidecar's `alpha_unit_value`) or `--steer-alpha` (absolute) | `--steer-k` scales the edit (ControlLLM's form), continuously from 0. k = 0 is no edit; k = 1 is the trained module |
 | File | `vectors/<name>.npy` + `.json` sidecar | `barriers/<name>.pt` (module with its frozen description bank) + `.json` sidecar |
-| Files | Primary: `const_so101` (→ red) and `const_so101_green` (→ green), calibrated offline on SO-101 real frames, 1cam, pens; k = 1. Secondary: `const_r3_L06` (trained), `word_probe_L09`, `green_meandiff_L06` (hand-fitted); all MolmoAct2-LIBERO | All at k = 1. Steer to **red**: **calibrated (SO-101 real frames)** `barrier_so101.pt`; **uncalibrated (LIBERO sim only)** `barrier_r3_L06.pt`. Steer to **green**: **calibrated (SO-101 real frames)** `barrier_so101_green.pt` |
+| Files | Primary: `const_so101` (→ red) and `const_so101_green` (→ green), calibrated offline on SO-101 real frames, 1cam, pens; k = 1. Secondary: `const_r3_L06` (→ red) and `const_m1_L06_green` (→ green) (trained), `word_probe_L09`, `green_meandiff_L06` (hand-fitted); all MolmoAct2-LIBERO | All at k = 1. Steer to **red**: **calibrated (SO-101 real frames)** `barrier_so101.pt`; **uncalibrated (LIBERO sim only)** `barrier_r3_L06.pt`. Steer to **green**: **calibrated (SO-101 real frames)** `barrier_so101_green.pt`; **uncalibrated (LIBERO sim only)** `barrier_m1_L06_green.pt` |
 
 - The constant vector covers both the hand-fitted vectors and the trained constant vector. It is simple, predictable
   and always on.
@@ -204,16 +204,31 @@ barrier with its bank swapped to green does not work (held-out loss 0.0128, wors
 |---|---|
 | no edit | 0.0111 |
 | red barrier, bank swapped to green | 0.0128 |
-| LIBERO mirror module (green), zero-shot | 0.0051 |
+| uncalibrated green barrier `barrier_m1_L06_green` (LIBERO mirror, zero-shot), k = 1 | 0.0051 |
 | calibrated green constant, k = 1 | 0.00175 |
 | calibrated green barrier, k = 1 | 0.00140 |
 
 On the 18/18 frames where the red barrier heads to red, the green barrier heads away from red, under both the
 neutral and the "pick up the red pen" prompts.
 
+The two green barrier versions on the same 20 two-pen frames. The green teacher moves +19.2 mm toward green and heads
+to green on 19/20 frames.
+
+| barrier | gap | heading matches green, neutral prompt | heading matches green, "red pen" prompt |
+|---|---|---|---|
+| none | 100% | 12/20 (+1.2 mm toward green) | 1/20 (−7.5 mm) |
+| uncalibrated (LIBERO sim only), k = 1 | 46% | 17/20 (+5.2 mm) | 20/20 (+16.1 mm) |
+| calibrated (SO-101 real frames), k = 1 | 13% | 20/20 (+19.4 mm) | 20/20 (+20.2 mm) |
+
+The uncalibrated green barrier (`barrier_m1_L06_green`) is the LIBERO mirror module: steervla `steering_dial`
+trained it to steer to green under "pick up the red cube", with one on-policy refresh round. On LIBERO validation it
+reached 78% green on hard layouts, against 77% for the fixed −L6 vector. That missed the pre-registered gate (+3 over
+the fixed vector), so it has no LIBERO test; its red counterpart `barrier_r3_L06` has one.
+
 Which file steers to which colour (sidecar field `target`, printed at load and recorded in meta.json):
 - red: `barrier_so101`, `barrier_r3_L06`, `const_so101`, `const_r3_L06`, `word_probe_L09` (+k);
-- green: `barrier_so101_green`, `const_so101_green`, `green_meandiff_L06` (+k).
+- green: `barrier_so101_green`, `barrier_m1_L06_green`, `const_so101_green`, `const_m1_L06_green`,
+  `green_meandiff_L06` (+k).
 
 Deploy-path smoke test of the calibrated barrier (GPU, 27 Oct). Setup:
 - `steer_patch` + `steer_hooks` + `steer_barrier`, with the 1cam checkpoint loaded as `prompt_counterfactual` does,
@@ -247,6 +262,15 @@ Results:
       −3.6 mm);
     - so the opposite direction seen offline (18/18 frames) is not visible here. The frame is the first policy
       frame of the run, and its red/green sides are not labelled.
+- The uncalibrated green barrier (`barrier_m1_L06_green`), same frame and noise:
+  - the span was found, n_fires == n_calls, k = 0 was bitwise, the mismatch warning fired (`policy_mismatch: true`)
+    and meta.json recorded `target: green`;
+  - the mean edit norm was 7.6 at k = 0.5 and 15.2 at k = 1, the smallest of the four barriers;
+  - the chunk moved by a mean of 4.1° from the unsteered one at k = 1 (1.9° at k = 0.5);
+  - the output was bitwise steervla's hook with `m_barrier_r1.pt`;
+  - lateral tip motion: no edit −3.6 mm, uncalibrated green −5.8 mm, calibrated red +8.7 mm. Here the green
+    barrier shifts the tip the other way from red (−2.2 mm vs +12.3 mm against no edit), unlike the calibrated
+    green barrier on this frame. One unlabelled frame, so this says nothing about which pen it heads to.
 
 These are offline proxies: loss and heading on recorded frames. They say nothing yet about grasps, closed-loop
 drift, markers or two cameras. The barrier still never switches off (zero-edit fraction 0, as in LIBERO), so it also

@@ -1,0 +1,48 @@
+{
+ "name": "const_m1_L06_green",
+ "kind": "const",
+ "target": "green",
+ "layer": 6,
+ "positions": "task",
+ "k_default": 1.0,
+ "policy_checkpoint": "allenai/MolmoAct2-LIBERO",
+ "trained_on": "MolmoAct2-LIBERO (allenai/MolmoAct2-LIBERO-LeRobot), LIBERO sim, two cameras (agentview + wrist), two cubes (red/green); on-policy velocity matching to the same frozen policy prompted \"pick up the green cube\"; students \"pick up the cube\" and \"pick up the red cube\" (the mirror of barrier_r3_L06; one refresh round). Not fitted on MolmoAct2-SO100_101 and may not transfer.",
+ "dim": 2560,
+ "alpha_unit_value": 36.5982551574707,
+ "alpha_unit": "module scale: median L2 norm of text-token activations at this layer (fit set)",
+ "source": {
+  "file": "steervla:runs/steering_dial/ckpt/m_const_r1.pt",
+  "sha256": "796df7d58a95d2696ee95d6ed8d7207dfd8f5ae9c0fb9f989ab6f33ce9e97a9d",
+  "steps_done": 1233,
+  "args": {
+   "arm": "const",
+   "data": [
+    "runs/steering_dial/data/mirror_r0_0",
+    "runs/steering_dial/data/mirror_r1_0",
+    "runs/steering_dial/data/mirror_r1_1",
+    "runs/steering_dial/data/mirror_r1_2"
+   ],
+   "bank": "runs/steering_dial/data/mirror_r0_0/bank.npy",
+   "init": "runs/steering_dial/ckpt/m_const_r0.pt",
+   "out": "runs/steering_dial/ckpt/m_const_r1.pt",
+   "steps": 6000,
+   "B": 8,
+   "nt": 4,
+   "lr": 0.0005,
+   "lr_tau": 0.005,
+   "eval_every": 200,
+   "seed": 21,
+   "mem_gb": 25.0,
+   "probe": "",
+   "red_frac": 0.0,
+   "v0_sign": -1.0,
+   "max_minutes": 38.0
+  }
+ },
+ "created": "2026-10-27T17:45:32",
+ "vector_norm": 1.0527812242507935,
+ "k_trained": 1.0,
+ "sign_convention": "toward GREEN (the teacher prompt)",
+ "results": "steervla runs/steering_dial/results.md section 9 (LIBERO val, 104 hard layouts): hard green 74% trained constant vs 77% fixed -L6 vector; it failed the pre-registered gate (needs +3 over the fixed vector), so it has no LIBERO test. Offline on held-out SO-101 real frames (steervla runs/steering_so101 section 8, zero-shot): green-teacher loss 0.00517 (constant) vs 0.0111 no edit.",
+ "k_note": "k scales the edit (ControlLLM form): u = k * ReLU(tau - <a,h>) a; k=0 no edit, k=1 trained."
+}

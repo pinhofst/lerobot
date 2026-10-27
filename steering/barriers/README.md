@@ -5,7 +5,7 @@ Trained barrier modules for `--steer-barrier` (README "Steering modes"; format i
 sidecar: layer, positions, `k_default`, `policy_checkpoint`, `trained_on`, the bank, and the source checkpoint with
 its sha256.
 
-Two versions for the real-robot comparison. Both target **red** and are used at k = 1 (COMMANDS "Steered
+Two versions per target colour for the real-robot comparison, calibrated and uncalibrated, all used at k = 1 (COMMANDS "Steered
 rollouts"). Offline on 8 held-out real runs: gap to the red teacher (unsteered = 100%) 47% uncalibrated vs 12%
 calibrated; heading matches red on 17/20 vs 20/20 frames (neutral prompt) and 18/20 vs 20/20 ("green pen" prompt);
 unsteered 9/20 and 1/20.
@@ -25,17 +25,26 @@ the red pen", initialised from the LIBERO mirror module; the SO-101 green bank i
 0.00140 (no edit 0.0111, green constant 0.00175). On the 18/18 frames where the red barrier heads to red, it heads
 away from red. It is a separate module: the red barrier with a green bank does not work (0.0128). Offline proxy only.
 
-**Uncalibrated (LIBERO sim only):** `barrier_r3_L06.{pt,json}` (13.7 MB): the round-3 barrier of steervla's `steering_dial`, block 6, task-span tokens,
+**Uncalibrated, red target (LIBERO sim only):** `barrier_r3_L06.{pt,json}` (13.7 MB): the round-3 barrier of steervla's `steering_dial`, block 6, task-span tokens,
 3.41 M parameters. Trained on **MolmoAct2-LIBERO** in simulation (two cameras, agentview + wrist; red and green
 cubes) by on-policy velocity matching to the same frozen policy prompted "pick up the red cube". It pushes toward
 **red**. LIBERO test: hard red 79% under the neutral prompt and 77% under "pick up the green cube", the same as the
 trained constant vector (`../vectors/const_r3_L06.npy`). Its zero-edit fraction was 0%: it never switched off.
 
-**Not fitted on this repo's checkpoint** (`MolmoAct2-SO100_101`): it prints a mismatch warning and may not
+**Uncalibrated, green target (LIBERO sim only):** `barrier_m1_L06_green.{pt,json}` (13.7 MB): the LIBERO mirror module
+(steervla `steering_dial` `m_barrier_r1`), block 6, task-span tokens. The same training as `barrier_r3_L06` with the
+colours swapped (teacher "pick up the green cube", students "pick up the cube" and "pick up the red cube"), but one
+on-policy refresh round instead of three. It pushes toward **green**. LIBERO validation: 78% green on hard layouts vs
+77% for the fixed −L6 vector; it missed the pre-registered gate, so it has no LIBERO test. Offline on the SO-101
+held-out frames, zero-shot: 46% of the no-edit gap to the green teacher; heading to green on 17/20 frames (neutral)
+and 20/20 ("red pen" prompt), unsteered 12/20 and 1/20.
+
+**Not fitted on this repo's checkpoint** (`MolmoAct2-SO100_101`): the two LIBERO barriers print a mismatch warning and may not
 transfer. Run `--steer-k 0` first, then 0.25, 0.5, 1. `--steer-k` scales the edit: u = k·ReLU(τ − ⟨a,h⟩)·a, k = 1 is
 the trained module.
 
     uv run python steering/rollout.py --tag bar_k0 ... --steer-barrier steering/barriers/barrier_r3_L06.pt --steer-k 0
+    uv run python steering/rollout.py --tag barg_k0 ... --steer-barrier steering/barriers/barrier_m1_L06_green.pt --steer-k 0
 
 To add another module (same format), export the steervla checkpoint:
 

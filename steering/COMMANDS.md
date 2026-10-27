@@ -233,7 +233,7 @@ The two modes (constant vector, barrier), what they add, the offline calibration
 Primary files: `barriers/barrier_so101.pt` and `vectors/const_so101.npy` (steer to red), and
 `barriers/barrier_so101_green.pt` and `vectors/const_so101_green.npy` (steer to green), calibrated offline on this one-view
 checkpoint (`MolmoAct2-SO100_101-LeRobot-1cam`) with two pens; k = 1 is the calibrated strength. Use the 1cam
-checkpoint: the sidecar check cannot tell it from the two-camera one. The LIBERO files (`*_r3_L06`, `word_probe_L09`,
+checkpoint: the sidecar check cannot tell it from the two-camera one. The LIBERO files (`*_r3_L06`, `*_m1_L06_green`, `word_probe_L09`,
 `green_meandiff_L06`) are secondary and print a mismatch warning here.
 
 Scene and start pose: a red and a green pen, as in the calibration (markers are untested). Both pens must be in the
@@ -313,6 +313,8 @@ Green-target mirror rows (calibrated green barrier `barriers/barrier_so101_green
 | 8 | "pick up the pen" | green barrier, `--steer-k 1` | `calg_k1_neutral` |
 | 9 | "pick up the red pen" | green barrier, `--steer-k 1` (override to green) | `calg_k1_red` |
 | 10 | "pick up the green pen" | none (green ceiling; no `--steer-*` flags) | `none_green` (row 5) |
+| 11 | "pick up the pen" | uncalibrated green barrier `barriers/barrier_m1_L06_green.pt`, `--steer-k 1` | `uncg_k1_neutral` |
+| 12 | "pick up the red pen" | uncalibrated green barrier, `--steer-k 1` (override to green) | `uncg_k1_red` |
 
 - First session: before the k = 1 runs, do the k = 0 → 0.5 → 1 ramp above with each barrier on one easy layout.
 - Never pair a barrier with the prompt that names its own target colour: no red barrier with "pick up the red
@@ -335,7 +337,8 @@ uv run python steering/rollout.py --tag unc_k1_green_hard_redleft \
 ```
 
 For row 7, use `--steer-barrier steering/barriers/barrier_so101.pt`; for rows 8 and 9,
-`--steer-barrier steering/barriers/barrier_so101_green.pt`. For rows 2, 5 and 10, drop both `--steer-*` flags. The
+`--steer-barrier steering/barriers/barrier_so101_green.pt`; for rows 11 and 12,
+`--steer-barrier steering/barriers/barrier_m1_L06_green.pt` (prints the mismatch warning, expected). For rows 2, 5 and 10, drop both `--steer-*` flags. The
 startup line `steer: ... target red|green` shows which colour the loaded file steers to.
 
 The constant-vector mode takes the same command with `--steer-vector` in place of `--steer-barrier`:

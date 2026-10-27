@@ -39,3 +39,11 @@ so `--steer-k 1` adds exactly the trained vector (norm 49.9). LIBERO test: the s
 (hard red 78% under the neutral prompt and 78% under the green prompt; barrier 79% and 77%). Not tested on the SO-101 checkpoint.
 
     --steer-vector steering/vectors/const_r3_L06.npy --steer-k 1
+
+`const_m1_L06_green.{npy,json}`: the green counterpart (steervla `steering_dial` mirror `m_const_r1`, one refresh
+round), next to `../barriers/barrier_m1_L06_green.pt`. Trained on **MolmoAct2-LIBERO** toward the policy prompted
+"pick up the green cube": +k = toward green; `--steer-k 1` adds the trained vector (norm 38.5). LIBERO validation: 74% green on hard layouts vs 77% for the fixed −L6
+vector (missed the gate; no LIBERO test). Offline on the SO-101 held-out frames, zero-shot: green-teacher loss 0.00517
+(no edit 0.0111).
+
+    --steer-vector steering/vectors/const_m1_L06_green.npy --steer-k 1
