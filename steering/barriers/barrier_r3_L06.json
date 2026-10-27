@@ -56,5 +56,5 @@
  "n_params": 3414530,
  "sign_convention": "toward RED (the teacher prompt)",
  "results": "steervla runs/steering_dial/results.md (LIBERO test, fresh layouts): hard red 79% neutral prompt, 77% under the green prompt; barrier = constant vector in every setting; zero-edit fraction 0% (never switches off), mean edit norm 28.5 neutral, 41.7 green",
- "k_note": "k scales the threshold tau; k=1 trained; k=0 is off (special-cased). k->0+ is NOT a small edit: <a,h> ~ -4 on the task span, so any k>0 pushes by at least ReLU(-<a,h>)"
+ "k_note": "k scales the edit (ControlLLM form): u = k * ReLU(tau - <a,h>) a; k=0 no edit, k=1 trained. steervla steering_wrist's sim sweep scaled the threshold instead, so its k values do not carry over."
 }

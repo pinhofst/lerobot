@@ -8,8 +8,9 @@ Wrapper-only flags (stripped before forwarding): ``--tag NAME`` (default ``run``
 after the run, normal exit or Ctrl-C), ``--skip-gpu-check`` (see GPU check) and ``--stock-load`` (see
 fast load). Steering (see steer_patch.py and README "Steering modes"; stripped too):
 ``--steer-vector FILE.npy`` (constant vector: adds alpha * v on every call) or ``--steer-barrier FILE.pt``
-(trained barrier: adds the smallest edit that brings <a, h> up to k * tau), mutually exclusive, with
-``--steer-k`` (vector: alpha = k * alpha_unit_value; barrier: threshold scale, 0 = off), ``--steer-alpha``
+(trained barrier: adds k times the smallest edit that brings <a, h> up to tau, u = k * ReLU(tau - <a, h>) a),
+mutually exclusive, with ``--steer-k`` (vector: alpha = k * alpha_unit_value; barrier: edit scale, 0 = no edit,
+1 = trained), ``--steer-alpha``
 (vector only), ``--steer-layer`` and ``--steer-positions`` (all/image/text/last/task). ``--robot.max_relative_target=DEG`` is required: the cap is
 per control step at 30 Hz, so 4 deg per step is about 120 deg/s. Every other argument is passed
 unchanged to ``lerobot.scripts.lerobot_rollout.main``. If ``--robot.disable_torque_on_disconnect`` is not given,

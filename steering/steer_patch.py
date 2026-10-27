@@ -11,7 +11,7 @@ Constant vector (``--steer-vector <name>.npy``): ``<name>.npy`` (1-D, width of t
 ``--steer-alpha`` (absolute) and ``--steer-layer``.
 
 Barrier (``--steer-barrier <name>.pt``, see steer_barrier.py): a trained module with its sidecar. ``--steer-k``
-scales its threshold (k = 1 is the trained module; k = 0 is off, bitwise); default the sidecar's ``k_default``.
+scales the edit, u = k * ReLU(tau - <a, h>) a (k = 1 is the trained module; k = 0 is no edit, bitwise); default the sidecar's ``k_default``.
 Layer and positions come from the sidecar; a different ``--steer-layer`` is refused. ``--steer-alpha`` is refused.
 
 ``positions = task`` (the instruction span) needs the tokenizer: it is loaded from the policy's
@@ -56,7 +56,7 @@ def resolve_barrier(barrier: str, layer: int | None, k: float | None, alpha: flo
     import steer_barrier
 
     if alpha is not None:
-        raise SystemExit("--steer-alpha is for --steer-vector; a barrier's strength is --steer-k (threshold scale)")
+        raise SystemExit("--steer-alpha is for --steer-vector; a barrier's strength is --steer-k (edit scale)")
     mod, meta = steer_barrier.load_barrier(barrier)
     side_layer = meta.get("layer")
     if side_layer is None and layer is None:

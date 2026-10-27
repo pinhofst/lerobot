@@ -7,9 +7,8 @@ Two steerers, both on the output of ``policy._backbone().transformer.blocks[laye
 
 - ``ActivationSteerer``: add the fixed ``alpha * vector`` at the selected tokens (constant vector).
 - ``BarrierSteerer``: a trained module (``steer_barrier.py``) reads the selected tokens' states and adds
-  ``u = ReLU(k * tau - <a, h>) a`` (unit a), the smallest edit that brings ``<a, h>`` up to ``k * tau``; zero where
-  the state already satisfies it. ``k = 0`` is "off" (bitwise no edit; see steer_barrier.py for why the law itself
-  is not zero there).
+  ``u = k * ReLU(tau - <a, h>) a`` (unit a): at k = 1 the smallest edit that brings ``<a, h>`` up to ``tau``, zero
+  where the state already satisfies it; k scales the edit continuously (k = 0: no edit).
 
 Each policy call runs ONE VLM forward over the prompt, then the action expert denoises 10 steps reading
 the cached keys/values of every VLM block. A forward hook on block ``l`` therefore fires once per chunk,
@@ -244,7 +243,8 @@ class BarrierSteerer(_PromptHook):
     output of VLM block ``layer`` at ``positions`` (default the task span), prompt pass only, gradient-free.
 
     Per call (``self.calls``): n_tok, n_zero (tokens whose edit is exactly 0), zero_frac, mean edit norm, and for a
-    barrier the mean <a, h> and k * tau. ``k = 0`` edits nothing (bitwise) but still locates the span and counts."""
+    barrier the mean <a, h> and tau. ``k = 0`` adds an exact zero (bitwise no edit) but still locates the span and
+    counts."""
 
     def __init__(self, policy, layer: int, module: nn.Module, k: float, positions: str = "task",
                  task_span: Callable[[Tensor], Tensor] | None = None, max_logged_calls: int = 10000):
@@ -269,9 +269,6 @@ class BarrierSteerer(_PromptHook):
         if not bool(sel.any(1).all()):
             raise RuntimeError("a steered row has no selected token")
         self.n_fires += 1
-        if self.k == 0.0:
-            self._log({"n_tok": int(sel.sum()), "n_zero": int(sel.sum()), "zero_frac": 1.0, "edit_norm": 0.0})
-            return None
         with torch.no_grad():
             if self._device != hidden.device:
                 self.module.to(hidden.device)

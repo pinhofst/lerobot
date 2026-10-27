@@ -16,12 +16,12 @@ Barrier (``DialBarrier``, an adaptation of AdaBarrier's AttnConcatKVBarrier from
     g_i   = GELU(ctx_proj(ctx_i))
     a_i   = unit(out(g_i) + bias_dir)
     tau_i = scale * (tau0 + thr(g_i))
-    u_i   = ReLU(k * tau_i - <a_i, h_i>) a_i            k = 1 is the trained module
+    u_i   = k * ReLU(tau_i - <a_i, h_i>) a_i            k = 1 is the trained module
 
-The edit is the minimum-norm step onto {<a_i, h> >= k * tau_i}, exactly zero where the state already satisfies it.
-k scales the threshold, not the push. Careful: ``k -> 0`` does NOT give a zero edit, because ``<a, h>`` is negative
-on the task span (barrier_r3 on LIBERO: tau ~ 24, <a, h> ~ -4), so every k > 0 still pushes by at least
-``ReLU(-<a, h>)``. ``k = 0`` exactly is therefore special-cased as "off" by ``BarrierSteerer`` (bitwise no edit).
+At k = 1 the edit is the minimum-norm step onto {<a_i, h> >= tau_i}, exactly zero where the state already satisfies
+it. k SCALES THE EDIT (ControlLLM's strength form), continuously from 0 (no edit) through 1 (trained) and beyond; it
+does not move the threshold. Note: steervla/steering_wrist (kmod.py) used the threshold form ReLU(k * tau - <a, h>)
+in its sim k sweep, so its k values do not carry over numerically.
 
 Constant vector (``ConstVec``): u_i = k * scale * w at every selected token. For deployment it is exported in the
 ``vectors/`` format instead (``vector = w``, ``alpha_unit_value = scale``), so ``--steer-vector ... --steer-k 1``
@@ -143,16 +143,16 @@ class ConstVec(nn.Module):
 
 
 def apply_k(mod: nn.Module, h: Tensor, m: Tensor, k: float) -> tuple[Tensor, dict]:
-    """The module's edit at strength k (steervla.steering_wrist.kmod). k = 1 calls the module itself (bitwise)."""
+    """The module's edit at strength k: k times the trained edit. k = 1 calls the module itself (bitwise).
+
+    Barrier: u = k * ReLU(tau - <a, h>) a (``gap`` is scaled too; ``tau`` and ``b`` are k-independent). Constant
+    vector: u = k * scale * w (as steervla.steering_wrist.kmod.KConst)."""
     k = float(k)
     if k == 1.0:
         return mod(h, m)
     if isinstance(mod, DialBarrier):
-        a, tau = mod.direction_thr(h, m)
-        tau = k * tau
-        b = (a * h).sum(-1)
-        gap = F.relu(tau - b) * m.to(h.dtype)
-        return gap.unsqueeze(-1) * a, {"gap": gap, "b": b, "tau": tau}
+        u, info = mod(h, m)
+        return k * u, {**info, "gap": k * info["gap"]}
     if isinstance(mod, ConstVec):
         d = mod.delta() * k
         u = torch.where(m[..., None], d.view(1, 1, -1).expand_as(h), torch.zeros((), device=h.device, dtype=h.dtype))

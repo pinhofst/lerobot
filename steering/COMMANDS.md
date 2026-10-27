@@ -233,7 +233,7 @@ uv run python steering/goto_pose.py save markers      # once: hold the arm where
 uv run python steering/goto_pose.py go markers \
   --robot-port /dev/serial/by-id/usb-1a86_USB_Single_Serial_5B8E114089-if00 --robot-id so101_follower
 
-# 1. baseline: barrier loaded, k = 0 (bitwise the unsteered policy; checks the task span is found)
+# 1. baseline: barrier loaded, k = 0 (no edit, bitwise the unsteered policy; checks the task span is found)
 uv run python steering/rollout.py --tag bar_k0 \
   --policy.path=steering/checkpoints/MolmoAct2-SO100_101-LeRobot-1cam \
   --robot.type=so101_follower --robot.port=/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B8E114089-if00 --robot.id=so101_follower \
@@ -247,7 +247,8 @@ uv run python steering/rollout.py --tag bar_k0 \
   ... --tag bar_k025 ... --steer-barrier steering/barriers/barrier_r3_L06.pt --steer-k 0.25
 ```
 
-Then `--steer-k 0.5` and `1` (the trained strength). A small k is not a small edit for the barrier (README).
+Then `--steer-k 0.5` and `1` (the trained strength), each from the same pose. k scales the barrier's edit, so the
+edit norm grows linearly with k (README).
 Check `meta.json["steering"]` after each run: `n_fires == n_calls`, `task_span_text` is " pick up the marker",
 and the mean edit norm.
 

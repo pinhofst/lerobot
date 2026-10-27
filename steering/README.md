@@ -146,9 +146,9 @@ exclusive: giving both exits with an error.
 
 | | Constant vector (`--steer-vector`) | Barrier (`--steer-barrier`) |
 |---|---|---|
-| What is added | The same fixed vector, alpha·v, at every chosen token | u = ReLU(k·τ − ⟨a,h⟩)·a: the smallest edit that brings ⟨a,h⟩ up to k·τ. A small trained network reads the layer's states and gives the direction a (unit) and the threshold τ per token |
-| When it acts | Always, on every call | In principle only where ⟨a,h⟩ < k·τ (zero edit elsewhere) |
-| Strength | `--steer-k` (alpha = k × the sidecar's `alpha_unit_value`) or `--steer-alpha` (absolute) | `--steer-k` scales the threshold τ. k = 1 is the trained module; k = 0 is off |
+| What is added | The same fixed vector, alpha·v, at every chosen token | u = k·ReLU(τ − ⟨a,h⟩)·a: k times the smallest edit that brings ⟨a,h⟩ up to τ. A small trained network reads the layer's states and gives the direction a (unit) and the threshold τ per token |
+| When it acts | Always, on every call | In principle only where ⟨a,h⟩ < τ (zero edit elsewhere) |
+| Strength | `--steer-k` (alpha = k × the sidecar's `alpha_unit_value`) or `--steer-alpha` (absolute) | `--steer-k` scales the edit (ControlLLM's form), continuously from 0. k = 0 is no edit; k = 1 is the trained module |
 | File | `vectors/<name>.npy` + `.json` sidecar | `barriers/<name>.pt` (module with its frozen description bank) + `.json` sidecar |
 | Trained on | Hand-fitted (`word_probe_L09`, `green_meandiff_L06`) or trained by on-policy distillation (`const_r3_L06`); all on MolmoAct2-LIBERO | On-policy distillation (`barrier_r3_L06`), MolmoAct2-LIBERO |
 
@@ -158,9 +158,11 @@ exclusive: giving both exits with an error.
   only the instruction tokens (`positions = task`, the " pick up the red marker" span located with the policy's
   tokenizer; it fails loudly if the span is not found). The run's `--task` is checked when the policy loads, so an
   empty task (the null condition) is refused before the run starts.
-- `--steer-k 0` with a barrier is bitwise the unsteered policy, but it still locates the span and counts the calls.
-  Any k > 0 is **not** a small edit: ⟨a,h⟩ is negative on the task span (about −4 in LIBERO), so every k > 0 pushes by
-  at least −⟨a,h⟩. At k = 1 the mean edit norm was 28.5 in LIBERO under the neutral prompt (0.8 alpha units).
+- `--steer-k 0` with a barrier adds an exact zero (bitwise the unsteered policy), but it still locates the span and
+  counts the calls. The edit norm is k times the trained one: at k = 1 the mean edit norm was 28.5 in LIBERO under
+  the neutral prompt (0.8 alpha units), so k = 0.25 is about 7.
+- steervla's `steering_wrist` sim k sweep used the other form, k scaling the threshold (u = ReLU(k·τ − ⟨a,h⟩)·a). Its
+  chosen k = 0.75 therefore does not carry over numerically to this `--steer-k`.
 - meta.json `steering` records the file and its sha256, k, layer, positions, the decoded task span, n_calls and
   n_fires (must be equal), and, for the barrier, the mean zero-edit fraction and the mean edit norm. If the policy is
   not the one the file was trained on, it prints a warning and records `policy_mismatch: true`.

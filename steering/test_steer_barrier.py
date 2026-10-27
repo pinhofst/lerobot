@@ -110,27 +110,32 @@ def test_k_zero_bitwise_identity(dtype, kind):
     assert s.n_calls == 1 and s.n_fires == 1 and s.stats()["mean_zero_frac"] == 1.0
 
 
-def test_barrier_edits_task_span_only_and_reaches_threshold():
+def test_barrier_edits_task_span_only_reaches_threshold_and_scales_with_k():
     p = Policy()
     bar = _barrier(tau0=5.0)
     states = {}
     p.m.transformer.blocks[2].register_forward_pre_hook(lambda mod, a: states.__setitem__("in2", a[0].clone()))
     ref = p.m(input_ids=IDS)
-    states["pre"] = states["in2"]  # block 1 output without steering
-    k = 1.5
-    with steer_hooks.BarrierSteerer(p, 1, bar, k, "task", task_span=_span()) as s:
-        out = p.m(input_ids=IDS)
-    assert not torch.equal(out, ref)
-    h0, h1 = states["pre"][0], states["in2"][0]
-    other = [c for c in range(IDS.shape[1]) if c not in TASK_COLS]
-    assert torch.equal(h1[other], h0[other])  # only the task span is edited
+    h0 = states["in2"][0]  # block 1 output without steering
+    deltas, norms = {}, {}
+    for k in (1.0, 0.5, 2.0):
+        with steer_hooks.BarrierSteerer(p, 1, bar, k, "task", task_span=_span()) as s:
+            out = p.m(input_ids=IDS)
+        assert not torch.equal(out, ref)
+        h1 = states["in2"][0]
+        other = [c for c in range(IDS.shape[1]) if c not in TASK_COLS]
+        assert torch.equal(h1[other], h0[other])  # only the task span is edited
+        deltas[k], norms[k] = h1 - h0, s.stats()["mean_edit_norm"]
+        st = s.stats()
+        assert st["n_calls"] == st["n_fires"] == 1 and st["mean_n_tok"] == 5
     h = h0[TASK_COLS][None]
     m = torch.ones(1, len(TASK_COLS), dtype=torch.bool)
     a, tau = bar.direction_thr(h, m)
-    after = (a[0] * h1[TASK_COLS]).sum(-1)
-    assert torch.all(after >= k * tau[0] - 1e-4)  # <a, h + u> >= k * tau on the masked tokens
-    st = s.stats()
-    assert st["n_calls"] == st["n_fires"] == 1 and st["mean_n_tok"] == 5
+    after = (a[0] * (h0 + deltas[1.0])[TASK_COLS]).sum(-1)
+    assert torch.all(after >= tau[0] - 1e-4)  # k = 1: <a, h + u> >= tau on the masked tokens
+    for k in (0.5, 2.0):  # k scales the edit: u_k = k * u_1
+        assert torch.allclose(deltas[k], k * deltas[1.0], atol=1e-5)
+        assert norms[k] == pytest.approx(k * norms[1.0], rel=1e-5)
 
 
 def test_barrier_zero_edit_where_constraint_holds():
@@ -139,11 +144,15 @@ def test_barrier_zero_edit_where_constraint_holds():
     m = torch.ones(2, 6, dtype=torch.bool)
     a, tau = bar.direction_thr(h, m)
     b = (a * h).sum(-1)
-    for k in (0.5, 1.0, 2.0):
+    holds = b >= tau
+    assert holds.any() and (~holds).any()
+    u1, _ = steer_barrier.apply_k(bar, h, m, 1.0)
+    assert torch.all((a * (h + u1)).sum(-1) >= tau - 1e-4)  # k = 1 reaches the threshold
+    for k in (0.0, 0.5, 1.0, 2.0):
         u, info = steer_barrier.apply_k(bar, h, m, k)
-        holds = b >= k * tau
-        assert torch.equal(u[holds], torch.zeros_like(u[holds]))
-        assert torch.all((a * (h + u)).sum(-1) >= k * tau - 1e-4)
+        assert torch.equal(u[holds], torch.zeros_like(u[holds]))  # zero where <a, h> >= tau, for every k
+        assert torch.equal(u, k * u1)  # k scales the edit
+        assert torch.equal(info["gap"] == 0, holds | (k == 0.0))
     with torch.no_grad():
         bar.tau0.fill_(-1e3)  # threshold far below <a, h>: no edit anywhere, the steered output is the input
     p = Policy()
@@ -246,16 +255,28 @@ def _steervla():
     try:
         from steervla.steering_dial import barrier as sb
         from steervla.steering_dial.hooks import DialHooks
-        from steervla.steering_wrist.kmod import scaled
     except Exception as e:  # noqa: BLE001
         pytest.skip(f"steervla cannot be imported here ({e!r})")
-    return sb, DialHooks, scaled
+    return sb, DialHooks
 
 
-@pytest.mark.parametrize("k", [1.0, 0.5, 2.0])
+class _KEdit(nn.Module):
+    """k times the steervla module's edit (the reference for k != 1)."""
+
+    def __init__(self, base, k):
+        super().__init__()
+        self.base, self.k = base, k
+
+    def forward(self, h, m):
+        u, info = self.base(h, m)
+        return self.k * u, {**info, "gap": self.k * info["gap"]}
+
+
+@pytest.mark.parametrize("k", [1.0, 0.5, 2.0, 0.0])
 @pytest.mark.parametrize("dtype", [torch.float32, torch.bfloat16])
 def test_equivalent_to_steervla(k, dtype, tmp_path):
-    sb, DialHooks, scaled = _steervla()
+    """k = 1: bitwise steervla's DialHooks + DialBarrier. Other k: bitwise k times steervla's k = 1 edit."""
+    sb, DialHooks = _steervla()
     steer_barrier.save_module(_barrier(seed=5, tau0=3.0), tmp_path / "b.pt")
     ours, _ = steer_barrier.load_barrier(tmp_path / "b.pt")
     theirs = sb.load_module(tmp_path / "b.pt")  # their loader reads our file
@@ -264,7 +285,7 @@ def test_equivalent_to_steervla(k, dtype, tmp_path):
         a = p.m(input_ids=IDS)
     dh = DialHooks(p, 2, positions="task")
     dh.task_span = _span()
-    dh.set_plans([scaled(theirs, k)])
+    dh.set_plans([theirs if k == 1.0 else _KEdit(theirs, k)])
     with dh, torch.no_grad():
         b = p.m(input_ids=IDS)
     assert torch.equal(a, b)

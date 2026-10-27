@@ -12,7 +12,8 @@ cubes) by on-policy velocity matching to the same frozen policy prompted "pick u
 trained constant vector (`../vectors/const_r3_L06.npy`). Its zero-edit fraction was 0%: it never switched off.
 
 **Not fitted on this repo's checkpoint** (`MolmoAct2-SO100_101`): it prints a mismatch warning and may not
-transfer. Run `--steer-k 0` first, then a small k.
+transfer. Run `--steer-k 0` first, then 0.25, 0.5, 1. `--steer-k` scales the edit: u = k·ReLU(τ − ⟨a,h⟩)·a, k = 1 is
+the trained module.
 
     uv run python steering/rollout.py --tag bar_k0 ... --steer-barrier steering/barriers/barrier_r3_L06.pt --steer-k 0
 
