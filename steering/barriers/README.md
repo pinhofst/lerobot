@@ -19,6 +19,12 @@ real-robot runs yet (README "Calibration").
 
     uv run python steering/rollout.py --tag bar_k0 ... --steer-barrier steering/barriers/barrier_so101.pt --steer-k 0
 
+**Calibrated, green target (SO-101 real frames):** `barrier_so101_green.{pt,json}` (13.7 MB): steers to **green**.
+It is the same calibration with the teacher "pick up the green pen" and the students "pick up the pen" and "pick up
+the red pen", initialised from the LIBERO mirror module; the SO-101 green bank is inside. Held-out loss at k = 1:
+0.00140 (no edit 0.0111, green constant 0.00175). On the 18/18 frames where the red barrier heads to red, it heads
+away from red. It is a separate module: the red barrier with a green bank does not work (0.0128). Offline proxy only.
+
 **Uncalibrated (LIBERO sim only):** `barrier_r3_L06.{pt,json}` (13.7 MB): the round-3 barrier of steervla's `steering_dial`, block 6, task-span tokens,
 3.41 M parameters. Trained on **MolmoAct2-LIBERO** in simulation (two cameras, agentview + wrist; red and green
 cubes) by on-policy velocity matching to the same frozen policy prompted "pick up the red cube". It pushes toward

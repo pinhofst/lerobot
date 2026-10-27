@@ -8,6 +8,10 @@ proxy only, no real-robot runs yet.
 
     --steer-vector steering/vectors/const_so101.npy --steer-k 1
 
+`const_so101_green.{npy,json}`: the same for the **green** target (teacher "pick up the green pen"): +k = toward green,
+`--steer-k 1` adds norm 45.3 (bitwise steervla's `const_so101_green_k1.npy`). Held-out loss 0.00175 (no edit 0.0111,
+green barrier 0.00140).
+
 The files below were fitted on **MolmoAct2-LIBERO** (secondary).
 
 `word_probe_L09.{npy,json}`: red-vs-green colour direction fitted on **MolmoAct2-LIBERO** in simulation

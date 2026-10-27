@@ -140,6 +140,14 @@ Still open:
 
 ## Steering modes
 
+> **Local inference only.** Steering edits the VLM's activations inside the process that runs the policy, so it
+> works only with LOCAL inference: the one-view bf16 checkpoint (`MolmoAct2-SO100_101-LeRobot-1cam`) through
+> `steering/rollout.py`. It cannot steer the hosted MolmoAct2 server / API (cgpa0, two views, fp32;
+> `remote_api.py`) from the client, because the client only receives finished chunks. The same applies to the
+> colleague's dashboard server. Steering there needs the hook inside the server process, plus a re-check of the
+> offline numbers on that configuration. In this repo, `rollout.py` (every arm run) is local; only
+> `remote_api.py` (`fetch-cert`, `health`, `info`, `sample`, `frame`; no hardware) uses the hosted API.
+
 `rollout.py` can edit the VLM's hidden states at one decoder block in the prompt pass of every policy call
 (`steer_hooks.py`, `steer_patch.py`). There are two modes. `--steer-vector` and `--steer-barrier` are mutually
 exclusive: giving both exits with an error.
@@ -150,7 +158,7 @@ exclusive: giving both exits with an error.
 | When it acts | Always, on every call | In principle only where ⟨a,h⟩ < τ (zero edit elsewhere) |
 | Strength | `--steer-k` (alpha = k × the sidecar's `alpha_unit_value`) or `--steer-alpha` (absolute) | `--steer-k` scales the edit (ControlLLM's form), continuously from 0. k = 0 is no edit; k = 1 is the trained module |
 | File | `vectors/<name>.npy` + `.json` sidecar | `barriers/<name>.pt` (module with its frozen description bank) + `.json` sidecar |
-| Files | Primary: `const_so101` (calibrated offline on SO-101 real frames, 1cam, pens; k = 1). Secondary: `const_r3_L06` (trained), `word_probe_L09`, `green_meandiff_L06` (hand-fitted); all MolmoAct2-LIBERO | Two versions to compare on the robot, both targeting **red**, k = 1:<br>**calibrated (SO-101 real frames)**: `barrier_so101.pt`<br>**uncalibrated (LIBERO sim only)**: `barrier_r3_L06.pt` |
+| Files | Primary: `const_so101` (→ red) and `const_so101_green` (→ green), calibrated offline on SO-101 real frames, 1cam, pens; k = 1. Secondary: `const_r3_L06` (trained), `word_probe_L09`, `green_meandiff_L06` (hand-fitted); all MolmoAct2-LIBERO | All at k = 1. Steer to **red**: **calibrated (SO-101 real frames)** `barrier_so101.pt`; **uncalibrated (LIBERO sim only)** `barrier_r3_L06.pt`. Steer to **green**: **calibrated (SO-101 real frames)** `barrier_so101_green.pt` |
 
 - The constant vector covers both the hand-fitted vectors and the trained constant vector. It is simple, predictable
   and always on.
@@ -188,6 +196,25 @@ the teacher's; the teacher moves +7.5 mm toward red.
 | uncalibrated (LIBERO sim only), k = 1 | 47% | 17/20 (+3.5 mm toward red) | 18/20 (+9.4 mm) |
 | calibrated (SO-101 real frames), k = 1 | 12% | 20/20 (+7.6 mm) | 20/20 (+7.5 mm) |
 
+Green target (`barrier_so101_green.pt`, `const_so101_green.npy`): calibrated the same way, with the teacher "pick up
+the green pen" and the students "pick up the pen" and "pick up the red pen". It is a separate module: the red
+barrier with its bank swapped to green does not work (held-out loss 0.0128, worse than no edit). Held-out loss:
+
+| green target | loss |
+|---|---|
+| no edit | 0.0111 |
+| red barrier, bank swapped to green | 0.0128 |
+| LIBERO mirror module (green), zero-shot | 0.0051 |
+| calibrated green constant, k = 1 | 0.00175 |
+| calibrated green barrier, k = 1 | 0.00140 |
+
+On the 18/18 frames where the red barrier heads to red, the green barrier heads away from red, under both the
+neutral and the "pick up the red pen" prompts.
+
+Which file steers to which colour (sidecar field `target`, printed at load and recorded in meta.json):
+- red: `barrier_so101`, `barrier_r3_L06`, `const_so101`, `const_r3_L06`, `word_probe_L09` (+k);
+- green: `barrier_so101_green`, `const_so101_green`, `green_meandiff_L06` (+k).
+
 Deploy-path smoke test of the calibrated barrier (GPU, 27 Oct). Setup:
 - `steer_patch` + `steer_hooks` + `steer_barrier`, with the 1cam checkpoint loaded as `prompt_counterfactual` does,
   CUDA graph on;
@@ -208,6 +235,18 @@ Results:
   - the mean edit norm was 12.4 at k = 0.5 and 24.9 at k = 1;
   - the chunk moved by a mean of 5.9° from the unsteered one at k = 1 (shoulder_lift 14.7°) and 1.5° at k = 0.5;
   - the output was bitwise steervla's hook with `barrier_r3.pt`.
+- The calibrated green barrier (`barrier_so101_green`), same frame and noise:
+  - the span was found, n_fires == n_calls, k = 0 was bitwise, there was no mismatch warning, and meta.json recorded
+    `target: green`;
+  - the mean edit norm was 15.1 at k = 0.5 and 30.2 at k = 1;
+  - the chunk moved by a mean of 6.0° from the unsteered one at k = 1 (7.0° at k = 0.5);
+  - the output was bitwise steervla's hook with its green export.
+  - Lateral tip motion over the chunk (forward kinematics, + = image right, mean of 8 seeds):
+    - no edit −3.6 mm, red barrier +8.7 mm, green barrier +5.1 mm;
+    - on this one frame both barriers shift the tip the same way (right), green by less than red (green − red =
+      −3.6 mm);
+    - so the opposite direction seen offline (18/18 frames) is not visible here. The frame is the first policy
+      frame of the run, and its red/green sides are not labelled.
 
 These are offline proxies: loss and heading on recorded frames. They say nothing yet about grasps, closed-loop
 drift, markers or two cameras. The barrier still never switches off (zero-edit fraction 0, as in LIBERO), so it also
@@ -241,6 +280,12 @@ Full commands: COMMANDS "Steered rollouts".
 | 6 Report | Ongoing in RUNLOG | RUNLOG |
 
 ## Open items
+
+- [ ] **Re-validate `prompt_counterfactual.py`'s offline numbers** (27 Oct, found by steervla `steering_so101`). On the
+  current lerobot commit, `ChunkSampler.sample` differs from the stock `predict_action_chunk` by up to 0.47
+  (normalised actions) on the same frame and seeds. It builds the action expert's attention mask differently
+  (`_encoder_attention_mask_for_action_expert` vs the backbone's own mask). The offline prompt comparison
+  (`results/prompt_counterfactual/`) used `ChunkSampler`, so re-run it through `predict_action_chunk`.
 
 - [ ] **Single side-view camera** (16 Oct): record wrist and side together in the same counterbalanced scenes,
   then compare wrist-only, side-only and wrist+side offline (colour effect on pan, seeds moving under the empty

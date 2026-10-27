@@ -218,11 +218,20 @@ uv run python steering/rollout.py --tag loop_cube \
 
 ### Steered rollouts (`--steer-vector` / `--steer-barrier`)
 
+> **Local inference only.** Steering edits the VLM's activations inside the process that runs the policy, so it
+> works only with LOCAL inference: the one-view bf16 checkpoint (`MolmoAct2-SO100_101-LeRobot-1cam`) through
+> `steering/rollout.py`. It cannot steer the hosted MolmoAct2 server / API (cgpa0, two views, fp32;
+> `remote_api.py`) from the client, because the client only receives finished chunks. The same applies to the
+> colleague's dashboard server. Steering there needs the hook inside the server process, plus a re-check of the
+> offline numbers on that configuration. In this repo, `rollout.py` (every arm run) is local; only
+> `remote_api.py` (`fetch-cert`, `health`, `info`, `sample`, `frame`; no hardware) uses the hosted API.
+
 The two modes (constant vector, barrier), what they add, the offline calibration and the status are in README
 "Steering modes". Give one of `--steer-vector` and `--steer-barrier`, never both. `rollout.py` strips every
 `--steer-*` flag before `lerobot-rollout` sees it.
 
-Primary files: `barriers/barrier_so101.pt` and `vectors/const_so101.npy`, calibrated offline on this one-view
+Primary files: `barriers/barrier_so101.pt` and `vectors/const_so101.npy` (steer to red), and
+`barriers/barrier_so101_green.pt` and `vectors/const_so101_green.npy` (steer to green), calibrated offline on this one-view
 checkpoint (`MolmoAct2-SO100_101-LeRobot-1cam`) with two pens; k = 1 is the calibrated strength. Use the 1cam
 checkpoint: the sidecar check cannot tell it from the two-camera one. The LIBERO files (`*_r3_L06`, `word_probe_L09`,
 `green_meandiff_L06`) are secondary and print a mismatch warning here.
@@ -273,7 +282,7 @@ uv run python steering/rollout.py --tag bar_k1 \
 Check `meta.json["steering"]` after each run: `n_fires == n_calls`, `task_span_text` is " pick up the pen",
 `policy_mismatch` is false, and the mean edit norm (k times the k = 1 norm; 0 at k = 0).
 
-#### Real-robot comparison: uncalibrated vs calibrated barrier
+#### Real-robot comparison: uncalibrated vs calibrated barrier, red and green targets
 
 Two barrier files, both targeting **red**, both at k = 1: **uncalibrated** `barriers/barrier_r3_L06.pt` (LIBERO sim
 only; prints the mismatch warning, expected) and **calibrated** `barriers/barrier_so101.pt` (SO-101 real frames).
@@ -297,8 +306,17 @@ About 3–5 runs per cell (run × layout, left/right balanced).
 | 6 | "pick up the green pen" | uncalibrated, `--steer-k 1` | `unc_k1_green` |
 | 7 | "pick up the green pen" | calibrated, `--steer-k 1` | `cal_k1_green` |
 
+Green-target mirror rows (calibrated green barrier `barriers/barrier_so101_green.pt`, k = 1; the target is green):
+
+| # | `--task` | steering | `--tag` |
+|---|---|---|---|
+| 8 | "pick up the pen" | green barrier, `--steer-k 1` | `calg_k1_neutral` |
+| 9 | "pick up the red pen" | green barrier, `--steer-k 1` (override to green) | `calg_k1_red` |
+| 10 | "pick up the green pen" | none (green ceiling; no `--steer-*` flags) | `none_green` (row 5) |
+
 - First session: before the k = 1 runs, do the k = 0 → 0.5 → 1 ramp above with each barrier on one easy layout.
-- Never combine a barrier with "pick up the red pen". Row 2 is the unsteered ceiling.
+- Never pair a barrier with the prompt that names its own target colour: no red barrier with "pick up the red
+  pen", no green barrier with "pick up the green pen". Rows 2 and 10 are the unsteered ceilings.
 - Add the layout and side to the tag, for example `cal_k1_green_hard_redleft`.
 - In the run notes, record which pen was picked (red / green), or that none was picked.
 
@@ -316,7 +334,9 @@ uv run python steering/rollout.py --tag unc_k1_green_hard_redleft \
   --steer-barrier steering/barriers/barrier_r3_L06.pt --steer-k 1
 ```
 
-For row 7, use `--steer-barrier steering/barriers/barrier_so101.pt`. For rows 2 and 5, drop both `--steer-*` flags.
+For row 7, use `--steer-barrier steering/barriers/barrier_so101.pt`; for rows 8 and 9,
+`--steer-barrier steering/barriers/barrier_so101_green.pt`. For rows 2, 5 and 10, drop both `--steer-*` flags. The
+startup line `steer: ... target red|green` shows which colour the loaded file steers to.
 
 The constant-vector mode takes the same command with `--steer-vector` in place of `--steer-barrier`:
 
