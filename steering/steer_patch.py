@@ -15,7 +15,9 @@ scales its threshold (k = 1 is the trained module; k = 0 is off, bitwise); defau
 Layer and positions come from the sidecar; a different ``--steer-layer`` is refused. ``--steer-alpha`` is refused.
 
 ``positions = task`` (the instruction span) needs the tokenizer: it is loaded from the policy's
-``config.checkpoint_path`` the same way the MolmoAct2 processor loads it.
+``config.checkpoint_path`` the same way the MolmoAct2 processor loads it. The run's ``--task`` is checked at load
+time; an empty task (the null condition) has no span and is refused. During the run, a prompt without the span
+raises inside the policy call (with RTC: 10 consecutive errors stop the run).
 
 A vector or barrier is specific to one checkpoint, one camera setup and one layer. The sidecar's
 ``policy_checkpoint`` is compared with the policy's ``config.checkpoint_path``; a mismatch prints a warning and is
@@ -81,9 +83,21 @@ def load_tokenizer(policy):
     return Qwen2Tokenizer.from_pretrained(loc, token=hf_token())
 
 
+def preflight_task_span(span, tokenizer, task: str) -> None:
+    """Locate the span in a minimal prompt built from the run's task, so a task with no span (e.g. the empty
+    null-condition task) fails at load time, before any action, instead of inside the inference loop."""
+    import torch
+
+    text = f"{steer_hooks.TASK_START}{task}{steer_hooks.TASK_END} x."
+    span(torch.tensor([tokenizer(text, add_special_tokens=False)["input_ids"]]))
+    print(f"steer: task span {span.last_text!r} ({span.last_n_tok} tokens)", flush=True)
+    span.last_text, span.last_n_tok = None, 0  # meta.json reports the span of the real prompt
+
+
 def install(vector: str | None, layer: int | None, k: float | None, alpha: float | None, positions: str | None,
-            barrier: str | None = None) -> None:
-    """Patch ``MolmoAct2Policy.from_pretrained`` to attach the steerer (idempotent)."""
+            barrier: str | None = None, task: str | None = None) -> None:
+    """Patch ``MolmoAct2Policy.from_pretrained`` to attach the steerer (idempotent). ``task`` (the run's
+    ``--task``) is checked for a task span at load time when positions is ``task``."""
     if _ORIG:
         return
     if (vector is None) == (barrier is None):
@@ -111,7 +125,12 @@ def install(vector: str | None, layer: int | None, k: float | None, alpha: float
         policy = original(klass, *args, **kwargs)
         ckpt = getattr(policy.config, "checkpoint_path", None)
         STEER.update(policy_checkpoint=ckpt, policy_mismatch=steer_barrier.check_policy(meta, ckpt))
-        span = steer_hooks.make_task_span_fn(load_tokenizer(policy)) if pos == "task" else None
+        span = None
+        if pos == "task":
+            tok = load_tokenizer(policy)
+            span = steer_hooks.make_task_span_fn(tok)
+            if task is not None:
+                preflight_task_span(span, tok, task)
         STEER["task_span_fn"] = span
         if barrier is not None:
             steerer = steer_hooks.BarrierSteerer(policy, layer, mod, k_val, pos, task_span=span).attach()

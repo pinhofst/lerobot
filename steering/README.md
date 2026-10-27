@@ -156,7 +156,8 @@ exclusive: giving both exits with an error.
   and always on.
 - The barrier is the AdaBarrier method (ControlLLM / barriersteer), adapted to MolmoAct2 (`steer_barrier.py`). It reads
   only the instruction tokens (`positions = task`, the " pick up the red marker" span located with the policy's
-  tokenizer; it fails loudly if the span is not found).
+  tokenizer; it fails loudly if the span is not found). The run's `--task` is checked when the policy loads, so an
+  empty task (the null condition) is refused before the run starts.
 - `--steer-k 0` with a barrier is bitwise the unsteered policy, but it still locates the span and counts the calls.
   Any k > 0 is **not** a small edit: ⟨a,h⟩ is negative on the task span (about −4 in LIBERO), so every k > 0 pushes by
   at least −⟨a,h⟩. At k = 1 the mean edit norm was 28.5 in LIBERO under the neutral prompt (0.8 alpha units).

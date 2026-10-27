@@ -83,7 +83,8 @@ def token_masks(input_ids: Tensor, attention_mask: Tensor | None, image_patch_id
 
 def span_mask(token_strs: list[str], start_marker: str = TASK_START, end_marker: str = TASK_END) -> np.ndarray:
     """bool [L]: tokens overlapping the text strictly between the first ``start_marker`` and the next
-    ``end_marker`` in the concatenation of ``token_strs``. All False if a marker is missing."""
+    ``end_marker`` in the concatenation of ``token_strs``. All False if a marker is missing or the text between
+    them is blank."""
     offs, pos = [], 0
     for s in token_strs:
         offs.append((pos, pos + len(s)))
@@ -95,8 +96,8 @@ def span_mask(token_strs: list[str], start_marker: str = TASK_START, end_marker:
         return out
     a += len(start_marker)
     b = text.find(end_marker, a)
-    if b < 0:
-        return out
+    if b < 0 or not text[a:b].strip():
+        return out  # no end marker, or an empty instruction (a token straddling the markers is not a span)
     for i, (s, e) in enumerate(offs):
         out[i] = s < b and e > a
     return out

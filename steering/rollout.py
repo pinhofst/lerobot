@@ -1244,7 +1244,16 @@ def _install_fast_load(stock_load: bool) -> None:
         print(f"fast_load: install failed ({e!r}); using the stock load", file=sys.stderr, flush=True)
 
 
-def _install_steering(steer: dict[str, str]) -> None:
+def _task_arg(forwarded: list[str]) -> str | None:
+    """The run's instruction (``--task=`` or ``--dataset.single_task=``), for the steering span preflight."""
+    for a in forwarded:
+        for key in ("--task=", "--dataset.single_task="):
+            if a.startswith(key):
+                return a[len(key):]
+    return None
+
+
+def _install_steering(steer: dict[str, str], forwarded: list[str] | None = None) -> None:
     """Attach a steerer to the MolmoAct2 policy when --steer-vector or --steer-barrier is given."""
     if not steer:
         return
@@ -1261,6 +1270,7 @@ def _install_steering(steer: dict[str, str]) -> None:
         float(steer["alpha"]) if "alpha" in steer else None,
         steer.get("positions"),
         barrier=steer.get("barrier"),
+        task=_task_arg(forwarded or []),
     )
 
 
@@ -1339,7 +1349,7 @@ def main() -> None:
     sys.argv = [sys.argv[0], *forwarded]
     if not is_help:
         _install_fast_load(flags["stock_load"])
-        _install_steering(flags["steer"])
+        _install_steering(flags["steer"], forwarded)
     try:
         lerobot_rollout.main()
     finally:

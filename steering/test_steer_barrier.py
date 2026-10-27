@@ -95,6 +95,7 @@ def test_task_span_stub():
     assert fn.last_text == " pick up the red marker" and fn.last_n_tok == 5
     with pytest.raises(RuntimeError, match="task span not found"):
         fn(torch.tensor([[7, 7, 1, 10, 11, 12, 13, 14]]))
+    assert not steer_hooks.span_mask(["The task is to", " .", " The setup is"]).any()  # empty task: no span
 
 
 @pytest.mark.parametrize("dtype", [torch.float32, torch.bfloat16])
@@ -285,6 +286,22 @@ def test_rollout_split_argv_strips_steer_flags():
     assert flags["steer"] == {"vector": "v.npy", "alpha": "2"} and not any("steer" in a for a in rest)
     with pytest.raises(SystemExit, match="needs a value"):
         rollout.split_argv(["--robot.max_relative_target=4", "--steer-k"])
+
+
+def test_rollout_task_arg():
+    assert rollout._task_arg(["--robot.x=1", "--task=pick up the pen"]) == "pick up the pen"
+    assert rollout._task_arg(["--dataset.single_task="]) == ""
+    assert rollout._task_arg(["--robot.x=1"]) is None
+
+
+def test_preflight_refuses_empty_task():
+    tok = _real_tokenizer()
+    import steer_patch
+
+    fn = steer_hooks.make_task_span_fn(tok)
+    steer_patch.preflight_task_span(fn, tok, "pick up the red marker")
+    with pytest.raises(RuntimeError, match="task span not found"):
+        steer_patch.preflight_task_span(fn, tok, "")
 
 
 def test_rollout_install_flag_conflicts():
