@@ -35,6 +35,9 @@ This folder holds all experiment code. `src/` is unchanged, so rebasing on upstr
 | `CHUNK_CONSISTENCY_NOTES.md` | Literature and LeRobot code notes on chunk disagreement and RTC. |
 | `remote_api.py` | Client and access test for the hosted MolmoAct2 API on cgpa0 (two cameras, fp32; COMMANDS "Hosted MolmoAct2 API"). Endpoint and certificate in git-ignored `remote/`. |
 | `sync_runs.py` | Uploads `results/runs/`, `server_runs/` and `analyses/` to the private dataset `pinhofst10d/so-101-steering` (`--dry-run`, `--download` on a new machine). |
+| `steer_hooks.py`, `steer_patch.py`, `steer_barrier.py` | Activation steering for `rollout.py` (`--steer-vector`, `--steer-barrier`; see "Steering modes"). Standalone ports of the steervla hooks and the trained barrier. |
+| `vectors/`, `barriers/` | Steering files with JSON sidecars (each README says what they were fitted on). Primary: `*_so101` (calibrated offline on the SO-101 1cam checkpoint); secondary: the **MolmoAct2-LIBERO** files. |
+| `test_steer_hooks.py`, `test_steer_barrier.py` | CPU tests of the steering code (toy policy, no checkpoint). |
 | `results/` | Raw data behind the RUNLOG tables. A few one-off checks (the OOM test, the mask comparison, host RAM) are recorded only in RUNLOG. |
 
 ## Setup
@@ -135,6 +138,183 @@ Still open:
 - [x] **Offline prompt comparison on recorded runs** (done 2 Oct, `prompt_counterfactual.py`; red/green
   pens rather than blue/red): the colour word steers in 6 of 8 scenes; the pre-registered verdict is "unclear".
 
+## Steering modes
+
+> **Local inference only.** Steering edits the VLM's activations inside the process that runs the policy, so it
+> works only with LOCAL inference: the one-view bf16 checkpoint (`MolmoAct2-SO100_101-LeRobot-1cam`) through
+> `steering/rollout.py`. It cannot steer the hosted MolmoAct2 server / API (cgpa0, two views, fp32;
+> `remote_api.py`) from the client, because the client only receives finished chunks. The same applies to the
+> colleague's dashboard server. Steering there needs the hook inside the server process, plus a re-check of the
+> offline numbers on that configuration. In this repo, `rollout.py` (every arm run) is local; only
+> `remote_api.py` (`fetch-cert`, `health`, `info`, `sample`, `frame`; no hardware) uses the hosted API.
+
+`rollout.py` can edit the VLM's hidden states at one decoder block in the prompt pass of every policy call
+(`steer_hooks.py`, `steer_patch.py`). There are two modes. `--steer-vector` and `--steer-barrier` are mutually
+exclusive: giving both exits with an error.
+
+| | Constant vector (`--steer-vector`) | Barrier (`--steer-barrier`) |
+|---|---|---|
+| What is added | The same fixed vector, alpha·v, at every chosen token | u = k·ReLU(τ − ⟨a,h⟩)·a: k times the smallest edit that brings ⟨a,h⟩ up to τ. A small trained network reads the layer's states and gives the direction a (unit) and the threshold τ per token |
+| When it acts | Always, on every call | In principle only where ⟨a,h⟩ < τ (zero edit elsewhere) |
+| Strength | `--steer-k` (alpha = k × the sidecar's `alpha_unit_value`) or `--steer-alpha` (absolute) | `--steer-k` scales the edit (ControlLLM's form), continuously from 0. k = 0 is no edit; k = 1 is the trained module |
+| File | `vectors/<name>.npy` + `.json` sidecar | `barriers/<name>.pt` (module with its frozen description bank) + `.json` sidecar |
+| Files | Primary: `const_so101` (→ red) and `const_so101_green` (→ green), calibrated offline on SO-101 real frames, 1cam, pens; k = 1. Safety: `const_never_red_v2`, `const_never_green` (k = 1.25; "Safety" below). Secondary: `const_r3_L06` (→ red) and `const_m1_L06_green` (→ green) (trained), `word_probe_L09`, `green_meandiff_L06` (hand-fitted); all MolmoAct2-LIBERO | All at k = 1. Steer to **red**: **calibrated (SO-101 real frames)** `barrier_so101.pt`; **uncalibrated (LIBERO sim only)** `barrier_r3_L06.pt`. Steer to **green**: **calibrated (SO-101 real frames)** `barrier_so101_green.pt`; **uncalibrated (LIBERO sim only)** `barrier_m1_L06_green.pt`. Safety: `barrier_never_red_v2.pt` (k = 1.25), `barrier_never_green.pt` (k = 1) |
+
+- The constant vector covers both the hand-fitted vectors and the trained constant vector. It is simple, predictable
+  and always on.
+- The barrier is the AdaBarrier method (ControlLLM / barriersteer), adapted to MolmoAct2 (`steer_barrier.py`). It reads
+  only the instruction tokens (`positions = task`, the " pick up the pen" span located with the policy's
+  tokenizer; it fails loudly if the span is not found). The run's `--task` is checked when the policy loads, so an
+  empty task (the null condition) is refused before the run starts.
+- `--steer-k 0` with a barrier adds an exact zero (bitwise the unsteered policy), but it still locates the span and
+  counts the calls. The edit norm is k times the trained one (SO-101 smoke test below).
+- steervla's `steering_wrist` sim k sweep used the other form, k scaling the threshold (u = ReLU(k·τ − ⟨a,h⟩)·a). Its
+  chosen k = 0.75 therefore does not carry over numerically to this `--steer-k`. At k = 1 the two forms are the same,
+  so the calibrated k = 1 holds as is.
+- meta.json `steering` records the file and its sha256, k, layer, positions, the decoded task span, n_calls and
+  n_fires (must be equal), and, for the barrier, the mean zero-edit fraction and the mean edit norm. If the policy is
+  not the one the file was trained on, it prints a warning and records `policy_mismatch: true`.
+
+### Calibration (27 Oct; offline proxy, no real-robot runs yet)
+
+`barrier_so101` and `const_so101` start from the LIBERO round-3 modules and were calibrated **offline** in steervla
+(`runs/steering_so101`). The checkpoint was `lerobot/MolmoAct2-SO100_101-LeRobot`, bf16, one-view copy (wrist
+`cam0`). The data were recorded real SO-101 frames with two pens. The target was velocity matching to the same frozen
+policy prompted "pick up the red pen", from the students "pick up the pen" and "pick up the green pen". On held-out
+real frames:
+- The calibrated barrier reaches 12% of the no-edit loss at k = 1, and beats the calibrated constant (barrier /
+  constant loss ratio 0.65).
+- k = 1 was the pre-registered choice for both modules.
+
+The two barrier versions on the 8 held-out real runs (20 two-pen frames). Both target **RED**. "Gap" is the gap to the
+red-pen teacher, with unsteered = 100%. Heading counts the frames where the predicted motion heads the same way as
+the teacher's; the teacher moves +7.5 mm toward red.
+
+| barrier | gap | heading matches red, neutral prompt | heading matches red, "green pen" prompt |
+|---|---|---|---|
+| none | 100% | 9/20 | 1/20 |
+| uncalibrated (LIBERO sim only), k = 1 | 47% | 17/20 (+3.5 mm toward red) | 18/20 (+9.4 mm) |
+| calibrated (SO-101 real frames), k = 1 | 12% | 20/20 (+7.6 mm) | 20/20 (+7.5 mm) |
+
+Green target (`barrier_so101_green.pt`, `const_so101_green.npy`): calibrated the same way, with the teacher "pick up
+the green pen" and the students "pick up the pen" and "pick up the red pen". It is a separate module: the red
+barrier with its bank swapped to green does not work (held-out loss 0.0128, worse than no edit). Held-out loss:
+
+| green target | loss |
+|---|---|
+| no edit | 0.0111 |
+| red barrier, bank swapped to green | 0.0128 |
+| uncalibrated green barrier `barrier_m1_L06_green` (LIBERO mirror, zero-shot), k = 1 | 0.0051 |
+| calibrated green constant, k = 1 | 0.00175 |
+| calibrated green barrier, k = 1 | 0.00140 |
+
+On the 18/18 frames where the red barrier heads to red, the green barrier heads away from red, under both the
+neutral and the "pick up the red pen" prompts.
+
+The two green barrier versions on the same 20 two-pen frames. The green teacher moves +19.2 mm toward green and heads
+to green on 19/20 frames.
+
+| barrier | gap | heading matches green, neutral prompt | heading matches green, "red pen" prompt |
+|---|---|---|---|
+| none | 100% | 12/20 (+1.2 mm toward green) | 1/20 (−7.5 mm) |
+| uncalibrated (LIBERO sim only), k = 1 | 46% | 17/20 (+5.2 mm) | 20/20 (+16.1 mm) |
+| calibrated (SO-101 real frames), k = 1 | 13% | 20/20 (+19.4 mm) | 20/20 (+20.2 mm) |
+
+The uncalibrated green barrier (`barrier_m1_L06_green`) is the LIBERO mirror module: steervla `steering_dial`
+trained it to steer to green under "pick up the red cube", with one on-policy refresh round. On LIBERO validation it
+reached 78% green on hard layouts, against 77% for the fixed −L6 vector. That missed the pre-registered gate (+3 over
+the fixed vector), so it has no LIBERO test; its red counterpart `barrier_r3_L06` has one.
+
+Which file steers to which colour (sidecar field `target`, printed at load and recorded in meta.json):
+- red: `barrier_so101`, `barrier_r3_L06`, `const_so101`, `const_r3_L06`, `word_probe_L09` (+k);
+- green: `barrier_so101_green`, `barrier_m1_L06_green`, `const_so101_green`, `const_m1_L06_green`,
+  `green_meandiff_L06` (+k).
+
+Deploy-path smoke test of the calibrated barrier (GPU, 27 Oct). Setup:
+- `steer_patch` + `steer_hooks` + `steer_barrier`, with the 1cam checkpoint loaded as `prompt_counterfactual` does,
+  CUDA graph on;
+- one recorded frame (`20261002-170142_median_rtc_cap6_no_color_prompt_2_pens_1`, frame 00003) with
+  "pick up the pen";
+- seeds 0-7 of `predict_action_chunk`.
+
+Results:
+- The span was " pick up the pen" (4 tokens), with n_fires == n_calls and no mismatch warning.
+- k = 0 was bitwise the unsteered chunk.
+- The mean edit norm was 17.7 at k = 0.5 and 35.4 at k = 1.
+- At k = 1 the chunk moved by a mean of 9.5° per joint and step from the unsteered one (shoulder_lift 27°); at
+  k = 0.5 it moved 9.0°.
+- At k = 1 the output was bitwise steervla `steering_so101`'s own hook on the same frame and noise.
+- The uncalibrated barrier (`barrier_r3_L06`), same frame and noise:
+  - the span was found, n_fires == n_calls, k = 0 was bitwise;
+  - the mismatch warning fired and meta.json recorded `policy_mismatch: true`;
+  - the mean edit norm was 12.4 at k = 0.5 and 24.9 at k = 1;
+  - the chunk moved by a mean of 5.9° from the unsteered one at k = 1 (shoulder_lift 14.7°) and 1.5° at k = 0.5;
+  - the output was bitwise steervla's hook with `barrier_r3.pt`.
+- The calibrated green barrier (`barrier_so101_green`), same frame and noise:
+  - the span was found, n_fires == n_calls, k = 0 was bitwise, there was no mismatch warning, and meta.json recorded
+    `target: green`;
+  - the mean edit norm was 15.1 at k = 0.5 and 30.2 at k = 1;
+  - the chunk moved by a mean of 6.0° from the unsteered one at k = 1 (7.0° at k = 0.5);
+  - the output was bitwise steervla's hook with its green export.
+  - Lateral tip motion over the chunk (forward kinematics, + = image right, mean of 8 seeds):
+    - no edit −3.6 mm, red barrier +8.7 mm, green barrier +5.1 mm;
+    - on this one frame both barriers shift the tip the same way (right), green by less than red (green − red =
+      −3.6 mm);
+    - so the opposite direction seen offline (18/18 frames) is not visible here. The frame is the first policy
+      frame of the run, and its red/green sides are not labelled.
+- The uncalibrated green barrier (`barrier_m1_L06_green`), same frame and noise:
+  - the span was found, n_fires == n_calls, k = 0 was bitwise, the mismatch warning fired (`policy_mismatch: true`)
+    and meta.json recorded `target: green`;
+  - the mean edit norm was 7.6 at k = 0.5 and 15.2 at k = 1, the smallest of the four barriers;
+  - the chunk moved by a mean of 4.1° from the unsteered one at k = 1 (1.9° at k = 0.5);
+  - the output was bitwise steervla's hook with `m_barrier_r1.pt`;
+  - lateral tip motion: no edit −3.6 mm, uncalibrated green −5.8 mm, calibrated red +8.7 mm. Here the green
+    barrier shifts the tip the other way from red (−2.2 mm vs +12.3 mm against no edit), unlike the calibrated
+    green barrier on this frame. One unlabelled frame, so this says nothing about which pen it heads to.
+
+These are offline proxies: loss and heading on recorded frames. They say nothing yet about grasps, closed-loop
+drift, markers or two cameras. The barrier still never switches off (zero-edit fraction 0, as in LIBERO), so it also
+edits under the red prompt.
+
+Status (27 Oct):
+- In LIBERO sim, the trained barrier and the trained constant vector performed the same in every setting.
+- On SO-101 (offline, above), the calibrated barrier beats the calibrated constant.
+- So far the barrier never switches off in practice, in LIBERO and on SO-101 frames.
+
+### Safety: never touch red / never touch green (28 Oct; offline proxy, no real-robot runs yet)
+
+Trained in steervla `runs/steering_safety` (v1) and `runs/steering_safety_v2` (v2), same format and code path as the
+files above. The constraint is "never touch the forbidden pen". No prompt makes this policy hold still ("stop",
+"stay still", "do not touch the red pen" all still descend), so the target is a mixture:
+- forbidden pen alone (pre-contact frames): a hand-built hold chunk (the current state repeated);
+- both pens: the same frozen policy prompted to pick the other pen;
+- allowed pen alone: the unsteered policy.
+
+| file | k | trained on | offline evidence (one chunk ahead, recorded frames) |
+|---|---|---|---|
+| **`vectors/const_never_red_v2.npy`** (use this one) | 1.25 | all 9 red-only runs, v2 recipe | 3-fold run-level CV: 7 of 9 red-only runs hold (descent −2 to +3 mm vs 7–26 mm unsteered, max displacement 4–12 mm, gripper closing ≤ 6% of seeds); both pens → green on 18–20/20 frames, also under "pick up the red pen"; green alone → still picks green, slightly over the 1.5° limit under the "red pen" prompt (1.5–1.8°) |
+| `barriers/barrier_never_red_v2.pt` | 1.25 | same | same CV: 5 of 9 red-only runs hold; worse than the constant |
+| `vectors/const_never_green.npy` | 1.25 | v1 recipe, 2 green-only runs | **anecdotal**: one held-out green-only run, one pen position: holds on 90–93% of frames; both pens → red on 19–20/20; red alone moves 2.2–2.3° from unsteered (fails the 1.5° limit) |
+| `barriers/barrier_never_green.pt` | 1 | same | same run: holds on 90–97% of frames, max displacement 5–6 mm; both pens → red 19–20/20; red alone 1.4–1.8° |
+
+- GPU check through this code path for all four: k = 0 bitwise the unsteered chunk, k = 1 bitwise steervla's hook,
+  no mismatch warning, span found, n_fires == n_calls.
+- The barrier does not beat the constant here; it never switches off (zero-edit fraction 0), as before.
+- Limits: every one-pen recording has the pen straight ahead between the jaws, so "holds" means "holds in front of a
+  pen in that position". Whether the arm stays up over successive chunks is untested.
+- The `.npy` files need `--steer-k 1.25` on the command line (a vector has no default k). Never-red barrier: pass
+  `--steer-k 1.25` too (the sidecar default is the same).
+- Protocol: COMMANDS "Safety rows" (13–20).
+
+```bash
+# barrier (primary): k = 0 baseline first, then 0.5, then 1 (the calibrated k), same scene and pose
+uv run python steering/rollout.py --tag bar_k0 ... --steer-barrier steering/barriers/barrier_so101.pt --steer-k 0
+# constant vector (calibrated, k = 1)
+uv run python steering/rollout.py --tag const_k1 ... --steer-vector steering/vectors/const_so101.npy --steer-k 1
+```
+
+Full commands: COMMANDS "Steered rollouts".
+
 ## Status
 
 | Step | State | Where |
@@ -149,6 +329,12 @@ Still open:
 | 6 Report | Ongoing in RUNLOG | RUNLOG |
 
 ## Open items
+
+- [ ] **Re-validate `prompt_counterfactual.py`'s offline numbers** (27 Oct, found by steervla `steering_so101`). On the
+  current lerobot commit, `ChunkSampler.sample` differs from the stock `predict_action_chunk` by up to 0.47
+  (normalised actions) on the same frame and seeds. It builds the action expert's attention mask differently
+  (`_encoder_attention_mask_for_action_expert` vs the backbone's own mask). The offline prompt comparison
+  (`results/prompt_counterfactual/`) used `ChunkSampler`, so re-run it through `predict_action_chunk`.
 
 - [ ] **Single side-view camera** (16 Oct): record wrist and side together in the same counterbalanced scenes,
   then compare wrist-only, side-only and wrist+side offline (colour effect on pan, seeds moving under the empty

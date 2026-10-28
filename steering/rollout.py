@@ -6,7 +6,12 @@
 Wrapper-only flags (stripped before forwarding): ``--tag NAME`` (default ``run``),
 ``--allow-torque-blip`` (see patch a), ``--no-plot`` (skip the automatic plot_run on the run dir
 after the run, normal exit or Ctrl-C), ``--skip-gpu-check`` (see GPU check) and ``--stock-load`` (see
-fast load). ``--robot.max_relative_target=DEG`` is required: the cap is
+fast load). Steering (see steer_patch.py and README "Steering modes"; stripped too):
+``--steer-vector FILE.npy`` (constant vector: adds alpha * v on every call) or ``--steer-barrier FILE.pt``
+(trained barrier: adds k times the smallest edit that brings <a, h> up to tau, u = k * ReLU(tau - <a, h>) a),
+mutually exclusive, with ``--steer-k`` (vector: alpha = k * alpha_unit_value; barrier: edit scale, 0 = no edit,
+1 = trained), ``--steer-alpha``
+(vector only), ``--steer-layer`` and ``--steer-positions`` (all/image/text/last/task). ``--robot.max_relative_target=DEG`` is required: the cap is
 per control step at 30 Hz, so 4 deg per step is about 120 deg/s. Every other argument is passed
 unchanged to ``lerobot.scripts.lerobot_rollout.main``. If ``--robot.disable_torque_on_disconnect`` is not given,
 ``--robot.disable_torque_on_disconnect=false`` is added, so the arm keeps holding its pose when the
@@ -151,16 +156,37 @@ logger = logging.getLogger("steering.rollout")
 # ---------------------------------------------------------------------------
 
 
-def split_argv(argv: list[str]) -> tuple[str, list[str], dict[str, bool]]:
+STEER_FLAGS = {
+    "--steer-vector": "vector",
+    "--steer-barrier": "barrier",
+    "--steer-layer": "layer",
+    "--steer-k": "k",
+    "--steer-alpha": "alpha",
+    "--steer-positions": "positions",
+}
+
+
+def split_argv(argv: list[str]) -> tuple[str, list[str], dict[str, Any]]:
     """Strip the wrapper flags, require ``--robot.max_relative_target``, add the torque default.
 
     Wrapper flags: ``--tag``, ``--allow-torque-blip``, ``--no-plot``, ``--skip-gpu-check``,
-    ``--stock-load``.
+    ``--stock-load``; value flags ``--steer-vector/-barrier/-layer/-k/-alpha/-positions`` (see steer_patch.py)
+    come back as ``flags["steer"]``.
     """
     tag, rest, i = "run", [], 0
     flags = {"allow_torque_blip": False, "no_plot": False, "skip_gpu_check": False, "stock_load": False}
+    steer: dict[str, str] = {}
     while i < len(argv):
         arg = argv[i]
+        name = arg.split("=", 1)[0]
+        if name in STEER_FLAGS:
+            if "=" in arg:
+                steer[STEER_FLAGS[name]], i = arg.split("=", 1)[1], i + 1
+            elif i + 1 < len(argv):
+                steer[STEER_FLAGS[name]], i = argv[i + 1], i + 2
+            else:
+                raise SystemExit(f"{name} needs a value")
+            continue
         if arg in ("--allow-torque-blip", "--no-plot", "--skip-gpu-check", "--stock-load"):
             flags[arg[2:].replace("-", "_")] = True
             i += 1
@@ -185,6 +211,7 @@ def split_argv(argv: list[str]) -> tuple[str, list[str], dict[str, bool]]:
         )
     if not any(a.startswith("--robot.disable_torque_on_disconnect") for a in rest):
         rest.append("--robot.disable_torque_on_disconnect=false")
+    flags["steer"] = steer
     return tag, rest, flags
 
 
@@ -793,6 +820,11 @@ def _patch_recording(rollout_module: Any) -> None:
             except Exception as e:  # noqa: BLE001
                 rec.error("meta.fast_load", e)
             try:
+                if _steer_meta():
+                    rec.meta["steering"] = _steer_meta()
+            except Exception as e:  # noqa: BLE001
+                rec.error("meta.steering", e)
+            try:
                 rec.policy_path = str(cfg.policy.pretrained_path) if cfg.policy else None
             except Exception as e:  # noqa: BLE001
                 rec.error("meta.policy_path", e)
@@ -1213,6 +1245,43 @@ def _install_fast_load(stock_load: bool) -> None:
         print(f"fast_load: install failed ({e!r}); using the stock load", file=sys.stderr, flush=True)
 
 
+def _task_arg(forwarded: list[str]) -> str | None:
+    """The run's instruction (``--task=`` or ``--dataset.single_task=``), for the steering span preflight."""
+    for a in forwarded:
+        for key in ("--task=", "--dataset.single_task="):
+            if a.startswith(key):
+                return a[len(key):]
+    return None
+
+
+def _install_steering(steer: dict[str, str], forwarded: list[str] | None = None) -> None:
+    """Attach a steerer to the MolmoAct2 policy when --steer-vector or --steer-barrier is given."""
+    if not steer:
+        return
+    if "vector" in steer and "barrier" in steer:
+        raise SystemExit("--steer-vector and --steer-barrier are mutually exclusive: give one")
+    if "vector" not in steer and "barrier" not in steer:
+        raise SystemExit("--steer-layer/-k/-alpha/-positions need --steer-vector or --steer-barrier")
+    import steer_patch
+
+    steer_patch.install(
+        steer.get("vector"),
+        int(steer["layer"]) if "layer" in steer else None,
+        float(steer["k"]) if "k" in steer else None,
+        float(steer["alpha"]) if "alpha" in steer else None,
+        steer.get("positions"),
+        barrier=steer.get("barrier"),
+        task=_task_arg(forwarded or []),
+    )
+
+
+def _steer_meta() -> dict[str, Any]:
+    """meta.json["steering"]: what was applied and how often it fired ({} when not steering)."""
+    if "steer_patch" not in sys.modules:
+        return {}
+    return sys.modules["steer_patch"].summary()
+
+
 def _fast_load_meta() -> dict[str, Any]:
     """meta.json["fast_load"]: installed?, path taken (fast / stock) and why, from fast_load.LAST_LOAD."""
     meta = dict(FAST_LOAD)
@@ -1281,12 +1350,15 @@ def main() -> None:
     sys.argv = [sys.argv[0], *forwarded]
     if not is_help:
         _install_fast_load(flags["stock_load"])
+        _install_steering(flags["steer"], forwarded)
     try:
         lerobot_rollout.main()
     finally:
         if REC is not None:
             saved = False
             try:
+                if _steer_meta():
+                    REC.meta["steering"] = _steer_meta()  # final n_calls / n_fires
                 REC.save()
                 saved = True
             except Exception as e:  # noqa: BLE001

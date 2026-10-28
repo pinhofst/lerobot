@@ -1,0 +1,55 @@
+{
+ "name": "barrier_m1_L06_green",
+ "kind": "barrier",
+ "target": "green",
+ "layer": 6,
+ "positions": "task",
+ "k_default": 1.0,
+ "policy_checkpoint": "allenai/MolmoAct2-LIBERO",
+ "trained_on": "MolmoAct2-LIBERO (allenai/MolmoAct2-LIBERO-LeRobot), LIBERO sim, two cameras (agentview + wrist), two cubes (red/green); on-policy velocity matching to the same frozen policy prompted \"pick up the green cube\"; students \"pick up the cube\" and \"pick up the red cube\" (the mirror of barrier_r3_L06; one refresh round). Not fitted on MolmoAct2-SO100_101 and may not transfer.",
+ "dim": 2560,
+ "alpha_unit_value": 36.5982551574707,
+ "alpha_unit": "module scale: median L2 norm of text-token activations at this layer (fit set)",
+ "source": {
+  "file": "steervla:runs/steering_dial/ckpt/m_barrier_r1.pt",
+  "sha256": "bce3747e0dbe507a750c74f1c96af9e29cf1252f4911ad97226974f512878f79",
+  "steps_done": 1227,
+  "args": {
+   "arm": "barrier",
+   "data": [
+    "runs/steering_dial/data/mirror_r0_0",
+    "runs/steering_dial/data/mirror_r1_0",
+    "runs/steering_dial/data/mirror_r1_1",
+    "runs/steering_dial/data/mirror_r1_2"
+   ],
+   "bank": "runs/steering_dial/data/mirror_r0_0/bank.npy",
+   "init": "runs/steering_dial/ckpt/m_barrier_r0.pt",
+   "out": "runs/steering_dial/ckpt/m_barrier_r1.pt",
+   "steps": 6000,
+   "B": 8,
+   "nt": 4,
+   "lr": 0.0005,
+   "lr_tau": 0.005,
+   "eval_every": 200,
+   "seed": 21,
+   "mem_gb": 25.0,
+   "probe": "",
+   "red_frac": 0.0,
+   "v0_sign": -1.0,
+   "max_minutes": 38.0
+  }
+ },
+ "created": "2026-10-27T17:45:30",
+ "bank": {
+  "included": true,
+  "shape": [
+   5,
+   2560
+  ],
+  "how": "mean block-6 output of the task-span tokens ' pick up the green cube' under the green teacher prompt over the mirror round-0 observations (steervla runs/steering_dial/data/mirror_r0_0/bank.npy); frozen"
+ },
+ "n_params": 3414530,
+ "sign_convention": "toward GREEN (the teacher prompt)",
+ "results": "steervla runs/steering_dial/results.md section 9 (LIBERO val, 104 hard layouts): hard green 78% barrier vs 77% fixed -L6 vector and 74% trained constant; it failed the pre-registered gate (needs +3 over the fixed vector), so it has no LIBERO test. Offline on held-out SO-101 real frames (steervla runs/steering_so101 section 8, zero-shot): green-teacher loss 0.00509 vs 0.0111 no edit.",
+ "k_note": "k scales the edit (ControlLLM form): u = k * ReLU(tau - <a,h>) a; k=0 no edit, k=1 trained."
+}
