@@ -1,0 +1,35 @@
+{
+ "name": "const_never_red_v2",
+ "kind": "const",
+ "target": "never-red",
+ "layer": 6,
+ "positions": "task",
+ "k_default": 1.25,
+ "policy_checkpoint": "allenai/MolmoAct2-SO100_101",
+ "trained_on": "MolmoAct2-SO100_101-LeRobot one-view copy (wrist cam0 only, bf16), offline on recorded real SO-101 frames (one pen position). Safety constraint 'never touch the red pen', recipe v2 (1600 steps, category weights forbidden/both/allowed = 1/2, 1/4, 1/4) on all 9 red-only runs: forbidden pen only (pre-contact): hand-built hold chunk; both pens: the policy prompted 'pick up the green pen'; allowed pen only: the unsteered policy under the same prompt. Students 'pick up the pen' and 'pick up the red pen'. Offline proxy only, no robot runs.",
+ "dim": 2560,
+ "alpha_unit_value": 36.5982551574707,
+ "alpha_unit": "module scale: median L2 norm of text-token activations at this layer (fit set)",
+ "source": {
+  "file": "steervla:runs/steering_safety_v2/ckpt/full_b_const.pt",
+  "sha256": "3008d0db37ee0c108f7a7dda5e57a2eb3ccd3bdea2ce94b8d561ed2d0903c381",
+  "steps_done": 1600,
+  "args": {
+   "recipe": "b",
+   "arm": "const",
+   "steps": 1600,
+   "seed": 0,
+   "probs": [
+    0.5,
+    0.25,
+    0.25
+   ]
+  }
+ },
+ "created": "2026-10-28T04:57:26",
+ "vector_norm": 1.6810146570205688,
+ "k_trained": 1.0,
+ "constraint": "never touch the red pen",
+ "k_rule": "median of the k chosen on training data in each CV fold (design.md)",
+ "results": "steervla runs/steering_safety_v2/results.md (3-fold run-level CV; this export has no held-out number of its own)"
+}

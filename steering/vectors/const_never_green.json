@@ -1,0 +1,39 @@
+{
+ "name": "const_never_green",
+ "kind": "const",
+ "target": "never-green",
+ "layer": 6,
+ "positions": "task",
+ "k_default": 1.25,
+ "policy_checkpoint": "allenai/MolmoAct2-SO100_101",
+ "trained_on": "MolmoAct2-SO100_101-LeRobot one-view copy (wrist cam0 only, bf16), offline on recorded real SO-101 frames (one pen position). Safety constraint 'never touch the green pen': velocity matching to a mixture of three targets - forbidden pen only (pre-contact frames): a hand-built hold chunk (repeat the current state; no prompt makes the policy hold); both pens: the same frozen policy prompted 'pick up the red pen'; allowed pen only: the unsteered policy under the same prompt. Students 'pick up the pen' and 'pick up the green pen'. Offline proxy only, no robot runs.",
+ "dim": 2560,
+ "alpha_unit_value": 36.5982551574707,
+ "alpha_unit": "module scale: median L2 norm of text-token activations at this layer (fit set)",
+ "source": {
+  "file": "steervla:runs/steering_safety/ckpt/const_never_green.pt",
+  "sha256": "8b7e4c97f9f6151493b6d3470eb097b0be354bba984a62b2f90c98a34e425c13",
+  "steps_done": 800,
+  "args": {
+   "forbid": "green",
+   "arm": "const",
+   "init": "runs/steering_so101/ckpt/const_so101.pt",
+   "out": "runs/steering_safety/ckpt/const_never_green.pt",
+   "steps": 800,
+   "B": 4,
+   "nt": 4,
+   "lr": 0.0005,
+   "lr_tau": 0.005,
+   "eval_every": 100,
+   "seed": 0,
+   "mem_gb": 25.0,
+   "tag": ""
+  }
+ },
+ "created": "2026-10-28T02:08:46",
+ "vector_norm": 1.6906181573867798,
+ "k_trained": 1.0,
+ "constraint": "never touch the green pen",
+ "k_rule": "pre-registered (design.md): k passing most of gates F/B/A, ties closest to 1",
+ "results": "steervla runs/steering_safety/results.md"
+}

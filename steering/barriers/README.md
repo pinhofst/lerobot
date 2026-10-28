@@ -46,6 +46,12 @@ the trained module.
     uv run python steering/rollout.py --tag bar_k0 ... --steer-barrier steering/barriers/barrier_r3_L06.pt --steer-k 0
     uv run python steering/rollout.py --tag barg_k0 ... --steer-barrier steering/barriers/barrier_m1_L06_green.pt --steer-k 0
 
+**Safety (SO-101 real frames, offline):** `barrier_never_red_v2.{pt,json}` (k = 1.25) and
+`barrier_never_green.{pt,json}` (k = 1): "never touch the red / green pen" (README "Safety"). They hold the arm off
+the forbidden pen when it is alone and send it to the other pen when both are in view. The never-red barrier holds
+on 5 of 9 red-only runs under cross-validation, behind the never-red constant (7 of 9). Never-green has one test run.
+The sidecar `target` is `never-red` / `never-green`.
+
 To add another module (same format), export the steervla checkpoint:
 
     python steering/steer_barrier.py --src <steervla ckpt.pt> --out steering/barriers/<name>.pt --layer 6 \

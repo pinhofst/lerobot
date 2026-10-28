@@ -158,7 +158,7 @@ exclusive: giving both exits with an error.
 | When it acts | Always, on every call | In principle only where ⟨a,h⟩ < τ (zero edit elsewhere) |
 | Strength | `--steer-k` (alpha = k × the sidecar's `alpha_unit_value`) or `--steer-alpha` (absolute) | `--steer-k` scales the edit (ControlLLM's form), continuously from 0. k = 0 is no edit; k = 1 is the trained module |
 | File | `vectors/<name>.npy` + `.json` sidecar | `barriers/<name>.pt` (module with its frozen description bank) + `.json` sidecar |
-| Files | Primary: `const_so101` (→ red) and `const_so101_green` (→ green), calibrated offline on SO-101 real frames, 1cam, pens; k = 1. Secondary: `const_r3_L06` (→ red) and `const_m1_L06_green` (→ green) (trained), `word_probe_L09`, `green_meandiff_L06` (hand-fitted); all MolmoAct2-LIBERO | All at k = 1. Steer to **red**: **calibrated (SO-101 real frames)** `barrier_so101.pt`; **uncalibrated (LIBERO sim only)** `barrier_r3_L06.pt`. Steer to **green**: **calibrated (SO-101 real frames)** `barrier_so101_green.pt`; **uncalibrated (LIBERO sim only)** `barrier_m1_L06_green.pt` |
+| Files | Primary: `const_so101` (→ red) and `const_so101_green` (→ green), calibrated offline on SO-101 real frames, 1cam, pens; k = 1. Safety: `const_never_red_v2`, `const_never_green` (k = 1.25; "Safety" below). Secondary: `const_r3_L06` (→ red) and `const_m1_L06_green` (→ green) (trained), `word_probe_L09`, `green_meandiff_L06` (hand-fitted); all MolmoAct2-LIBERO | All at k = 1. Steer to **red**: **calibrated (SO-101 real frames)** `barrier_so101.pt`; **uncalibrated (LIBERO sim only)** `barrier_r3_L06.pt`. Steer to **green**: **calibrated (SO-101 real frames)** `barrier_so101_green.pt`; **uncalibrated (LIBERO sim only)** `barrier_m1_L06_green.pt`. Safety: `barrier_never_red_v2.pt` (k = 1.25), `barrier_never_green.pt` (k = 1) |
 
 - The constant vector covers both the hand-fitted vectors and the trained constant vector. It is simple, predictable
   and always on.
@@ -280,6 +280,31 @@ Status (27 Oct):
 - In LIBERO sim, the trained barrier and the trained constant vector performed the same in every setting.
 - On SO-101 (offline, above), the calibrated barrier beats the calibrated constant.
 - So far the barrier never switches off in practice, in LIBERO and on SO-101 frames.
+
+### Safety: never touch red / never touch green (28 Oct; offline proxy, no real-robot runs yet)
+
+Trained in steervla `runs/steering_safety` (v1) and `runs/steering_safety_v2` (v2), same format and code path as the
+files above. The constraint is "never touch the forbidden pen". No prompt makes this policy hold still ("stop",
+"stay still", "do not touch the red pen" all still descend), so the target is a mixture:
+- forbidden pen alone (pre-contact frames): a hand-built hold chunk (the current state repeated);
+- both pens: the same frozen policy prompted to pick the other pen;
+- allowed pen alone: the unsteered policy.
+
+| file | k | trained on | offline evidence (one chunk ahead, recorded frames) |
+|---|---|---|---|
+| **`vectors/const_never_red_v2.npy`** (use this one) | 1.25 | all 9 red-only runs, v2 recipe | 3-fold run-level CV: 7 of 9 red-only runs hold (descent −2 to +3 mm vs 7–26 mm unsteered, max displacement 4–12 mm, gripper closing ≤ 6% of seeds); both pens → green on 18–20/20 frames, also under "pick up the red pen"; green alone → still picks green, slightly over the 1.5° limit under the "red pen" prompt (1.5–1.8°) |
+| `barriers/barrier_never_red_v2.pt` | 1.25 | same | same CV: 5 of 9 red-only runs hold; worse than the constant |
+| `vectors/const_never_green.npy` | 1.25 | v1 recipe, 2 green-only runs | **anecdotal**: one held-out green-only run, one pen position: holds on 90–93% of frames; both pens → red on 19–20/20; red alone moves 2.2–2.3° from unsteered (fails the 1.5° limit) |
+| `barriers/barrier_never_green.pt` | 1 | same | same run: holds on 90–97% of frames, max displacement 5–6 mm; both pens → red 19–20/20; red alone 1.4–1.8° |
+
+- GPU check through this code path for all four: k = 0 bitwise the unsteered chunk, k = 1 bitwise steervla's hook,
+  no mismatch warning, span found, n_fires == n_calls.
+- The barrier does not beat the constant here; it never switches off (zero-edit fraction 0), as before.
+- Limits: every one-pen recording has the pen straight ahead between the jaws, so "holds" means "holds in front of a
+  pen in that position". Whether the arm stays up over successive chunks is untested.
+- The `.npy` files need `--steer-k 1.25` on the command line (a vector has no default k). Never-red barrier: pass
+  `--steer-k 1.25` too (the sidecar default is the same).
+- Protocol: COMMANDS "Safety rows" (13–20).
 
 ```bash
 # barrier (primary): k = 0 baseline first, then 0.5, then 1 (the calibrated k), same scene and pose

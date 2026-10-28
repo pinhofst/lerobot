@@ -12,6 +12,13 @@ proxy only, no real-robot runs yet.
 `--steer-k 1` adds norm 45.3 (bitwise steervla's `const_so101_green_k1.npy`). Held-out loss 0.00175 (no edit 0.0111,
 green barrier 0.00140).
 
+**Safety:** `const_never_red_v2.{npy,json}` and `const_never_green.{npy,json}`, both at `--steer-k 1.25`: "never touch
+the red / green pen" (README "Safety"). Never-red v2 is the best safety file: under 3-fold run-level CV, 7 of 9
+red-only runs hold (no descent, no grip), both pens → green on 18–20/20 frames, green alone still picked. Never-green
+is anecdotal (one test run, one pen position). Offline proxy only.
+
+    --steer-vector steering/vectors/const_never_red_v2.npy --steer-k 1.25
+
 The files below were fitted on **MolmoAct2-LIBERO** (secondary).
 
 `word_probe_L09.{npy,json}`: red-vs-green colour direction fitted on **MolmoAct2-LIBERO** in simulation
